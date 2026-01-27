@@ -1,0 +1,91 @@
+@import "tailwindcss";
+@reference "../index.css";
+
+.navbar {
+    @apply fixed w-full z-50 transition-all duration-300;
+    background-color: white;
+    /* Solid white as requested */
+    @apply shadow-sm;
+}
+
+.container {
+    @apply container-custom;
+}
+
+.inner {
+    @apply flex justify-between items-center h-20;
+}
+
+.logoContainer {
+    @apply flex-shrink-0 flex items-center gap-2;
+}
+
+.logoText {
+    @apply text-2xl font-serif font-bold text-gray-900 flex items-center gap-1 no-underline cursor-pointer;
+    transition: opacity 0.2s;
+}
+
+.logoText:hover {
+    opacity: 0.8;
+}
+
+.logoIcon {
+    @apply w-25 h-25 object-contain;
+    color: var(--color-primary-500);
+}
+
+.desktopMenu {
+    @apply hidden md:flex items-center space-x-8;
+}
+
+.navLink {
+    @apply text-gray-700 hover:text-primary-600 font-medium transition-colors flex items-center gap-1;
+}
+
+.navIcon {
+    @apply w-4 h-4;
+}
+
+.authContainer {
+    @apply hidden md:flex items-center space-x-4;
+}
+
+.signInBtn {
+    @apply text-gray-700 font-medium hover:text-primary-600 transition-colors;
+}
+
+.joinBtn {
+    @apply bg-primary-500 hover:bg-primary-600 text-white px-6 py-2 rounded-full font-medium transition-colors shadow-lg shadow-primary-500/30;
+}
+
+.mobileMenuBtnContainer {
+    @apply md:hidden flex items-center;
+}
+
+.mobileMenuBtn {
+    @apply text-gray-700 hover:text-gray-900 focus:outline-none;
+}
+
+.mobileMenu {
+    @apply md:hidden bg-white/95 backdrop-blur-lg absolute w-full shadow-xl;
+}
+
+.mobileMenuContent {
+    @apply px-4 pt-2 pb-6 space-y-2;
+}
+
+.mobileNavLink {
+    @apply block px-3 py-2 text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50 rounded-md flex items-center gap-2;
+}
+
+.mobileAuthContainer {
+    @apply border-t border-gray-100 mt-4 pt-4 flex flex-col gap-3;
+}
+
+.mobileSignInBtn {
+    @apply w-full text-center py-2 text-gray-700 font-medium;
+}
+
+.mobileJoinBtn {
+    @apply w-full bg-primary-500 text-white py-2 rounded-full font-medium shadow-md;
+}

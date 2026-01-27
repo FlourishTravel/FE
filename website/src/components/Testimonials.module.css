@@ -1,0 +1,54 @@
+@import "tailwindcss";
+@reference "../index.css";
+
+.section {
+    @apply py-20 bg-cream;
+}
+
+.container {
+    @apply container-custom;
+}
+
+.header {
+    @apply text-center mb-16;
+}
+
+.title {
+    @apply text-3xl md:text-4xl font-bold text-gray-900;
+}
+
+.grid {
+    @apply grid grid-cols-1 md:grid-cols-3 gap-8;
+}
+
+.card {
+    @apply bg-white p-8 rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow;
+}
+
+.stars {
+    @apply flex gap-1 text-yellow-400 mb-6;
+}
+
+.starIcon {
+    @apply w-4 h-4 fill-current;
+}
+
+.reviewText {
+    @apply text-gray-600 mb-8 italic leading-relaxed;
+}
+
+.author {
+    @apply flex items-center gap-4;
+}
+
+.authorImage {
+    @apply w-12 h-12 rounded-full object-cover;
+}
+
+.authorName {
+    @apply font-bold text-gray-900;
+}
+
+.authorRole {
+    @apply text-xs text-gray-500 uppercase tracking-wide;
+}

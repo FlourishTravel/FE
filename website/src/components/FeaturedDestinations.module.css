@@ -1,0 +1,66 @@
+@import "tailwindcss";
+@reference "../index.css";
+
+.section {
+    @apply py-20 bg-cream;
+}
+
+.container {
+    @apply container-custom;
+}
+
+.header {
+    @apply flex justify-between items-end mb-12;
+}
+
+.title {
+    @apply text-3xl md:text-4xl font-bold mb-3 text-gray-900 leading-tight;
+}
+
+.subtitle {
+    @apply text-gray-500 text-lg;
+}
+
+.viewAllBtn {
+    @apply hidden md:flex text-primary-600 font-bold items-center gap-1 hover:gap-2 transition-all;
+}
+
+.grid {
+    @apply grid grid-cols-1 md:grid-cols-3 gap-8;
+}
+
+.card {
+    @apply relative h-[420px] rounded-3xl overflow-hidden cursor-pointer shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1;
+}
+
+.cardImage {
+    @apply w-full h-full object-cover transition-transform duration-700 group-hover:scale-110;
+}
+
+.cardOverlay {
+    @apply absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent;
+}
+
+.tag {
+    @apply absolute top-6 left-6 bg-primary-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider;
+}
+
+.cardContent {
+    @apply absolute bottom-0 left-0 right-0 p-8 text-white;
+}
+
+.cardTitle {
+    @apply text-2xl font-bold mb-2;
+}
+
+.cardDesc {
+    @apply text-gray-200 text-sm mb-4 line-clamp-2 opacity-90;
+}
+
+.cardLink {
+    @apply flex items-center text-sm font-bold text-white/90 hover:text-primary-400 transition-colors;
+}
+
+.mobileViewAllBtn {
+    @apply md:hidden w-full mt-8 text-primary-600 font-bold flex justify-center items-center gap-1;
+}

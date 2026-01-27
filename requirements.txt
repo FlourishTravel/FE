@@ -1,0 +1,9 @@
+# Required Python packages
+python-dotenv
+
+# Add other dependencies below as needed:
+# requests
+# pandas
+# google-api-python-client
+# google-auth-httplib2
+# google-auth-oauthlib

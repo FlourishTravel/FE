@@ -1,0 +1,95 @@
+@import "tailwindcss";
+@reference "../index.css";
+
+.footer {
+    @apply bg-gray-900 text-white py-20 relative overflow-hidden;
+}
+
+.bgGraphic {
+    @apply absolute top-0 right-0 w-full h-full opacity-10 pointer-events-none;
+}
+
+.graphicSvg {
+    @apply w-full h-full;
+    fill: var(--color-primary-500);
+}
+
+.container {
+    @apply container-custom relative z-10 text-center;
+}
+
+.logoContainer {
+    @apply mb-6 flex justify-center;
+}
+
+.logo {
+    @apply w-50 h-50 object-contain;
+}
+
+.title {
+    @apply text-3xl md:text-5xl font-bold mb-4 font-serif;
+}
+
+.description {
+    @apply text-gray-400 max-w-xl mx-auto mb-10 text-lg;
+}
+
+.subscribeContainer {
+    @apply max-w-md mx-auto relative mb-16;
+}
+
+.emailInput {
+    @apply w-full bg-white/10 border border-white/10 rounded-full py-4 pl-6 pr-32 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500/50 backdrop-blur-sm;
+}
+
+.subscribeBtn {
+    @apply absolute right-1 top-1 bottom-1 bg-primary-500 text-gray-900 font-bold px-6 rounded-full hover:bg-primary-400 transition-colors;
+}
+
+.footerGrid {
+    @apply grid grid-cols-1 md:grid-cols-3 gap-8 mb-16 max-w-6xl mx-auto;
+}
+
+.footerColumn {
+    @apply flex flex-col items-start text-left;
+}
+
+.footerTitle {
+    @apply text-white font-semibold mb-4 text-sm flex items-center justify-between;
+}
+
+.dropdownIcon {
+    @apply ml-2 text-xs opacity-70;
+}
+
+.footerList {
+    @apply list-none space-y-2;
+}
+
+.footerLink {
+    @apply text-gray-400 text-sm hover:text-white transition-colors;
+}
+
+.bottomBar {
+    @apply border-t border-white/10 pt-8 flex flex-col md:flex-row justify-center items-center text-sm text-gray-500;
+}
+
+.copyright {
+    @apply mb-4 md:mb-0;
+}
+
+.links {
+    @apply flex gap-6;
+}
+
+.link {
+    @apply hover:text-white transition-colors;
+}
+
+.dropdownColumn {
+    @apply flex flex-col items-start justify-center gap-4;
+}
+
+.dropdownItem {
+    @apply w-full text-left;
+}
