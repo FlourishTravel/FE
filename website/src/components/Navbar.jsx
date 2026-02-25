@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Menu, X, Plane, Home, GraduationCap, Compass } from 'lucide-react';
 import styles from './Navbar.module.css';
 import logo from '../assets/LogoFlourish\'.jpg';
@@ -20,7 +21,7 @@ const Navbar = () => {
                     {/* Logo */}
                     <div className={styles.logoContainer}>
                         <a href="/" className={styles.logoText}>
-                            <img src={logo} alt="Flourish Logo" className={styles.logoIcon} /> Flourish Travel
+                            <img src={logo} alt="Flourish Logo" className={styles.logoIcon} /> Flourish Tourism
                         </a>
                     </div>
 
@@ -40,12 +41,12 @@ const Navbar = () => {
 
                     {/* Auth Buttons */}
                     <div className={styles.authContainer}>
-                        <button className={styles.signInBtn}>
+                        <Link to="/login" className={styles.signInBtn}>
                             Sign In
-                        </button>
-                        <button className={styles.joinBtn}>
-                            Join
-                        </button>
+                        </Link>
+                        <Link to="/login" className={styles.joinBtn}>
+                            Sign up
+                        </Link>
                     </div>
 
                     {/* Mobile Menu Button */}
@@ -76,12 +77,12 @@ const Navbar = () => {
                             </a>
                         ))}
                         <div className={styles.mobileAuthContainer}>
-                            <button className={styles.mobileSignInBtn}>
+                            <Link to="/login" className={styles.mobileSignInBtn} onClick={() => setIsOpen(false)}>
                                 Sign In
-                            </button>
-                            <button className={styles.mobileJoinBtn}>
-                                Join
-                            </button>
+                            </Link>
+                            <Link to="/signup" className={styles.mobileJoinBtn} onClick={() => setIsOpen(false)}>
+                                Sign up
+                            </Link>
                         </div>
                     </div>
                 </div>

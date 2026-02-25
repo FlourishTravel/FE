@@ -1,8 +1,13 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import styles from './Footer.module.css';
 import logo from '../assets/flourish_touris.png';
 
 const Footer = () => {
+    const scrollToTop = () => {
+        window.scrollTo(0, 0);
+    };
+
     return (
         <footer className={styles.footer}>
             {/* Background Graphic */}
@@ -40,19 +45,19 @@ const Footer = () => {
                 {/* Footer Links Grid */}
                 <div className={styles.footerGrid}>
                     <div className={styles.footerColumn}>
-                        <h3 className={styles.footerTitle}>Trợ giúp</h3>
                         <ul className={styles.footerList}>
-                            <li><a href="#" className={styles.footerLink}>Cài đặt về quyền riêng tư</a></li>
-                            <li><a href="#" className={styles.footerLink}>Đăng nhập</a></li>
+                            <li><Link to="/help" onClick={scrollToTop} className={styles.footerLink}>Trợ giúp</Link></li>
+                            <li><Link to="/privacy-settings" onClick={scrollToTop} className={styles.footerLink}>Cài đặt về quyền riêng tư</Link></li>
+                            <li><Link to="/login" onClick={scrollToTop} className={styles.footerLink}>Đăng nhập</Link></li>
                         </ul>
                     </div>
 
                     <div className={styles.footerColumn}>
-                        <h3 className={styles.footerTitle}>Chính sách cookie</h3>
                         <ul className={styles.footerList}>
-                            <li><a href="#" className={styles.footerLink}>Chính sách về quyền riêng tư</a></li>
-                            <li><a href="#" className={styles.footerLink}>Điều kiện dịch vụ</a></li>
-                            <li><a href="#" className={styles.footerLink}>Các chi tiết về Công ty</a></li>
+                            <li><Link to="/cookie-policy" onClick={scrollToTop} className={styles.footerLink}>Chính sách cookie</Link></li>
+                            <li><Link to="/privacy-policy" onClick={scrollToTop} className={styles.footerLink}>Chính sách về quyền riêng tư</Link></li>
+                            <li><Link to="/terms-of-service" onClick={scrollToTop} className={styles.footerLink}>Điều kiện dịch vụ</Link></li>
+                            <li><Link to="/company-details" onClick={scrollToTop} className={styles.footerLink}>Các chi tiết về Công ty</Link></li>
                         </ul>
                     </div>
 
