@@ -17,7 +17,7 @@ const TOUR_DATA = {
         rating: 4.8,
         reviewCount: 345,
         tags: ['Tour Bán Chạy', 'Năng Động', 'Ẩm Thực'],
-        price: 299,
+        price: 8999000,
         discountPercent: 10,
         images: {
             main: bangkokImgNew,
@@ -344,7 +344,7 @@ const TourDetail = () => {
                                 <div>
                                     <span className={styles.fromLabel}>Từ</span>
                                     <div className={styles.priceMain}>
-                                        <span className={styles.priceAmount}>${tour.price.toLocaleString()}</span>
+                                        <span className={styles.priceAmount}>{tour.price.toLocaleString('de-DE')} VND</span>
                                         <span className={styles.pricePer}>/ người</span>
                                     </div>
                                 </div>
@@ -389,7 +389,7 @@ const TourDetail = () => {
 
                             <div className={styles.totalRow}>
                                 <span className={styles.totalLabel}>Tổng giá</span>
-                                <span className={styles.totalAmount}>${totalPrice.toLocaleString()}</span>
+                                <span className={styles.totalAmount}>{totalPrice.toLocaleString('de-DE')} VND</span>
                             </div>
 
                             <button className={styles.bookNowBtn}>
