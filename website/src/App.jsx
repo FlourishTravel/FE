@@ -11,10 +11,13 @@ import Footer from './components/Footer';
 import Help from './pages/Help';
 import PrivacySettings from './pages/PrivacySettings';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import CookiePolicy from './pages/CookiePolicy';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import CompanyDetails from './pages/CompanyDetails';
+import TourListing from './pages/TourListing';
+import TourDetail from './pages/TourDetail';
 
 // Home page component (inline)
 const HomePage = () => (
@@ -35,6 +38,9 @@ function App() {
       <Route path="/help" element={<><Navbar /><Help /><Footer /></>} />
       <Route path="/privacy-settings" element={<><Navbar /><PrivacySettings /><Footer /></>} />
       <Route path="/login" element={<><Navbar /><Login /></>} />
+      <Route path="/register" element={<><Navbar /><Register /></>} />
+      <Route path="/tours" element={<><Navbar /><TourListing /><Footer /></>} />
+      <Route path="/tours/:id" element={<><Navbar /><TourDetail /><Footer /></>} />
       <Route path="/cookie-policy" element={<><Navbar /><CookiePolicy /><Footer /></>} />
       <Route path="/privacy-policy" element={<><Navbar /><PrivacyPolicy /><Footer /></>} />
       <Route path="/terms-of-service" element={<><Navbar /><TermsOfService /><Footer /></>} />

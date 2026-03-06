@@ -11,7 +11,7 @@ const Navbar = () => {
         { name: 'Chỗ đã đặt', icon: Home, href: '#chỗ đẫ đặt' },
         { name: 'Khám Phá', icon: Plane, href: '#khám phá' },
         { name: 'Ưu đãi', icon: GraduationCap, href: '#ưu đãi' },
-        { name: 'Tour', icon: Compass, href: '#tour' },
+        { name: 'Tour', icon: Compass, href: '/tours' },
     ];
 
     return (
@@ -44,7 +44,7 @@ const Navbar = () => {
                         <Link to="/login" className={styles.signInBtn}>
                             Sign In
                         </Link>
-                        <Link to="/login" className={styles.joinBtn}>
+                        <Link to="/register" className={styles.joinBtn}>
                             Sign up
                         </Link>
                     </div>

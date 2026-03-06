@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Calendar, Map } from 'lucide-react';
 import styles from './FeaturedDestinations.module.css';
 
@@ -49,39 +50,41 @@ const FeaturedDestinations = () => {
 
                 <div className={styles.grid}>
                     {destinations.map((dest) => (
-                        <div key={dest.id} className={styles.card}>
-                            <img
-                                src={dest.image}
-                                alt={dest.title}
-                                className={styles.cardImage}
-                            />
+                        <Link key={dest.id} to={`/tours/${dest.id}`} className={styles.cardLink}>
+                            <div className={styles.card}>
+                                <img
+                                    src={dest.image}
+                                    alt={dest.title}
+                                    className={styles.cardImage}
+                                />
 
-                            <div className={styles.cardContent}>
-                                <h3 className={styles.cardTitle}>{dest.title}</h3>
+                                <div className={styles.cardContent}>
+                                    <h3 className={styles.cardTitle}>{dest.title}</h3>
 
-                                {dest.country && (
-                                    <p className={styles.cardSubInfo}>{dest.country}</p>
-                                )}
-
-                                {dest.description && (
-                                    <p className={styles.cardDesc}>{dest.description}</p>
-                                )}
-
-                                <div className="mt-auto pt-2">
-                                    <div className={styles.iconRow}>
-                                        <Calendar className={styles.icon} />
-                                        <span>: {dest.duration}</span>
-                                    </div>
-
-                                    {dest.location && (
-                                        <div className={styles.iconRow}>
-                                            <Map className={styles.icon} />
-                                            <span>: {dest.location}</span>
-                                        </div>
+                                    {dest.country && (
+                                        <p className={styles.cardSubInfo}>{dest.country}</p>
                                     )}
+
+                                    {dest.description && (
+                                        <p className={styles.cardDesc}>{dest.description}</p>
+                                    )}
+
+                                    <div className="mt-auto pt-2">
+                                        <div className={styles.iconRow}>
+                                            <Calendar className={styles.icon} />
+                                            <span>: {dest.duration}</span>
+                                        </div>
+
+                                        {dest.location && (
+                                            <div className={styles.iconRow}>
+                                                <Map className={styles.icon} />
+                                                <span>: {dest.location}</span>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </Link>
                     ))}
                 </div>
             </div>

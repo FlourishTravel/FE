@@ -21,6 +21,18 @@
     @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6;
 }
 
+.cardLink {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease;
+}
+
+.cardLink:hover {
+    transform: translateY(-4px);
+}
+
 .card {
     @apply flex flex-col bg-white overflow-hidden;
 }
