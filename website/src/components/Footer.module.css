@@ -47,7 +47,7 @@
 }
 
 .footerGrid {
-    @apply grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 max-w-6xl mx-auto;
+    @apply grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 max-w-6xl mx-auto;
 }
 
 .footerColumn {
@@ -71,7 +71,7 @@
 }
 
 .bottomBar {
-    @apply border-t border-white/10 pt-4 flex flex-col md:flex-row justify-center items-center text-sm text-gray-500;
+    @apply border-t border-white/10 pt-4 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500;
 }
 
 .copyright {

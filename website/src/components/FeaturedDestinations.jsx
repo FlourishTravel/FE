@@ -1,17 +1,18 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, Map } from 'lucide-react';
+import bangkokImgNew from '../assets/di-chuyen-di-lai-thai-lan-2.webp';
 import styles from './FeaturedDestinations.module.css';
 
 const FeaturedDestinations = () => {
     const destinations = [
         {
             id: 1,
-            title: 'HANOI - SON LA - DIEN BIEN - MAI CHAU',
-            country: 'Country: VIET NAM',
+            title: 'BANGKOK - PATAYA',
+            country: 'Country: THAILAND',
             duration: '5 DAYS - 4 NIGHTS',
             location: '',
-            image: 'https://images.unsplash.com/photo-1583417319070-4a69db38a482?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+            image: bangkokImgNew,
         },
         {
             id: 2,

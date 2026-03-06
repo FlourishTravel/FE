@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Mail, Lock, Eye, EyeOff, ArrowRight, Ticket } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, Ticket, ArrowLeft } from 'lucide-react';
 import styles from './Login.module.css';
 import logo from '../assets/LogoFlourish\'.jpg';
 
@@ -8,6 +8,7 @@ const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const navigate = useNavigate();
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -24,6 +25,12 @@ const Login = () => {
             {/* Background decorations */}
             <div className={styles.bgDecorLeft}></div>
             <div className={styles.bgDecorRight}></div>
+
+            {/* Back Button */}
+            <button onClick={() => navigate(-1)} className={styles.backButton}>
+                <ArrowLeft className={styles.backIcon} />
+                Quay lại
+            </button>
 
             {/* Login Card */}
             <div className={styles.card}>
@@ -101,7 +108,7 @@ const Login = () => {
 
                 {/* Sign Up Link */}
                 <p className={styles.signUpText}>
-                    Don't have an account? <Link to="/signup" className={styles.signUpLink}>Sign up</Link>
+                    Don't have an account? <Link to="/register" className={styles.signUpLink}>Sign up</Link>
                 </p>
             </div>
 

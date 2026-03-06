@@ -34,7 +34,7 @@
 }
 
 .searchBox {
-    @apply bg-white p-6 md:p-8 shadow-2xl max-w-[1000px] mx-auto animate-fade-in-up w-full rounded-[2.5rem];
+    @apply bg-white/10 backdrop-blur-md border border-white/20 p-6 md:p-8 shadow-xl max-w-[1000px] mx-auto animate-fade-in-up w-full rounded-[2.5rem];
 }
 
 .tabs {

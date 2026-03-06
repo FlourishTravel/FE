@@ -40,6 +40,40 @@
     filter: blur(80px);
 }
 
+/* Back Button */
+.backButton {
+    position: absolute;
+    top: 100px;
+    left: 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background-color: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 20px;
+    color: #4b5563;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    z-index: 20;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.backButton:hover {
+    background-color: #f9fafb;
+    color: #111827;
+    border-color: #d1d5db;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.backIcon {
+    width: 16px;
+    height: 16px;
+}
+
 /* Card */
 .card {
     @apply bg-white rounded-2xl shadow-xl;
@@ -147,6 +181,19 @@
 
 .input::placeholder {
     @apply text-gray-400;
+}
+
+/* Error states */
+.inputError {
+    @apply border-red-500 bg-red-50;
+}
+
+.inputError:focus {
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.errorText {
+    @apply text-red-500 text-xs mt-1 ml-1;
 }
 
 /* Password row */

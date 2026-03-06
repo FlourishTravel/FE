@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Mail, Lock, Eye, EyeOff, User, Phone, CheckCircle, Ticket } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Mail, Lock, Eye, EyeOff, User, Phone, CheckCircle, Ticket, ArrowLeft } from 'lucide-react';
 import styles from './Register.module.css';
 import logo from '../assets/LogoFlourish\'.jpg';
 
@@ -15,9 +15,32 @@ const Register = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [agreeTerms, setAgreeTerms] = useState(false);
+    const [errors, setErrors] = useState({});
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        let newErrors = { ...errors };
+
+        if (name === 'fullName') {
+            const invalidRegex = /[^a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềềểỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỮỰỲỴÝỶỸửữựỳỵỷỹ\s]/;
+            if (invalidRegex.test(value)) {
+                newErrors.fullName = 'Nhập sai! Không được nhập số hay ký tự đặc biệt.';
+            } else {
+                delete newErrors.fullName;
+            }
+        }
+
+        if (name === 'phone') {
+            if (/[^0-9]/.test(value)) {
+                newErrors.phone = 'Nhập sai! Chỉ được phép nhập số.';
+            } else {
+                delete newErrors.phone;
+            }
+        }
+
+        setErrors(newErrors);
+        setFormData({ ...formData, [name]: value });
     };
 
     const handleSubmit = (e) => {
@@ -34,6 +57,12 @@ const Register = () => {
             {/* Background decorations */}
             <div className={styles.bgDecorLeft}></div>
             <div className={styles.bgDecorRight}></div>
+
+            {/* Back Button */}
+            <button onClick={() => navigate(-1)} className={styles.backButton}>
+                <ArrowLeft className={styles.backIcon} />
+                Quay lại
+            </button>
 
             {/* Register Card */}
             <div className={styles.card}>
@@ -62,10 +91,11 @@ const Register = () => {
                                 placeholder="Nguyễn Văn A"
                                 value={formData.fullName}
                                 onChange={handleChange}
-                                className={styles.input}
+                                className={`${styles.input} ${errors.fullName ? styles.inputError : ''}`}
                                 required
                             />
                         </div>
+                        {errors.fullName && <span className={styles.errorText}>{errors.fullName}</span>}
                     </div>
 
                     {/* Email */}
@@ -96,9 +126,10 @@ const Register = () => {
                                 placeholder="0901 234 567"
                                 value={formData.phone}
                                 onChange={handleChange}
-                                className={styles.input}
+                                className={`${styles.input} ${errors.phone ? styles.inputError : ''}`}
                             />
                         </div>
+                        {errors.phone && <span className={styles.errorText}>{errors.phone}</span>}
                     </div>
 
                     {/* Password Row */}

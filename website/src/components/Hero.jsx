@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { MapPin, Calendar, Hash, Plane, Home, GraduationCap } from 'lucide-react';
+import travelImg from '../assets/travel.avif';
 import styles from './Hero.module.css';
 
 const Hero = () => {
@@ -10,7 +11,7 @@ const Hero = () => {
             {/* Background Image with Overlay */}
             <div className={styles.bgContainer}>
                 <img
-                    src="https://images.unsplash.com/photo-1523580494863-6f3031224c94?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
+                    src={travelImg}
                     alt="Students traveling"
                     className={styles.bgImage}
                 />
@@ -30,25 +31,7 @@ const Hero = () => {
                 {/* Search Box */}
                 <div className={styles.searchBox} style={{ animationDelay: '0.2s' }}>
                     {/* Tabs */}
-                    <div className={styles.tabs}>
-                        {[
-                            { id: 'flights', label: 'Flights', icon: Plane },
-                            { id: 'stays', label: 'Stays', icon: Home },
-                            { id: 'programs', label: 'Programs', icon: GraduationCap },
-                        ].map((tab) => (
-                            <button
-                                key={tab.id}
-                                onClick={() => setActiveTab(tab.id)}
-                                className={`${styles.tabButton} ${activeTab === tab.id ? styles.tabActive : styles.tabInactive}`}
-                            >
-                                <tab.icon className={styles.tabIcon} />
-                                {tab.label}
-                                {activeTab === tab.id && (
-                                    <div className={styles.activeIndicator}></div>
-                                )}
-                            </button>
-                        ))}
-                    </div>
+
 
                     <div className={styles.searchInputsRow}>
                         <div className={styles.inputGroup}>

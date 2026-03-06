@@ -4,7 +4,7 @@ import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import FeaturedDestinations from './components/FeaturedDestinations';
 import ValueProp from './components/ValueProp';
-import Testimonials from './components/Testimonials';
+import Mission from './components/Mission';
 import Footer from './components/Footer';
 
 // Import pages
@@ -26,7 +26,7 @@ const HomePage = () => (
     <Hero />
     <FeaturedDestinations />
     <ValueProp />
-    <Testimonials />
+    <Mission />
     <Footer />
   </div>
 );
