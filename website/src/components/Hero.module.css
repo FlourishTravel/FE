@@ -34,19 +34,19 @@
 }
 
 .searchBox {
-    @apply bg-white rounded-3xl p-4 md:p-6 shadow-2xl max-w-5xl mx-auto animate-fade-in-up;
+    @apply bg-white p-6 md:p-8 shadow-2xl max-w-[1000px] mx-auto animate-fade-in-up w-full rounded-[2.5rem];
 }
 
 .tabs {
-    @apply flex gap-6 mb-6 border-b border-gray-100 pb-4 px-2;
+    @apply flex gap-6 md:gap-8 mb-6 pb-0 px-2;
 }
 
 .tabButton {
-    @apply flex items-center gap-2 pb-2 relative font-medium transition-colors;
+    @apply flex items-center gap-2 pb-3 relative font-medium transition-colors text-[15px];
 }
 
 .tabActive {
-    @apply text-primary-600;
+    @apply text-green-700 font-bold;
 }
 
 .tabInactive {
@@ -54,49 +54,41 @@
 }
 
 .tabIcon {
-    @apply w-5 h-5;
+    @apply w-[18px] h-[18px];
 }
 
 .activeIndicator {
-    @apply absolute bottom-[-17px] left-0 right-0 h-1 bg-primary-500 rounded-t-full;
+    @apply absolute bottom-0 left-0 right-0 h-[3px] bg-green-600 rounded-t-full;
 }
 
-.searchInputsGrid {
-    @apply grid grid-cols-1 md:grid-cols-4 gap-4 items-end;
+.searchInputsRow {
+    @apply flex flex-col md:flex-row gap-4 w-full items-end;
 }
 
 .inputGroup {
-    @apply md:col-span-1;
+    @apply flex-1 w-full;
 }
 
 .inputLabel {
-    @apply block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1;
+    @apply block text-sm font-semibold text-gray-800 mb-2 pl-2;
 }
 
 .inputWrapper {
-    @apply relative bg-gray-50 rounded-xl p-3 hover:bg-gray-100 transition-colors;
+    @apply flex items-center bg-transparent border border-gray-200 rounded-full h-[52px] px-5 w-full transition-colors hover:border-green-600 focus-within:border-green-600 focus-within:ring-1 focus-within:ring-green-600;
 }
 
 .inputIcon {
-    @apply absolute left-3 top-3.5 text-gray-400 w-5 h-5;
+    @apply text-gray-400 w-5 h-5 mr-3 shrink-0;
 }
 
 .textInput {
-    @apply w-full bg-transparent pl-8 outline-none text-gray-900 font-medium placeholder-gray-400;
+    @apply flex-1 bg-transparent border-none outline-none text-gray-700 text-[15px] placeholder-gray-400 w-full;
 }
 
-.selectInput {
-    @apply w-full bg-transparent pl-8 outline-none text-gray-900 font-medium appearance-none cursor-pointer;
+.buttonGroup {
+    @apply md:flex-none w-full md:w-auto mt-4 md:mt-0;
 }
 
 .searchButton {
-    @apply w-full bg-primary-500 hover:bg-primary-600 text-white h-[52px] rounded-xl font-bold text-lg flex items-center justify-center gap-2 shadow-lg shadow-primary-500/30 transition-all hover:scale-[1.02];
-}
-
-.popularTags {
-    @apply mt-8 flex justify-center gap-6 text-white/80 text-sm font-medium animate-fade-in;
-}
-
-.tag {
-    @apply hover:text-white cursor-pointer transition-colors;
+    @apply bg-[#2b7a2d] hover:bg-[#205e22] text-white h-[52px] w-full md:w-auto md:px-10 font-bold text-[15px] tracking-wide rounded-full flex items-center justify-center transition-colors shadow-none cursor-pointer;
 }

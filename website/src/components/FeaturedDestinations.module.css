@@ -2,7 +2,7 @@
 @reference "../index.css";
 
 .section {
-    @apply py-20 bg-cream;
+    @apply py-20 bg-white relative overflow-hidden;
 }
 
 .container {
@@ -10,57 +10,49 @@
 }
 
 .header {
-    @apply flex justify-between items-end mb-12;
+    @apply text-center mb-10;
 }
 
 .title {
-    @apply text-3xl md:text-4xl font-bold mb-3 text-gray-900 leading-tight;
-}
-
-.subtitle {
-    @apply text-gray-500 text-lg;
-}
-
-.viewAllBtn {
-    @apply hidden md:flex text-primary-600 font-bold items-center gap-1 hover:gap-2 transition-all;
+    @apply text-4xl uppercase font-bold text-gray-900 tracking-wide;
 }
 
 .grid {
-    @apply grid grid-cols-1 md:grid-cols-3 gap-8;
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6;
 }
 
 .card {
-    @apply relative h-[420px] rounded-3xl overflow-hidden cursor-pointer shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1;
+    @apply flex flex-col bg-white overflow-hidden;
 }
 
 .cardImage {
-    @apply w-full h-full object-cover transition-transform duration-700 group-hover:scale-110;
-}
-
-.cardOverlay {
-    @apply absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent;
-}
-
-.tag {
-    @apply absolute top-6 left-6 bg-primary-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider;
+    @apply w-full h-[320px] object-cover rounded-3xl mb-4 transition-transform duration-500 hover:scale-[1.03];
 }
 
 .cardContent {
-    @apply absolute bottom-0 left-0 right-0 p-8 text-white;
+    @apply flex flex-col flex-1 px-1;
 }
 
 .cardTitle {
-    @apply text-2xl font-bold mb-2;
+    @apply text-orange-500 text-sm font-bold uppercase mb-2 leading-snug;
+}
+
+.cardSubInfo {
+    @apply text-gray-800 text-sm mb-2;
 }
 
 .cardDesc {
-    @apply text-gray-200 text-sm mb-4 line-clamp-2 opacity-90;
+    @apply text-gray-500 text-xs mb-4 line-clamp-3 leading-relaxed;
 }
 
-.cardLink {
-    @apply flex items-center text-sm font-bold text-white/90 hover:text-primary-400 transition-colors;
+.iconRow {
+    @apply flex items-center gap-2 text-gray-900 text-xs font-semibold mb-2 uppercase;
 }
 
-.mobileViewAllBtn {
-    @apply md:hidden w-full mt-8 text-primary-600 font-bold flex justify-center items-center gap-1;
+.icon {
+    @apply w-4 h-4 text-gray-900;
+}
+
+.bottomBanner {
+    @apply absolute bottom-0 left-0 bg-[#fbb040] py-3 px-8 text-black font-bold uppercase text-lg inline-flex items-center;
 }

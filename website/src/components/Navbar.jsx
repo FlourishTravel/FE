@@ -8,10 +8,10 @@ const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
 
     const navLinks = [
-        { name: 'Flights', icon: Plane, href: '#flights' },
-        { name: 'Stays', icon: Home, href: '#stays' },
-        { name: 'Study', icon: GraduationCap, href: '#study' },
-        { name: 'Experiences', icon: Compass, href: '#experiences' },
+        { name: 'Chỗ đã đặt', icon: Home, href: '#chỗ đẫ đặt' },
+        { name: 'Khám Phá', icon: Plane, href: '#khám phá' },
+        { name: 'Ưu đãi', icon: GraduationCap, href: '#ưu đãi' },
+        { name: 'Tour', icon: Compass, href: '#tour' },
     ];
 
     return (

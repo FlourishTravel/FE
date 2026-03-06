@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Search, MapPin, Calendar, Users, Plane, Home, GraduationCap } from 'lucide-react';
+import { MapPin, Calendar, Hash, Plane, Home, GraduationCap } from 'lucide-react';
 import styles from './Hero.module.css';
 
 const Hero = () => {
-    const [activeTab, setActiveTab] = useState('study');
+    const [activeTab, setActiveTab] = useState('flights');
 
     return (
         <div className={styles.heroSection}>
@@ -20,10 +20,10 @@ const Hero = () => {
             <div className={styles.contentContainer}>
                 <div className={styles.heroText}>
                     <h1 className={styles.title}>
-                        Your Journey to Global Education Starts Here
+                        Flourish Tourism
                     </h1>
                     <p className={styles.subtitle}>
-                        Discover flights, stays, and community experiences designed for students moving abroad.
+                        "Slogan"
                     </p>
                 </div>
 
@@ -34,7 +34,7 @@ const Hero = () => {
                         {[
                             { id: 'flights', label: 'Flights', icon: Plane },
                             { id: 'stays', label: 'Stays', icon: Home },
-                            { id: 'study', label: 'Programs', icon: GraduationCap },
+                            { id: 'programs', label: 'Programs', icon: GraduationCap },
                         ].map((tab) => (
                             <button
                                 key={tab.id}
@@ -50,60 +50,64 @@ const Hero = () => {
                         ))}
                     </div>
 
-                    {/* Search Inputs */}
-                    <div className={styles.searchInputsGrid}>
+                    <div className={styles.searchInputsRow}>
                         <div className={styles.inputGroup}>
-                            <label className={styles.inputLabel}>Where to?</label>
+                            <label className={styles.inputLabel}>Điểm khởi hành</label>
                             <div className={styles.inputWrapper}>
                                 <MapPin className={styles.inputIcon} />
                                 <input
                                     type="text"
-                                    placeholder="City, School, or Country"
+                                    placeholder="Điểm khởi hành"
                                     className={styles.textInput}
                                 />
                             </div>
                         </div>
 
                         <div className={styles.inputGroup}>
-                            <label className={styles.inputLabel}>When?</label>
+                            <label className={styles.inputLabel}>Điểm đến</label>
+                            <div className={styles.inputWrapper}>
+                                <MapPin className={styles.inputIcon} />
+                                <input
+                                    type="text"
+                                    placeholder="Điểm đến"
+                                    className={styles.textInput}
+                                />
+                            </div>
+                        </div>
+
+                        <div className={styles.inputGroup}>
+                            <label className={styles.inputLabel}>Ngày khởi hành</label>
                             <div className={styles.inputWrapper}>
                                 <Calendar className={styles.inputIcon} />
                                 <input
                                     type="text"
-                                    placeholder="Select dates"
+                                    placeholder="Ngày khởi hành"
                                     className={styles.textInput}
                                 />
                             </div>
                         </div>
 
                         <div className={styles.inputGroup}>
-                            <label className={styles.inputLabel}>Travelers</label>
+                            <label className={styles.inputLabel}>Số ngày của tour</label>
                             <div className={styles.inputWrapper}>
-                                <Users className={styles.inputIcon} />
-                                <select className={styles.selectInput}>
-                                    <option>1 Student</option>
-                                    <option>2 Students</option>
-                                    <option>Group</option>
-                                </select>
+                                <Hash className={styles.inputIcon} />
+                                <input
+                                    type="text"
+                                    placeholder="#"
+                                    className={styles.textInput}
+                                />
                             </div>
                         </div>
 
-                        <div className={styles.inputGroup}>
+                        <div className={styles.buttonGroup}>
                             <button className={styles.searchButton}>
-                                <Search className="w-5 h-5" />
-                                Search
+                                TÌM TOUR
                             </button>
                         </div>
                     </div>
                 </div>
 
-                {/* Popular Tags */}
-                <div className={styles.popularTags} style={{ animationDelay: '0.4s' }}>
-                    <span className={styles.tag}>Harvard University</span>
-                    <span className={styles.tag}>University of Melbourne</span>
-                    <span className={styles.tag}>LSE London</span>
-                    <span className={styles.tag}>Allianz Travel</span>
-                </div>
+
             </div>
         </div>
     );
