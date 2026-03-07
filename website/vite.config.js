@@ -4,7 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/FlourishTravel/', // Đổi nếu tên repo GitHub khác
+  base: '/FE/', // Khớp với URL: flourishtravel.github.io/FE/
   plugins: [
     react(),
     tailwindcss(),
