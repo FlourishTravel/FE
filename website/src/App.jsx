@@ -18,6 +18,13 @@ import TermsOfService from './pages/TermsOfService';
 import CompanyDetails from './pages/CompanyDetails';
 import TourListing from './pages/TourListing';
 import TourDetail from './pages/TourDetail';
+import MyJourney from './pages/MyJourney';
+import Destinations from './pages/Destinations';
+import Guide from './pages/Guide';
+import About from './pages/About';
+import Careers from './pages/Careers';
+import News from './pages/News';
+import Stories from './pages/Stories';
 
 // Home page component (inline)
 const HomePage = () => (
@@ -39,12 +46,19 @@ function App() {
       <Route path="/privacy-settings" element={<><Navbar /><PrivacySettings /><Footer /></>} />
       <Route path="/login" element={<><Navbar /><Login /></>} />
       <Route path="/register" element={<><Navbar /><Register /></>} />
+      <Route path="/my-journey" element={<><Navbar /><MyJourney /><Footer /></>} />
+      <Route path="/destinations" element={<><Navbar /><Destinations /><Footer /></>} />
+      <Route path="/guide" element={<><Navbar /><Guide /><Footer /></>} />
       <Route path="/tours" element={<><Navbar /><TourListing /><Footer /></>} />
       <Route path="/tours/:id" element={<><Navbar /><TourDetail /><Footer /></>} />
       <Route path="/cookie-policy" element={<><Navbar /><CookiePolicy /><Footer /></>} />
       <Route path="/privacy-policy" element={<><Navbar /><PrivacyPolicy /><Footer /></>} />
       <Route path="/terms-of-service" element={<><Navbar /><TermsOfService /><Footer /></>} />
       <Route path="/company-details" element={<><Navbar /><CompanyDetails /><Footer /></>} />
+      <Route path="/about" element={<><Navbar /><About /><Footer /></>} />
+      <Route path="/careers" element={<><Navbar /><Careers /><Footer /></>} />
+      <Route path="/news" element={<><Navbar /><News /><Footer /></>} />
+      <Route path="/stories" element={<><Navbar /><Stories /><Footer /></>} />
     </Routes>
   );
 }
