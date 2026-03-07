@@ -1,18 +1,27 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Menu, X, Plane, Home, GraduationCap, Compass } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { Menu, X, Plane, MapPin, BookOpen, Compass, Search, Phone } from 'lucide-react';
 import styles from './Navbar.module.css';
 import logo from '../assets/LogoFlourish\'.jpg';
 
+const HOTLINE = '1900 1234'; // Thay bằng số hotline thật
+
 const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
+    const location = useLocation();
+    const pathname = location.pathname;
 
     const navLinks = [
-        { name: 'Chỗ đã đặt', icon: Home, href: '#chỗ đẫ đặt' },
-        { name: 'Khám Phá', icon: Plane, href: '#khám phá' },
-        { name: 'Ưu đãi', icon: GraduationCap, href: '#ưu đãi' },
-        { name: 'Tour', icon: Compass, href: '/tours' },
+        { name: 'Chuyến đi của tôi', icon: MapPin, href: '/my-journey' },
+        { name: 'Điểm đến', icon: Plane, href: '/destinations' },
+        { name: 'Cẩm nang', icon: BookOpen, href: '/guide' },
+        { name: 'Tour trải nghiệm', icon: Compass, href: '/tours' },
     ];
+
+    const isActive = (href) => {
+        if (href === '/tours') return pathname === '/tours' || pathname.startsWith('/tours/');
+        return pathname === href;
+    };
 
     return (
         <nav className={styles.navbar}>
@@ -28,24 +37,31 @@ const Navbar = () => {
                     {/* Desktop Menu */}
                     <div className={styles.desktopMenu}>
                         {navLinks.map((link) => (
-                            <a
+                            <Link
                                 key={link.name}
-                                href={link.href}
-                                className={styles.navLink}
+                                to={link.href}
+                                className={isActive(link.href) ? `${styles.navLink} ${styles.navLinkActive}` : styles.navLink}
                             >
                                 <link.icon className={styles.navIcon} />
                                 {link.name}
-                            </a>
+                            </Link>
                         ))}
                     </div>
 
-                    {/* Auth Buttons */}
+                    {/* Search, Hotline & Auth */}
                     <div className={styles.authContainer}>
+                        <Link to="/tours" className={styles.searchIcon} title="Tìm tour">
+                            <Search className={styles.navIcon} />
+                        </Link>
+                        <a href={`tel:${HOTLINE.replace(/\s/g, '')}`} className={styles.hotline} title="Hotline">
+                            <Phone className={styles.navIcon} />
+                            <span className={styles.hotlineText}>{HOTLINE}</span>
+                        </a>
                         <Link to="/login" className={styles.signInBtn}>
-                            Sign In
+                            Đăng nhập
                         </Link>
                         <Link to="/register" className={styles.joinBtn}>
-                            Sign up
+                            Đăng ký ngay
                         </Link>
                     </div>
 
@@ -66,22 +82,26 @@ const Navbar = () => {
                 <div className={styles.mobileMenu}>
                     <div className={styles.mobileMenuContent}>
                         {navLinks.map((link) => (
-                            <a
+                            <Link
                                 key={link.name}
-                                href={link.href}
-                                className={styles.mobileNavLink}
+                                to={link.href}
+                                className={isActive(link.href) ? `${styles.mobileNavLink} ${styles.mobileNavLinkActive}` : styles.mobileNavLink}
                                 onClick={() => setIsOpen(false)}
                             >
                                 <link.icon className="w-5 h-5" />
                                 {link.name}
-                            </a>
+                            </Link>
                         ))}
+                        <a href={`tel:${HOTLINE.replace(/\s/g, '')}`} className={styles.mobileHotline} onClick={() => setIsOpen(false)}>
+                            <Phone className="w-5 h-5" />
+                            Hotline: {HOTLINE}
+                        </a>
                         <div className={styles.mobileAuthContainer}>
                             <Link to="/login" className={styles.mobileSignInBtn} onClick={() => setIsOpen(false)}>
-                                Sign In
+                                Đăng nhập
                             </Link>
-                            <Link to="/signup" className={styles.mobileJoinBtn} onClick={() => setIsOpen(false)}>
-                                Sign up
+                            <Link to="/register" className={styles.mobileJoinBtn} onClick={() => setIsOpen(false)}>
+                                Đăng ký ngay
                             </Link>
                         </div>
                     </div>

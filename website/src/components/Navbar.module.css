@@ -21,7 +21,7 @@
 }
 
 .logoText {
-    @apply text-2xl font-serif font-bold text-gray-900 flex items-center gap-1 no-underline cursor-pointer;
+    @apply text-2xl font-serif font-extrabold text-gray-900 flex items-center gap-1 no-underline cursor-pointer;
     transition: opacity 0.2s;
 }
 
@@ -39,7 +39,11 @@
 }
 
 .navLink {
-    @apply text-gray-700 hover:text-primary-600 font-medium transition-colors flex items-center gap-1;
+    @apply text-gray-700 hover:text-primary-600 font-medium transition-colors flex items-center gap-1 no-underline pb-1 border-b-2 border-transparent;
+}
+
+.navLinkActive {
+    @apply text-primary-600 border-primary-600;
 }
 
 .navIcon {
@@ -47,15 +51,28 @@
 }
 
 .authContainer {
-    @apply hidden md:flex items-center space-x-4;
+    @apply hidden md:flex items-center gap-4;
+}
+
+.searchIcon {
+    @apply text-gray-600 hover:text-primary-600 transition-colors p-1 rounded-full hover:bg-gray-100;
+}
+
+.hotline {
+    @apply flex items-center gap-1.5 text-gray-600 hover:text-primary-600 transition-colors text-sm font-medium no-underline;
+}
+
+.hotlineText {
+    @apply hidden sm:inline;
 }
 
 .signInBtn {
     @apply text-gray-700 font-medium hover:text-primary-600 transition-colors;
 }
 
+/* Nút pill shape – bo tròn hoàn toàn, mềm mại */
 .joinBtn {
-    @apply bg-primary-500 hover:bg-primary-600 text-white px-6 py-2 rounded-full font-medium transition-colors shadow-lg shadow-primary-500/30;
+    @apply bg-primary-500 hover:bg-primary-600 text-white px-6 py-2.5 rounded-full font-medium transition-colors shadow-lg shadow-primary-500/30 no-underline;
 }
 
 .mobileMenuBtnContainer {
@@ -75,7 +92,15 @@
 }
 
 .mobileNavLink {
-    @apply block px-3 py-2 text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50 rounded-md flex items-center gap-2;
+    @apply block px-3 py-2 text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50 rounded-md flex items-center gap-2 no-underline;
+}
+
+.mobileNavLinkActive {
+    @apply text-primary-600 bg-primary-50;
+}
+
+.mobileHotline {
+    @apply flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-primary-600 hover:bg-gray-50 rounded-md no-underline;
 }
 
 .mobileAuthContainer {
