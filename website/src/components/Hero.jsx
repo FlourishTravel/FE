@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search } from 'lucide-react';
+import { MapPin, Calendar, Hash } from 'lucide-react';
 import travelImg from '../assets/travel.avif';
 import styles from './Hero.module.css';
 
 const Hero = () => {
-    const [query, setQuery] = useState('');
     const navigate = useNavigate();
 
     const handleSearch = (e) => {
         e.preventDefault();
-        navigate('/tours' + (query.trim() ? `?q=${encodeURIComponent(query.trim())}` : ''));
+        navigate('/tours');
     };
 
     return (
@@ -28,25 +27,68 @@ const Hero = () => {
                 <div className={styles.heroText}>
                     <h1 className={styles.title}>Flourish Tourism</h1>
                     <p className={styles.subtitle}>
-                        Khám phá hành trình trải nghiệm — biển, văn hóa và thiên nhiên
+                        "Slogan"
                     </p>
                 </div>
 
-                <form onSubmit={handleSearch} className={styles.searchBox} style={{ animationDelay: '0.2s' }}>
-                    <div className={styles.searchBigRow}>
-                        <Search className={styles.searchBigIcon} />
-                        <input
-                            type="text"
-                            placeholder="Tìm tour theo điểm đến, ngày đi, ngân sách... VD: tour biển 5 triệu"
-                            value={query}
-                            onChange={(e) => setQuery(e.target.value)}
-                            className={styles.searchBigInput}
-                        />
-                        <button type="submit" className={styles.searchButton}>
-                            Tìm tour
-                        </button>
+                {/* Search Box */}
+                <div className={styles.searchBox} style={{ animationDelay: '0.2s' }}>
+                    <div className={styles.searchInputsRow}>
+                        <div className={styles.inputGroup}>
+                            <label className={styles.inputLabel}>Điểm khởi hành</label>
+                            <div className={styles.inputWrapper}>
+                                <MapPin className={styles.inputIcon} />
+                                <input
+                                    type="text"
+                                    placeholder="Điểm khởi hành"
+                                    className={styles.textInput}
+                                />
+                            </div>
+                        </div>
+
+                        <div className={styles.inputGroup}>
+                            <label className={styles.inputLabel}>Điểm đến</label>
+                            <div className={styles.inputWrapper}>
+                                <MapPin className={styles.inputIcon} />
+                                <input
+                                    type="text"
+                                    placeholder="Điểm đến"
+                                    className={styles.textInput}
+                                />
+                            </div>
+                        </div>
+
+                        <div className={styles.inputGroup}>
+                            <label className={styles.inputLabel}>Ngày khởi hành</label>
+                            <div className={styles.inputWrapper}>
+                                <Calendar className={styles.inputIcon} />
+                                <input
+                                    type="text"
+                                    placeholder="Ngày khởi hành"
+                                    className={styles.textInput}
+                                />
+                            </div>
+                        </div>
+
+                        <div className={styles.inputGroup}>
+                            <label className={styles.inputLabel}>Số ngày của tour</label>
+                            <div className={styles.inputWrapper}>
+                                <Hash className={styles.inputIcon} />
+                                <input
+                                    type="text"
+                                    placeholder="#"
+                                    className={styles.textInput}
+                                />
+                            </div>
+                        </div>
+
+                        <div className={styles.buttonGroup}>
+                            <button className={styles.searchButton} onClick={handleSearch}>
+                                TÌM TOUR
+                            </button>
+                        </div>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
     );

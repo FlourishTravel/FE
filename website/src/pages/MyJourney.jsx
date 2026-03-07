@@ -1,118 +1,164 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Compass, Calendar, ChevronRight, MessageCircle } from 'lucide-react';
+import {
+    MapPin, Calendar, Users, CheckCircle, Eye,
+    Trash2, Luggage, ArrowRight, MessageCircle
+} from 'lucide-react';
+import bangkokImg from '../assets/di-chuyen-di-lai-thai-lan-2.webp';
 import styles from './MyJourney.module.css';
 
-const MOCK_BOOKINGS = [
-    {
-        id: 1,
-        tourTitle: 'Bangkok – Pattaya: Thư giãn & Văn hóa',
-        startDate: '15/04/2025',
-        endDate: '19/04/2025',
-        status: 'Đã xác nhận',
-        image: 'https://images.unsplash.com/photo-1508009603885-027cf6d0bf6b?auto=format&fit=crop&w=400&q=80',
-        tourId: 1,
-        isUpcoming: true,
-    },
-    {
-        id: 2,
-        tourTitle: 'Siem Reap – Angkor Thom – Phnom Penh',
-        startDate: '22/05/2025',
-        endDate: '25/05/2025',
-        status: 'Chờ thanh toán',
-        image: 'https://images.unsplash.com/photo-1600994945419-7565d75cb942?auto=format&fit=crop&w=400&q=80',
-        tourId: 2,
-        isUpcoming: true,
-    },
-    {
-        id: 3,
-        tourTitle: 'Hội An – Huế – Đà Nẵng',
-        startDate: '10/12/2024',
-        endDate: '16/12/2024',
-        status: 'Đã hoàn thành',
-        image: 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?auto=format&fit=crop&w=400&q=80',
-        tourId: 3,
-        isUpcoming: false,
-    },
-];
-
 const MyJourney = () => {
-    const [tab, setTab] = useState('upcoming');
-    const hasBookings = true;
+    const [bookings, setBookings] = useState([]);
 
-    const upcoming = MOCK_BOOKINGS.filter((b) => b.isUpcoming);
-    const past = MOCK_BOOKINGS.filter((b) => !b.isUpcoming);
-    const list = tab === 'upcoming' ? upcoming : past;
+    useEffect(() => {
+        const saved = JSON.parse(localStorage.getItem('flourish_bookings') || '[]');
+        // Sort by most recent first
+        saved.sort((a, b) => new Date(b.bookedAt) - new Date(a.bookedAt));
+        setBookings(saved);
+    }, []);
+
+    const handleDelete = (bookingId) => {
+        if (window.confirm('Bạn có chắc muốn huỷ đặt chỗ này?')) {
+            const updated = bookings.filter(b => b.id !== bookingId);
+            setBookings(updated);
+            localStorage.setItem('flourish_bookings', JSON.stringify(updated));
+        }
+    };
+
+    const formatDate = (isoString) => {
+        const d = new Date(isoString);
+        return d.toLocaleDateString('vi-VN', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+        });
+    };
+
+    const getImage = (booking) => {
+        if (booking.tourImage && booking.tourImage.startsWith('http')) {
+            return booking.tourImage;
+        }
+        // Fallback to local image
+        return bangkokImg;
+    };
 
     return (
         <div className={styles.pageContainer}>
             <div className={styles.container}>
-                <div className={styles.hero}>
-                    <h1 className={styles.title}>Chuyến đi của tôi</h1>
-                    <p className={styles.subtitle}>
-                        Xem lại hành trình đã đặt, ngày khởi hành và thông tin chi tiết.
-                    </p>
+                {/* Header */}
+                <div className={styles.pageHeader}>
+                    <div className={styles.headerLeft}>
+                        <h1 className={styles.pageTitle}>Chỗ Đã Đặt</h1>
+                        <p className={styles.pageSubtitle}>Quản lý các tour du lịch bạn đã đặt</p>
+                    </div>
+                    {bookings.length > 0 && (
+                        <span className={styles.bookingCount}>
+                            {bookings.length} đặt chỗ
+                        </span>
+                    )}
                 </div>
 
-                {hasBookings ? (
-                    <>
-                        <div className={styles.tabs}>
-                            <button type="button" className={tab === 'upcoming' ? styles.tabActive : styles.tab} onClick={() => setTab('upcoming')}>
-                                Sắp đi
-                            </button>
-                            <button type="button" className={tab === 'past' ? styles.tabActive : styles.tab} onClick={() => setTab('past')}>
-                                Đã đi
-                            </button>
-                        </div>
-                        <div className={styles.bookingList}>
-                            {list.map((booking) => (
-                                <div key={booking.id} className={styles.bookingCardWrap}>
-                                    <Link to={`/tours/${booking.tourId}`} className={styles.bookingCard}>
-                                        <img src={booking.image} alt="" className={styles.bookingImage} />
-                                        <div className={styles.bookingContent}>
-                                            <span className={styles.bookingStatus}>{booking.status}</span>
-                                            <h2 className={styles.bookingTitle}>{booking.tourTitle}</h2>
-                                            <p className={styles.bookingDates}>
-                                                <Calendar className={styles.dateIcon} />
-                                                {booking.startDate} – {booking.endDate}
-                                            </p>
-                                            <span className={styles.bookingLink}>
-                                                Xem chi tiết <ChevronRight className={styles.chevron} />
+                {/* Booking List */}
+                {bookings.length > 0 ? (
+                    <div className={styles.bookingList}>
+                        {bookings.map((booking, idx) => (
+                            <div
+                                key={booking.id}
+                                className={styles.bookingCard}
+                                style={{ animationDelay: `${idx * 0.1}s` }}
+                            >
+                                <img
+                                    src={getImage(booking)}
+                                    alt={booking.tourTitle}
+                                    className={styles.cardImage}
+                                />
+                                <div className={styles.cardBody}>
+                                    <div>
+                                        <div className={styles.cardTop}>
+                                            <div>
+                                                <h3 className={styles.tourTitle}>{booking.tourTitle}</h3>
+                                                <span className={styles.tourLocation}>
+                                                    <MapPin className={styles.locationIcon} />
+                                                    {booking.tourLocation}
+                                                </span>
+                                            </div>
+                                            <span className={`${styles.statusBadge} ${styles.statusConfirmed}`}>
+                                                <CheckCircle className={styles.statusIcon} />
+                                                Đã xác nhận
                                             </span>
                                         </div>
-                                    </Link>
-                                    {booking.isUpcoming && (
-                                        <Link to={`/chat/${booking.id}`} className={styles.chatBtn}>
-                                            <MessageCircle className={styles.chatBtnIcon} />
-                                            Vào phòng chat
-                                        </Link>
-                                    )}
+
+                                        <div className={styles.cardMeta}>
+                                            <span className={styles.metaItem}>
+                                                <Calendar className={styles.metaIcon} />
+                                                {booking.date}
+                                            </span>
+                                            <span className={styles.metaItem}>
+                                                <Users className={styles.metaIcon} />
+                                                {booking.travelers} người lớn
+                                            </span>
+                                            {booking.tourDuration && (
+                                                <span className={styles.metaItem}>
+                                                    <Luggage className={styles.metaIcon} />
+                                                    {booking.tourDuration}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className={styles.cardBottom}>
+                                        <div className={styles.priceArea}>
+                                            <span className={styles.priceLabel}>Tổng thanh toán</span>
+                                            <span className={styles.priceValue}>
+                                                {booking.totalPrice.toLocaleString('de-DE')} VND
+                                            </span>
+                                            <span className={styles.bookedDate}>
+                                                Đặt ngày {formatDate(booking.bookedAt)}
+                                            </span>
+                                        </div>
+                                        <div className={styles.cardActions}>
+                                            <Link
+                                                to={`/chat/${booking.id}`}
+                                                className={styles.btnChat}
+                                            >
+                                                <MessageCircle className={styles.btnChatIcon} />
+                                                Vào phòng chat
+                                            </Link>
+                                            <Link
+                                                to={`/tours/${booking.tourId}`}
+                                                className={styles.btnViewTour}
+                                            >
+                                                <Eye className={styles.btnViewIcon} />
+                                                Xem tour
+                                            </Link>
+                                            <button
+                                                className={styles.btnDelete}
+                                                onClick={() => handleDelete(booking.id)}
+                                            >
+                                                <Trash2 style={{ width: 15, height: 15 }} />
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
-                            ))}
-                        </div>
-                    </>
+                            </div>
+                        ))}
+                    </div>
                 ) : (
+                    /* Empty State */
                     <div className={styles.emptyState}>
-                        <div className={styles.emptyIcon}>
-                            <MapPin className={styles.icon} />
+                        <div className={styles.emptyIconCircle}>
+                            <Luggage className={styles.emptyIcon} />
                         </div>
-                        <h2 className={styles.emptyTitle}>Bạn chưa có chuyến đi nào</h2>
+                        <h2 className={styles.emptyTitle}>Chưa có đặt chỗ nào</h2>
                         <p className={styles.emptyText}>
-                            Đăng nhập để xem các tour đã đặt, hoặc khám phá tour trải nghiệm và lên kế hoạch cho hành trình tiếp theo.
+                            Bạn chưa đặt tour nào. Hãy khám phá các tour hấp dẫn và bắt đầu chuyến hành trình của bạn!
                         </p>
-                        <div className={styles.actions}>
-                            <Link to="/login" className={styles.primaryBtn}>
-                                Đăng nhập
-                            </Link>
-                            <Link to="/tours" className={styles.secondaryBtn}>
-                                <Compass className={styles.btnIcon} />
-                                Khám phá tour
-                            </Link>
-                        </div>
-                        <div className={styles.tip}>
-                            <Calendar className={styles.tipIcon} />
-                            <span>Sau khi đặt tour, mục này sẽ hiển thị lịch trình và hướng dẫn của bạn.</span>
-                        </div>
+                        <Link to="/tours" className={styles.emptyBtn}>
+                            Khám phá tour
+                            <ArrowRight style={{ width: 18, height: 18 }} />
+                        </Link>
                     </div>
                 )}
             </div>
