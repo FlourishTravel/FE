@@ -1,70 +1,406 @@
 @import "tailwindcss";
 @reference "../index.css";
 
-.pageContainer {
-    @apply min-h-screen bg-gray-50;
-    padding-top: 80px;
-    padding-bottom: 48px;
+.pageWrapper {
+    min-height: 100vh;
+    width: 100%;
+    background-color: #ffffff;
+    margin: 0;
+    padding-top: 100px;
+    /* Add some padding instead of the hero section */
 }
 
-.container {
-    @apply container-custom max-w-lg mx-auto px-4 sm:px-6;
+/* Main Content */
+.mainContent {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 20px 60px;
 }
 
-.hero {
-    @apply text-center mb-8;
+/* Profile Container */
+.profileContainer {
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    /* This adds the subtle floating card effect */
+    overflow: hidden;
+    padding-bottom: 24px;
 }
 
-.title {
-    @apply text-3xl font-serif font-bold text-gray-900 mb-2;
+/* Avatar Area */
+.avatarArea {
+    padding: 32px 24px 24px;
+    text-align: center;
+    border-bottom: 1px solid #f1f5f9;
 }
 
-.subtitle {
-    @apply text-gray-600;
-}
-
-.card {
-    @apply bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden;
-}
-
-.avatarSection {
-    @apply pt-8 pb-6 px-6 text-center;
+.avatarWrapper {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 16px;
+    cursor: pointer;
+    border-radius: 50%;
+    overflow: hidden;
 }
 
 .avatar {
-    @apply w-24 h-24 rounded-full object-cover mx-auto mb-4 border-4 border-primary-100;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #e0f2fe;
+    transition: filter 0.3s ease;
 }
 
-.name {
-    @apply text-xl font-bold text-gray-900 mb-2;
+.avatarWrapper:hover .avatar {
+    filter: brightness(0.7);
 }
 
-.email,
-.phone,
-.joined {
-    @apply flex items-center justify-center gap-2 text-gray-600 text-sm mb-1;
+.avatarOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: 50%;
 }
 
-.icon {
-    @apply w-4 h-4 text-primary-500 flex-shrink-0;
+.avatarWrapper:hover .avatarOverlay {
+    opacity: 1;
 }
 
-.actions {
-    @apply flex flex-col gap-3 p-6 pt-0;
+.cameraIcon {
+    width: 24px;
+    height: 24px;
+    color: #ffffff;
+}
+
+.avatarOverlayText {
+    font-size: 11px;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.fileInput {
+    display: none;
+}
+
+.userName {
+    font-size: 22px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 8px;
+}
+
+.memberBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #ecfdf5;
+    color: #059669;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 14px;
+    border-radius: 20px;
+}
+
+/* Success Banner */
+.successBanner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: #ecfdf5;
+    color: #065f46;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 12px 20px;
+    border-bottom: 1px solid #d1fae5;
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Info Section */
+.infoSection {
+    padding: 24px;
+}
+
+.infoHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.infoTitle {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+}
+
+.editBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: 1.5px solid #0ea5e9;
+    color: #0369a1;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 7px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.editBtn:hover {
+    background: #f0f9ff;
+}
+
+.editActions {
+    display: flex;
+    gap: 8px;
+}
+
+.cancelBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #f1f5f9;
+    border: none;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 7px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.cancelBtn:hover {
+    background: #e2e8f0;
+    color: #334155;
+}
+
+.saveBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: linear-gradient(135deg, #0369a1, #0ea5e9);
+    border: none;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 7px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.saveBtn:hover {
+    box-shadow: 0 4px 12px rgba(3, 105, 161, 0.3);
+    transform: translateY(-1px);
+}
+
+/* Info Grid */
+.infoGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.infoRow {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.infoRow:last-child {
+    border-bottom: none;
+}
+
+.infoIconBox {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0369a1;
+    flex-shrink: 0;
+}
+
+.infoContent {
+    flex: 1;
+    min-width: 0;
+}
+
+.infoLabel {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.infoValue {
+    display: block;
+    font-size: 15px;
+    font-weight: 500;
+    color: #1e293b;
+}
+
+.infoInput {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #1e293b;
+    background: #ffffff;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.infoInput:focus {
+    border-color: #0ea5e9;
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+}
+
+.infoInput::placeholder {
+    color: #94a3b8;
+}
+
+.readonlyBadge {
+    display: inline-block;
+    font-size: 11px;
+    color: #94a3b8;
+    background: #f1f5f9;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-top: 4px;
+}
+
+/* Actions Section */
+.actionsSection {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 20px 24px 28px;
+    border-top: 1px solid #f1f5f9;
 }
 
 .primaryBtn {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-3 rounded-full bg-primary-500 text-white font-medium hover:bg-primary-600 transition-colors no-underline;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #0369a1, #0ea5e9);
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 13px 24px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.primaryBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(3, 105, 161, 0.25);
 }
 
 .logoutBtn {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-3 rounded-full border-2 border-gray-200 text-gray-700 font-medium hover:bg-gray-50 transition-colors;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: none;
+    color: #64748b;
+    border: 2px solid #e2e8f0;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 13px 24px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
 }
 
-.btnIcon {
-    @apply w-4 h-4;
+.logoutBtn:hover {
+    background: #fef2f2;
+    border-color: #fca5a5;
+    color: #dc2626;
 }
 
-.hint {
-    @apply text-center text-sm text-gray-500 mt-6;
+/* Responsive */
+@media (max-width: 640px) {
+    .heroSection {
+        margin-top: 60px;
+        padding: 40px 16px 80px;
+    }
+
+    .heroTitle {
+        font-size: 26px;
+    }
+
+    .mainContent {
+        padding: 0 16px 40px;
+    }
+
+    .infoSection {
+        padding: 20px 16px;
+    }
+
+    .actionsSection {
+        padding: 16px 16px 24px;
+    }
+
+    .avatarArea {
+        padding: 24px 16px 20px;
+    }
+
+    .avatar {
+        width: 100px;
+        height: 100px;
+    }
+
+    .avatarWrapper {
+        width: 100px;
+        height: 100px;
+    }
+
+    .infoHeader {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
 }
