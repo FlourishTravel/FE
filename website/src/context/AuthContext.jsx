@@ -13,6 +13,8 @@ export const MOCK_USER = {
     email: MOCK_CREDENTIALS.email,
     name: 'Nguyễn Văn Demo',
     phone: '0901 234 567',
+    address: '123 Đường Lê Lợi, Quận 1, TP.HCM',
+    gender: 'Nam',
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&q=80',
     joinedDate: '01/2025',
 };
@@ -47,6 +49,12 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem(STORAGE_KEY);
     };
 
+    const updateUser = (updatedData) => {
+        const newUser = { ...user, ...updatedData };
+        setUser(newUser);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(newUser));
+    };
+
     const checkCredentials = (email, password) => {
         return (
             email.toLowerCase().trim() === MOCK_CREDENTIALS.email &&
@@ -54,7 +62,7 @@ export const AuthProvider = ({ children }) => {
         );
     };
 
-    const value = { user, login, logout, checkCredentials, MOCK_USER };
+    const value = { user, login, logout, updateUser, checkCredentials, MOCK_USER };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

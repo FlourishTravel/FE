@@ -52,9 +52,6 @@ const Navbar = () => {
 
                     {/* Search, Hotline & Auth */}
                     <div className={styles.authContainer}>
-                        <Link to="/tours" className={styles.searchIcon} title="Tìm tour">
-                            <Search className={styles.navIcon} />
-                        </Link>
                         <a href={`tel:${HOTLINE.replace(/\s/g, '')}`} className={styles.hotline} title="Hotline">
                             <Phone className={styles.navIcon} />
                             <span className={styles.hotlineText}>{HOTLINE}</span>

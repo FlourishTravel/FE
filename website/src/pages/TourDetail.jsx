@@ -288,7 +288,7 @@ const TourDetail = () => {
                                             <button
                                                 key={day.day}
                                                 type="button"
-                                                className={activeDay === day.day ? styles.mapMarkerActive : styles.mapMarker}
+                                                className={`${styles.mapMarker} ${activeDay === day.day ? styles.mapMarkerActive : ''}`}
                                                 onClick={() => setActiveDay(day.day)}
                                                 title={`Ngày ${day.day}: ${day.location}`}
                                             >
@@ -445,17 +445,7 @@ const TourDetail = () => {
                             <p className={styles.bookNote}>Không cần thanh toán để giữ chỗ của bạn.</p>
                         </div>
 
-                        {/* Tour Route Map */}
-                        <div className={styles.mapCard}>
-                            <h3 className={styles.mapTitle}>
-                                <Map className={styles.mapTitleIcon} />
-                                Tuyến Đường Tour
-                            </h3>
-                            <div className={styles.mapPlaceholder}>
-                                <Map className={styles.mapIcon} />
-                                <span className={styles.mapText}>Bản đồ tương tác (sẽ cập nhật)</span>
-                            </div>
-                        </div>
+
                     </div>
                 </div>
 

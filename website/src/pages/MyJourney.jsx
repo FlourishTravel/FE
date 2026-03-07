@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
     MapPin, Calendar, Users, CheckCircle, Eye,
     Trash2, Luggage, ArrowRight, MessageCircle
@@ -8,6 +8,7 @@ import bangkokImg from '../assets/di-chuyen-di-lai-thai-lan-2.webp';
 import styles from './MyJourney.module.css';
 
 const MyJourney = () => {
+    const navigate = useNavigate();
     const [bookings, setBookings] = useState([]);
 
     useEffect(() => {
@@ -18,11 +19,8 @@ const MyJourney = () => {
     }, []);
 
     const handleDelete = (bookingId) => {
-        if (window.confirm('Bạn có chắc muốn huỷ đặt chỗ này?')) {
-            const updated = bookings.filter(b => b.id !== bookingId);
-            setBookings(updated);
-            localStorage.setItem('flourish_bookings', JSON.stringify(updated));
-        }
+        const booking = bookings.find(b => b.id === bookingId);
+        navigate('/cancellation-policy', { state: { booking } });
     };
 
     const formatDate = (isoString) => {

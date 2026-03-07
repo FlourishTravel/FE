@@ -69,6 +69,8 @@ const Checkout = () => {
         fullName: '',
         email: '',
         phone: '',
+        idCard: '',
+        gender: 'Nam',
         note: '',
     });
 
@@ -96,6 +98,9 @@ const Checkout = () => {
             newErrors.phone = 'Vui lòng nhập số điện thoại';
         } else if (!/^[0-9]{9,11}$/.test(formData.phone.replace(/\s/g, ''))) {
             newErrors.phone = 'Số điện thoại không hợp lệ';
+        }
+        if (!formData.idCard.trim()) {
+            newErrors.idCard = 'Vui lòng nhập số căn cước công dân';
         }
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -126,6 +131,8 @@ const Checkout = () => {
             customerName: formData.fullName,
             customerEmail: formData.email,
             customerPhone: formData.phone,
+            idCard: formData.idCard,
+            gender: formData.gender,
             note: formData.note,
             status: 'confirmed',
             bookedAt: new Date().toISOString(),
@@ -232,6 +239,51 @@ const Checkout = () => {
                                         />
                                         {errors.phone && <span className={styles.errorText}>{errors.phone}</span>}
                                     </div>
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.formLabel}>Căn cước công dân *</label>
+                                        <input
+                                            type="text"
+                                            name="idCard"
+                                            value={formData.idCard}
+                                            onChange={handleChange}
+                                            placeholder="Nhập số CCCD"
+                                            className={`${styles.formInput} ${errors.idCard ? styles.inputError : ''}`}
+                                        />
+                                        {errors.idCard && <span className={styles.errorText}>{errors.idCard}</span>}
+                                    </div>
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.formLabel}>Giới tính (không bắt buộc)</label>
+                                        <div className={styles.genderOptions}>
+                                            <label className={`${styles.genderOption} ${formData.gender === 'Nam' ? styles.genderOptionActive : ''}`}>
+                                                <input
+                                                    type="radio"
+                                                    name="gender"
+                                                    value="Nam"
+                                                    checked={formData.gender === 'Nam'}
+                                                    onChange={handleChange}
+                                                    className={styles.genderRadio}
+                                                />
+                                                <div className={styles.radioVisual}>
+                                                    <div className={styles.radioDot} />
+                                                </div>
+                                                <span className={styles.genderLabel}>Nam</span>
+                                            </label>
+                                            <label className={`${styles.genderOption} ${formData.gender === 'Nữ' ? styles.genderOptionActive : ''}`}>
+                                                <input
+                                                    type="radio"
+                                                    name="gender"
+                                                    value="Nữ"
+                                                    checked={formData.gender === 'Nữ'}
+                                                    onChange={handleChange}
+                                                    className={styles.genderRadio}
+                                                />
+                                                <div className={styles.radioVisual}>
+                                                    <div className={styles.radioDot} />
+                                                </div>
+                                                <span className={styles.genderLabel}>Nữ</span>
+                                            </label>
+                                        </div>
+                                    </div>
                                     <div className={`${styles.formGroup} ${styles.formGroupFull}`}>
                                         <label className={styles.formLabel}>Ghi chú (tuỳ chọn)</label>
                                         <textarea
@@ -283,6 +335,18 @@ const Checkout = () => {
                                             <span className={styles.formLabel}>Số điện thoại</span>
                                             <span className={styles.formInput} style={{ background: '#f9fafb', cursor: 'default' }}>
                                                 {formData.phone}
+                                            </span>
+                                        </div>
+                                        <div className={styles.formGroup}>
+                                            <span className={styles.formLabel}>Căn cước công dân</span>
+                                            <span className={styles.formInput} style={{ background: '#f9fafb', cursor: 'default' }}>
+                                                {formData.idCard}
+                                            </span>
+                                        </div>
+                                        <div className={styles.formGroup}>
+                                            <span className={styles.formLabel}>Giới tính</span>
+                                            <span className={styles.formInput} style={{ background: '#f9fafb', cursor: 'default' }}>
+                                                {formData.gender}
                                             </span>
                                         </div>
                                         {formData.note && (

@@ -69,7 +69,7 @@
 }
 
 .signInBtn {
-    @apply text-gray-700 font-medium hover:text-primary-600 transition-colors;
+    @apply text-gray-700 font-medium hover:text-primary-600 transition-colors flex items-center gap-1.5;
     white-space: nowrap;
 }
 

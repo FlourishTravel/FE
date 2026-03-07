@@ -295,11 +295,11 @@
 }
 
 .mapMarker:hover {
-    @apply bg-primary-50 text-primary-700;
+    @apply bg-emerald-50 text-emerald-700;
 }
 
 .mapMarkerActive {
-    @apply bg-primary-500 text-white border-primary-600;
+    @apply bg-emerald-500 text-white border-emerald-500;
 }
 
 .mapMarkerIcon {

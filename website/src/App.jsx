@@ -8,6 +8,7 @@ import ValueProp from './components/ValueProp';
 import Mission from './components/Mission';
 import Footer from './components/Footer';
 import FloatingChatbot from './components/FloatingChatbot';
+import ScrollToTop from './components/ScrollToTop';
 
 // Import pages
 import Help from './pages/Help';
@@ -30,6 +31,7 @@ import Stories from './pages/Stories';
 import Profile from './pages/Profile';
 import Checkout from './pages/Checkout';
 import GroupChat from './pages/GroupChat';
+import CancellationPolicy from './pages/CancellationPolicy';
 
 // Home page component (inline)
 const HomePage = () => (
@@ -47,29 +49,33 @@ const HomePage = () => (
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="/help" element={<><Navbar /><Help /><Footer /></>} />
-      <Route path="/privacy-settings" element={<><Navbar /><PrivacySettings /><Footer /></>} />
-      <Route path="/login" element={<><Navbar /><Login /></>} />
-      <Route path="/register" element={<><Navbar /><Register /></>} />
-      <Route path="/profile" element={<><Navbar /><Profile /><Footer /></>} />
-      <Route path="/my-journey" element={<><Navbar /><MyJourney /><Footer /></>} />
-      <Route path="/destinations" element={<><Navbar /><Destinations /><Footer /></>} />
-      <Route path="/guide" element={<><Navbar /><Guide /><Footer /></>} />
-      <Route path="/tours" element={<><Navbar /><TourListing /><Footer /></>} />
-      <Route path="/tours/:id" element={<><Navbar /><TourDetail /><Footer /></>} />
-      <Route path="/checkout/:tourId" element={<><Navbar /><Checkout /><Footer /></>} />
-      <Route path="/chat/:bookingId" element={<><Navbar /><GroupChat /></>} />
-      <Route path="/cookie-policy" element={<><Navbar /><CookiePolicy /><Footer /></>} />
-      <Route path="/privacy-policy" element={<><Navbar /><PrivacyPolicy /><Footer /></>} />
-      <Route path="/terms-of-service" element={<><Navbar /><TermsOfService /><Footer /></>} />
-      <Route path="/company-details" element={<><Navbar /><CompanyDetails /><Footer /></>} />
-      <Route path="/about" element={<><Navbar /><About /><Footer /></>} />
-      <Route path="/careers" element={<><Navbar /><Careers /><Footer /></>} />
-      <Route path="/news" element={<><Navbar /><News /><Footer /></>} />
-      <Route path="/stories" element={<><Navbar /><Stories /><Footer /></>} />
-    </Routes>
+    <>
+      <ScrollToTop />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/help" element={<><Navbar /><Help /><Footer /></>} />
+        <Route path="/privacy-settings" element={<><Navbar /><PrivacySettings /><Footer /></>} />
+        <Route path="/login" element={<><Navbar /><Login /></>} />
+        <Route path="/register" element={<><Navbar /><Register /></>} />
+        <Route path="/profile" element={<><Navbar /><Profile /><Footer /></>} />
+        <Route path="/my-journey" element={<><Navbar /><MyJourney /><Footer /></>} />
+        <Route path="/destinations" element={<><Navbar /><Destinations /><Footer /></>} />
+        <Route path="/guide" element={<><Navbar /><Guide /><Footer /></>} />
+        <Route path="/tours" element={<><Navbar /><TourListing /><Footer /></>} />
+        <Route path="/tours/:id" element={<><Navbar /><TourDetail /><Footer /></>} />
+        <Route path="/checkout/:tourId" element={<><Navbar /><Checkout /><Footer /></>} />
+        <Route path="/chat/:bookingId" element={<><Navbar /><GroupChat /></>} />
+        <Route path="/cookie-policy" element={<><Navbar /><CookiePolicy /><Footer /></>} />
+        <Route path="/privacy-policy" element={<><Navbar /><PrivacyPolicy /><Footer /></>} />
+        <Route path="/terms-of-service" element={<><Navbar /><TermsOfService /><Footer /></>} />
+        <Route path="/company-details" element={<><Navbar /><CompanyDetails /><Footer /></>} />
+        <Route path="/about" element={<><Navbar /><About /><Footer /></>} />
+        <Route path="/careers" element={<><Navbar /><Careers /><Footer /></>} />
+        <Route path="/news" element={<><Navbar /><News /><Footer /></>} />
+        <Route path="/stories" element={<><Navbar /><Stories /><Footer /></>} />
+        <Route path="/cancellation-policy" element={<><Navbar /><CancellationPolicy /><Footer /></>} />
+      </Routes>
+    </>
   );
 }
 
