@@ -1,0 +1,108 @@
+@import "tailwindcss";
+@reference "../index.css";
+
+.pageContainer {
+    @apply min-h-screen bg-gray-50;
+    padding-top: 80px;
+    padding-bottom: 48px;
+}
+
+.container {
+    @apply container-custom max-w-3xl mx-auto px-4 sm:px-6;
+}
+
+.hero {
+    @apply text-center mb-12;
+}
+
+.title {
+    @apply text-3xl md:text-4xl font-serif font-bold text-gray-900 mb-3;
+}
+
+.subtitle {
+    @apply text-gray-600 text-lg;
+}
+
+.bookingList {
+    @apply space-y-4 max-w-2xl mx-auto;
+}
+
+.bookingCard {
+    @apply flex bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 no-underline text-inherit transition-shadow hover:shadow-md;
+}
+
+.bookingImage {
+    @apply w-28 sm:w-36 h-full min-h-[120px] object-cover flex-shrink-0;
+}
+
+.bookingContent {
+    @apply p-4 sm:p-5 flex flex-col flex-1 min-w-0;
+}
+
+.bookingStatus {
+    @apply inline-block text-xs font-semibold text-primary-600 mb-1;
+}
+
+.bookingTitle {
+    @apply text-lg font-bold text-gray-900 mb-2 line-clamp-2;
+}
+
+.bookingDates {
+    @apply flex items-center gap-1.5 text-sm text-gray-500 mt-auto;
+}
+
+.dateIcon {
+    @apply w-4 h-4 text-primary-500 flex-shrink-0;
+}
+
+.bookingLink {
+    @apply inline-flex items-center gap-0.5 text-sm font-medium text-primary-600 mt-2;
+}
+
+.chevron {
+    @apply w-4 h-4;
+}
+
+.emptyState {
+    @apply bg-white rounded-2xl shadow-sm border border-gray-100 p-8 md:p-12 text-center;
+}
+
+.emptyIcon {
+    @apply w-16 h-16 rounded-full bg-primary-50 flex items-center justify-center mx-auto mb-6;
+}
+
+.icon {
+    @apply w-8 h-8 text-primary-600;
+}
+
+.emptyTitle {
+    @apply text-xl font-semibold text-gray-900 mb-2;
+}
+
+.emptyText {
+    @apply text-gray-600 mb-6 max-w-md mx-auto;
+}
+
+.actions {
+    @apply flex flex-col sm:flex-row gap-3 justify-center items-center mb-8;
+}
+
+.primaryBtn {
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-full bg-primary-500 text-white font-medium hover:bg-primary-600 transition-colors no-underline;
+}
+
+.secondaryBtn {
+    @apply inline-flex items-center gap-2 px-6 py-3 rounded-full border-2 border-primary-500 text-primary-600 font-medium hover:bg-primary-50 transition-colors no-underline;
+}
+
+.btnIcon {
+    @apply w-4 h-4;
+}
+
+.tip {
+    @apply flex items-center justify-center gap-2 text-sm text-gray-500 bg-gray-50 rounded-xl py-3 px-4;
+}
+
+.tipIcon {
+    @apply w-4 h-4 flex-shrink-0 text-primary-500;
+}

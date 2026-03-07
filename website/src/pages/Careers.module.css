@@ -1,0 +1,87 @@
+@import "tailwindcss";
+@reference "../index.css";
+
+.pageContainer {
+    @apply min-h-screen bg-gray-50;
+    padding-top: 80px;
+}
+
+.hero {
+    @apply bg-gray-900 text-white py-16 px-4 text-center;
+}
+
+.title {
+    @apply text-3xl md:text-4xl font-serif font-bold mb-4;
+}
+
+.subtitle {
+    @apply text-gray-300 text-lg max-w-2xl mx-auto;
+}
+
+.container {
+    @apply container-custom px-4 sm:px-6 py-12 max-w-3xl mx-auto;
+}
+
+.section {
+    @apply mb-10;
+}
+
+.sectionTitle {
+    @apply text-xl font-bold text-gray-900 mb-4;
+}
+
+.perks {
+    @apply list-disc list-inside text-gray-600 space-y-2;
+}
+
+.jobsSection {
+    @apply mb-10;
+}
+
+.jobList {
+    @apply space-y-4 mt-4;
+}
+
+.jobCard {
+    @apply bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4;
+}
+
+.jobMain {
+    @apply flex-1 min-w-0;
+}
+
+.jobTitle {
+    @apply text-lg font-bold text-gray-900 mb-2;
+}
+
+.jobExcerpt {
+    @apply text-gray-600 text-sm mb-3;
+}
+
+.jobMeta {
+    @apply flex flex-wrap gap-4;
+}
+
+.jobMetaItem {
+    @apply flex items-center gap-1.5 text-sm text-gray-500;
+}
+
+.metaIcon {
+    @apply w-4 h-4 text-primary-500;
+}
+
+.applyBtn {
+    @apply inline-flex items-center gap-1.5 px-4 py-2 rounded-full border-2 border-primary-500 text-primary-600 font-medium hover:bg-primary-50 transition-colors flex-shrink-0;
+}
+
+.arrowIcon {
+    @apply w-4 h-4;
+}
+
+.note {
+    @apply text-sm text-gray-500 text-center;
+}
+
+.mailLink {
+    @apply text-primary-600 font-medium hover:underline;
+}
