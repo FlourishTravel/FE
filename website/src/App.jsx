@@ -3,9 +3,11 @@ import { Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import FeaturedDestinations from './components/FeaturedDestinations';
+import RecommendedForYou from './components/RecommendedForYou';
 import ValueProp from './components/ValueProp';
 import Mission from './components/Mission';
 import Footer from './components/Footer';
+import FloatingChatbot from './components/FloatingChatbot';
 
 // Import pages
 import Help from './pages/Help';
@@ -25,6 +27,9 @@ import About from './pages/About';
 import Careers from './pages/Careers';
 import News from './pages/News';
 import Stories from './pages/Stories';
+import Profile from './pages/Profile';
+import Checkout from './pages/Checkout';
+import GroupChat from './pages/GroupChat';
 
 // Home page component (inline)
 const HomePage = () => (
@@ -32,9 +37,11 @@ const HomePage = () => (
     <Navbar />
     <Hero />
     <FeaturedDestinations />
+    <RecommendedForYou />
     <ValueProp />
     <Mission />
     <Footer />
+    <FloatingChatbot />
   </div>
 );
 
@@ -46,11 +53,14 @@ function App() {
       <Route path="/privacy-settings" element={<><Navbar /><PrivacySettings /><Footer /></>} />
       <Route path="/login" element={<><Navbar /><Login /></>} />
       <Route path="/register" element={<><Navbar /><Register /></>} />
+      <Route path="/profile" element={<><Navbar /><Profile /><Footer /></>} />
       <Route path="/my-journey" element={<><Navbar /><MyJourney /><Footer /></>} />
       <Route path="/destinations" element={<><Navbar /><Destinations /><Footer /></>} />
       <Route path="/guide" element={<><Navbar /><Guide /><Footer /></>} />
       <Route path="/tours" element={<><Navbar /><TourListing /><Footer /></>} />
       <Route path="/tours/:id" element={<><Navbar /><TourDetail /><Footer /></>} />
+      <Route path="/checkout/:tourId" element={<><Navbar /><Checkout /><Footer /></>} />
+      <Route path="/chat/:bookingId" element={<><Navbar /><GroupChat /></>} />
       <Route path="/cookie-policy" element={<><Navbar /><CookiePolicy /><Footer /></>} />
       <Route path="/privacy-policy" element={<><Navbar /><PrivacyPolicy /><Footer /></>} />
       <Route path="/terms-of-service" element={<><Navbar /><TermsOfService /><Footer /></>} />
