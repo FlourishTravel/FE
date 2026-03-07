@@ -47,7 +47,7 @@
 }
 
 .footerGrid {
-    @apply grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 max-w-6xl mx-auto;
+    @apply grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-6 max-w-6xl mx-auto text-left;
 }
 
 .footerColumn {

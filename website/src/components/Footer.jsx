@@ -44,16 +44,27 @@ const Footer = () => {
 
                 {/* Footer Links Grid */}
                 <div className={styles.footerGrid}>
-                    {/* Column 1: GET STARTED */}
+                    {/* Column 1: Các mục trong header */}
                     <div className={styles.footerColumn}>
-                        <h3 className={styles.footerTitle} style={{ color: '#0099ff', letterSpacing: '2px' }}>GET STARTED</h3>
+                        <h3 className={styles.footerTitle} style={{ color: '#0099ff', letterSpacing: '2px' }}>TRẢI NGHIỆM</h3>
                         <ul className={styles.footerList}>
-                            <li><Link to="/get-app" onClick={scrollToTop} className={styles.footerLink}>Get the app</Link></li>
-                            <li><Link to="/login" onClick={scrollToTop} className={styles.footerLink}>Log in</Link></li>
+                            <li><Link to="/my-journey" onClick={scrollToTop} className={styles.footerLink}>Chuyến đi của tôi</Link></li>
+                            <li><Link to="/destinations" onClick={scrollToTop} className={styles.footerLink}>Điểm đến</Link></li>
+                            <li><Link to="/guide" onClick={scrollToTop} className={styles.footerLink}>Cẩm nang</Link></li>
+                            <li><Link to="/tours" onClick={scrollToTop} className={styles.footerLink}>Tour trải nghiệm</Link></li>
                         </ul>
                     </div>
 
-                    {/* Column 2: ABOUT */}
+                    {/* Column 2: GET STARTED */}
+                    <div className={styles.footerColumn}>
+                        <h3 className={styles.footerTitle} style={{ color: '#0099ff', letterSpacing: '2px' }}>GET STARTED</h3>
+                        <ul className={styles.footerList}>
+                            <li><Link to="/login" onClick={scrollToTop} className={styles.footerLink}>Đăng nhập</Link></li>
+                            <li><Link to="/register" onClick={scrollToTop} className={styles.footerLink}>Đăng ký</Link></li>
+                        </ul>
+                    </div>
+
+                    {/* Column 3: ABOUT */}
                     <div className={styles.footerColumn}>
                         <h3 className={styles.footerTitle} style={{ color: '#0099ff', letterSpacing: '2px' }}>ABOUT</h3>
                         <ul className={styles.footerList}>
@@ -64,16 +75,16 @@ const Footer = () => {
                         </ul>
                     </div>
 
-                    {/* Column 3: HELP & SUPPORT */}
+                    {/* Column 4: HELP & SUPPORT */}
                     <div className={styles.footerColumn}>
-                        <h3 className={styles.footerTitle} style={{ color: '#0099ff', letterSpacing: '2px' }}>HELP & SUPPORT</h3>
+                        <h3 className={styles.footerTitle} style={{ color: '#0099ff', letterSpacing: '2px' }}>HỖ TRỢ</h3>
                         <ul className={styles.footerList}>
-                            <li><Link to="/help" onClick={scrollToTop} className={styles.footerLink}>Help Center</Link></li>
-                            <li><Link to="/contact" onClick={scrollToTop} className={styles.footerLink}>Contact us</Link></li>
+                            <li><Link to="/help" onClick={scrollToTop} className={styles.footerLink}>Trung tâm trợ giúp</Link></li>
+                            <li><Link to="/company-details" onClick={scrollToTop} className={styles.footerLink}>Liên hệ</Link></li>
                         </ul>
                     </div>
 
-                    {/* Column 4: PARTNERS */}
+                    {/* Column 5: PARTNERS */}
                     <div className={styles.footerColumn}>
                         <h3 className={styles.footerTitle} style={{ color: '#0099ff', letterSpacing: '2px' }}>PARTNERS</h3>
                         <ul className={styles.footerList}>
