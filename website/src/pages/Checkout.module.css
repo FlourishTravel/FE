@@ -1,0 +1,140 @@
+@import "tailwindcss";
+@reference "../index.css";
+
+.pageContainer {
+    @apply min-h-screen bg-gray-50;
+    padding-top: 80px;
+    padding-bottom: 48px;
+}
+
+.container {
+    @apply container-custom max-w-lg mx-auto px-4;
+}
+
+.backBtn {
+    @apply flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 no-underline;
+}
+
+.backIcon {
+    @apply w-5 h-5;
+}
+
+.title {
+    @apply text-2xl font-bold text-gray-900 mb-6;
+}
+
+.form {
+    @apply space-y-4;
+}
+
+.summaryCard {
+    @apply flex gap-4 p-4 bg-white rounded-xl border border-gray-200;
+}
+
+.summaryImage {
+    @apply w-24 h-24 rounded-lg object-cover flex-shrink-0;
+}
+
+.summaryInfo {
+    @apply flex flex-col justify-center min-w-0;
+}
+
+.summaryTitle {
+    @apply font-bold text-gray-900;
+}
+
+.summaryMeta {
+    @apply text-sm text-gray-500;
+}
+
+.summaryTotal {
+    @apply text-primary-600 mt-1;
+}
+
+.formGroup {
+    @apply flex flex-col gap-1;
+}
+
+.formGroup label {
+    @apply text-sm font-medium text-gray-700;
+}
+
+.formGroup input {
+    @apply px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50;
+}
+
+.paymentSection {
+    @apply pt-4;
+}
+
+.paymentTitle {
+    @apply font-semibold text-gray-900 mb-3;
+}
+
+.paymentOptions {
+    @apply flex flex-col gap-2;
+}
+
+.paymentOption {
+    @apply flex items-center gap-3 p-4 rounded-xl border-2 border-gray-200 bg-white cursor-pointer transition-all;
+}
+
+.paymentOption:hover {
+    @apply border-primary-300;
+}
+
+.paymentOptionActive {
+    @apply flex items-center gap-3 p-4 rounded-xl border-2 border-primary-500 bg-primary-50;
+}
+
+.paymentIcon {
+    @apply w-6 h-6 text-primary-500;
+}
+
+.submitBtn {
+    @apply w-full py-3 rounded-xl bg-primary-500 text-white font-semibold hover:bg-primary-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.momoStep {
+    @apply animate-fade-in-up;
+}
+
+.momoCard {
+    @apply bg-white rounded-2xl border border-gray-200 p-6 text-center;
+}
+
+.momoTitle {
+    @apply font-semibold text-gray-900 mb-4;
+}
+
+.qrWrap {
+    @apply flex justify-center my-6;
+}
+
+.qrPlaceholder {
+    @apply flex flex-col items-center justify-center w-56 h-56 rounded-2xl bg-gray-100 border-2 border-dashed border-gray-300 text-gray-500;
+}
+
+.qrAmount {
+    @apply mt-2 font-bold text-primary-600;
+}
+
+.countdownWrap {
+    @apply flex items-center justify-center gap-2 text-gray-600 mb-4;
+}
+
+.clockIcon {
+    @apply w-5 h-5;
+}
+
+.countdownUrgent {
+    @apply text-red-600;
+}
+
+.momoNote {
+    @apply text-sm text-gray-500;
+}
+
+.doneLink {
+    @apply block text-center mt-6 text-primary-600 font-medium hover:underline no-underline;
+}

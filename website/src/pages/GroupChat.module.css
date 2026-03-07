@@ -1,0 +1,109 @@
+@import "tailwindcss";
+@reference "../index.css";
+
+.pageContainer {
+    @apply min-h-screen bg-gray-100;
+    padding-top: 80px;
+    padding-bottom: 0;
+}
+
+.chatLayout {
+    @apply max-w-2xl mx-auto bg-white shadow-lg flex flex-col;
+    min-height: calc(100vh - 80px);
+}
+
+.header {
+    @apply flex items-center gap-4 p-4 border-b border-gray-200 bg-white sticky top-20 z-10;
+}
+
+.backLink {
+    @apply flex items-center gap-2 text-gray-600 hover:text-gray-900 no-underline flex-shrink-0;
+}
+
+.backIcon {
+    @apply w-5 h-5;
+}
+
+.headerInfo {
+    @apply flex items-center gap-3 flex-1 min-w-0;
+}
+
+.headerIcon {
+    @apply w-8 h-8 text-primary-500 flex-shrink-0;
+}
+
+.roomTitle {
+    @apply text-lg font-bold text-gray-900 truncate;
+}
+
+.roomMeta {
+    @apply text-sm text-gray-500;
+}
+
+.messages {
+    @apply flex-1 overflow-y-auto p-4 space-y-3;
+}
+
+.msgRow {
+    @apply flex justify-start;
+}
+
+.msgRowMe {
+    @apply flex justify-end;
+}
+
+.bubble {
+    @apply max-w-[85%] rounded-2xl rounded-tl-md px-4 py-2 bg-gray-100 text-gray-900;
+}
+
+.bubbleMe {
+    @apply max-w-[85%] rounded-2xl rounded-tr-md px-4 py-2 bg-primary-500 text-white;
+}
+
+.bubbleSender {
+    @apply block text-xs font-semibold opacity-90 mb-0.5;
+}
+
+.bubbleText {
+    @apply text-sm my-0;
+}
+
+.bubbleTime {
+    @apply block text-xs opacity-75 mt-1;
+}
+
+.inputBar {
+    @apply flex gap-2 p-4 border-t border-gray-200 bg-white;
+}
+
+.input {
+    @apply flex-1 px-4 py-3 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500/50;
+}
+
+.sendBtn {
+    @apply p-3 rounded-full bg-primary-500 text-white hover:bg-primary-600 transition-colors flex-shrink-0;
+}
+
+.sendIcon {
+    @apply w-5 h-5;
+}
+
+.popup {
+    @apply fixed bottom-24 left-4 right-4 max-w-md mx-auto flex items-start gap-3 p-4 bg-white rounded-xl shadow-xl border border-gray-200 z-50 animate-fade-in-up;
+}
+
+.popupIcon {
+    @apply w-6 h-6 text-primary-500 flex-shrink-0 mt-0.5;
+}
+
+.popup strong {
+    @apply block text-gray-900;
+}
+
+.popup p {
+    @apply text-sm text-gray-600 mt-0.5;
+}
+
+.popupClose {
+    @apply absolute top-2 right-2 w-8 h-8 rounded-full hover:bg-gray-100 text-gray-500 text-xl leading-none flex items-center justify-center;
+}
