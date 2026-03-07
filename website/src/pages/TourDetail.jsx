@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import React, { useState, useRef, useEffect } from 'react';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import {
     MapPin, Star, Clock, Users, Sun, Globe, ChevronRight,
     Calendar, ChevronDown, Map, CheckCircle, Layers, Image, X
@@ -157,14 +157,17 @@ const DEFAULT_TOUR = TOUR_DATA[1];
 
 const TourDetail = () => {
     const { id } = useParams();
+    const navigate = useNavigate();
     const tour = TOUR_DATA[id] || DEFAULT_TOUR;
 
     const [selectedDate, setSelectedDate] = useState('18/11 – 24/11/2024');
     const [travelers, setTravelers] = useState(2);
     const [selectedImage, setSelectedImage] = useState(null);
     const [showFullItinerary, setShowFullItinerary] = useState(false);
+    const [activeDay, setActiveDay] = useState(1);
+    const dayRefs = useRef({});
 
-    const totalPrice = tour.price * travelers;
+    const totalPrice = typeof tour.price === 'number' ? tour.price * travelers : 0;
 
     const getHighlightIcon = (iconName) => {
         switch (iconName) {
@@ -267,16 +270,56 @@ const TourDetail = () => {
                             </div>
                         </section>
 
-                        {/* Detailed Itinerary */}
+                        {/* Map + Itinerary */}
                         <section className={styles.section}>
+                            <h2 className={styles.sectionTitle}>Bản đồ & Lịch trình</h2>
+                            <div className={styles.mapItineraryWrap}>
+                                <div className={styles.mapEmbedWrap}>
+                                    <iframe
+                                        title="Tour map"
+                                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3872.38397292592!2d100.8786!3d13.7563!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x311d663ff0b21d0d%3A0x5b275a6e1a2c5e3!2sBangkok%2C%20Thailand!5e0!3m2!1sen!2s!4v1640000000000!5m2!1sen!2s"
+                                        className={styles.mapEmbed}
+                                        allowFullScreen
+                                        loading="lazy"
+                                        referrerPolicy="no-referrer-when-downgrade"
+                                    />
+                                    <div className={styles.mapMarkers}>
+                                        {tour.itinerary.map((day) => (
+                                            <button
+                                                key={day.day}
+                                                type="button"
+                                                className={activeDay === day.day ? styles.mapMarkerActive : styles.mapMarker}
+                                                onClick={() => setActiveDay(day.day)}
+                                                title={`Ngày ${day.day}: ${day.location}`}
+                                            >
+                                                <MapPin className={styles.mapMarkerIcon} />
+                                                <span>Ngày {day.day}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        {/* Detailed Itinerary */}
+                        <section className={styles.section} ref={(el) => { if (el) dayRefs.current.root = el; }}>
                             <h2 className={styles.sectionTitle}>Lịch Trình Chi Tiết</h2>
                             <div className={styles.timeline}>
                                 {(showFullItinerary ? tour.itinerary : tour.itinerary.slice(0, 3)).map((day, idx, arr) => (
-                                    <div key={idx} className={styles.timelineItem}>
+                                    <div
+                                        key={idx}
+                                        className={styles.timelineItem}
+                                        ref={(el) => { if (el) dayRefs.current[day.day] = el; }}
+                                        data-day={day.day}
+                                    >
                                         <div className={styles.timelineLine}>
-                                            <div className={styles.timelineDot}>
+                                            <button
+                                                type="button"
+                                                className={`${styles.timelineDot} ${activeDay === day.day ? styles.timelineDotActive : ''}`}
+                                                onClick={() => setActiveDay(day.day)}
+                                            >
                                                 D{day.day}
-                                            </div>
+                                            </button>
                                             {idx < arr.length - 1 && (
                                                 <div className={styles.timelineConnector}></div>
                                             )}
@@ -392,7 +435,11 @@ const TourDetail = () => {
                                 <span className={styles.totalAmount}>{totalPrice.toLocaleString('de-DE')} VND</span>
                             </div>
 
-                            <button className={styles.bookNowBtn}>
+                            <button
+                                type="button"
+                                className={styles.bookNowBtn}
+                                onClick={() => navigate(`/checkout/${id}?travelers=${travelers}&date=${encodeURIComponent(selectedDate)}`)}
+                            >
                                 Đặt Ngay
                             </button>
                             <p className={styles.bookNote}>Không cần thanh toán để giữ chỗ của bạn.</p>

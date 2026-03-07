@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Plane, MapPin, BookOpen, Compass, Search, Phone } from 'lucide-react';
+import { Menu, X, Plane, MapPin, BookOpen, Compass, Search, Phone, User } from 'lucide-react';
 import styles from './Navbar.module.css';
 import logo from '../assets/LogoFlourish\'.jpg';
+import { useAuth } from '../context/AuthContext';
 
 const HOTLINE = '1900 1234'; // Thay bằng số hotline thật
 
@@ -10,6 +11,7 @@ const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
     const location = useLocation();
     const pathname = location.pathname;
+    const { user } = useAuth();
 
     const navLinks = [
         { name: 'Chuyến đi của tôi', icon: MapPin, href: '/my-journey' },
@@ -57,12 +59,21 @@ const Navbar = () => {
                             <Phone className={styles.navIcon} />
                             <span className={styles.hotlineText}>{HOTLINE}</span>
                         </a>
-                        <Link to="/login" className={styles.signInBtn}>
-                            Đăng nhập
-                        </Link>
-                        <Link to="/register" className={styles.joinBtn}>
-                            Đăng ký ngay
-                        </Link>
+                        {user ? (
+                            <Link to="/profile" className={pathname === '/profile' ? `${styles.signInBtn} ${styles.navLinkActive}` : styles.signInBtn}>
+                                <User className={styles.navIcon} />
+                                Tài khoản
+                            </Link>
+                        ) : (
+                            <>
+                                <Link to="/login" className={styles.signInBtn}>
+                                    Đăng nhập
+                                </Link>
+                                <Link to="/register" className={styles.joinBtn}>
+                                    Đăng ký ngay
+                                </Link>
+                            </>
+                        )}
                     </div>
 
                     {/* Mobile Menu Button */}
@@ -97,12 +108,21 @@ const Navbar = () => {
                             Hotline: {HOTLINE}
                         </a>
                         <div className={styles.mobileAuthContainer}>
-                            <Link to="/login" className={styles.mobileSignInBtn} onClick={() => setIsOpen(false)}>
-                                Đăng nhập
-                            </Link>
-                            <Link to="/register" className={styles.mobileJoinBtn} onClick={() => setIsOpen(false)}>
-                                Đăng ký ngay
-                            </Link>
+                            {user ? (
+                                <Link to="/profile" className={styles.mobileSignInBtn} onClick={() => setIsOpen(false)}>
+                                    <User className="w-5 h-5" />
+                                    Tài khoản
+                                </Link>
+                            ) : (
+                                <>
+                                    <Link to="/login" className={styles.mobileSignInBtn} onClick={() => setIsOpen(false)}>
+                                        Đăng nhập
+                                    </Link>
+                                    <Link to="/register" className={styles.mobileJoinBtn} onClick={() => setIsOpen(false)}>
+                                        Đăng ký ngay
+                                    </Link>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>

@@ -3,17 +3,25 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Ticket, ArrowLeft } from 'lucide-react';
 import styles from './Login.module.css';
 import logo from '../assets/LogoFlourish\'.jpg';
+import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [error, setError] = useState('');
     const navigate = useNavigate();
+    const { login, checkCredentials, MOCK_USER } = useAuth();
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // Handle login logic here
-        console.log('Login:', { email, password });
+        setError('');
+        if (checkCredentials(email, password)) {
+            login(MOCK_USER);
+            navigate('/profile');
+        } else {
+            setError('Email hoặc mật khẩu không đúng. Thử: demo@flourish.com / flourish123');
+        }
     };
 
     const scrollToTop = () => {
@@ -86,6 +94,8 @@ const Login = () => {
                             <Link to="/forgot-password">Forgot Password?</Link>
                         </div>
                     </div>
+
+                    {error && <p className={styles.errorMsg}>{error}</p>}
 
                     {/* Sign In Button */}
                     <button type="submit" className={styles.signInBtn}>
