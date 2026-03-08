@@ -60,6 +60,7 @@ const FloatingChatbot = () => {
           price: t.price,
           durationDays: t.durationDays,
           imageUrl: t.imageUrl,
+          actions: t.actions || [],
         })) : undefined,
         quickReplies: quickReplies.length ? quickReplies : undefined,
       }]);
@@ -111,22 +112,37 @@ const FloatingChatbot = () => {
                   {m.tours && m.tours.length > 0 && (
                     <div className={styles.tourCards}>
                       {m.tours.map((t) => (
-                        <Link
-                          key={t.id}
-                          to={`/tours/${t.id}`}
-                          className={styles.tourCard}
-                          onClick={() => setOpen(false)}
-                        >
-                          <img src={t.imageUrl || 'https://placehold.co/80/eee/999?text=Tour'} alt="" />
-                          <div className={styles.tourCardInfo}>
-                            <strong>{t.title}</strong>
-                            <span>
-                              {t.durationDays ? `${t.durationDays} ngày` : ''}
-                              {t.durationDays && t.price ? ' · ' : ''}
-                              {t.price ? formatPrice(t.price) : ''}
-                            </span>
-                          </div>
-                        </Link>
+                        <div key={t.id} className={styles.tourCardWrap}>
+                          <Link
+                            to={`/tours/${t.id}`}
+                            className={styles.tourCard}
+                            onClick={() => setOpen(false)}
+                          >
+                            <img src={t.imageUrl || 'https://placehold.co/80/eee/999?text=Tour'} alt="" />
+                            <div className={styles.tourCardInfo}>
+                              <strong>{t.title}</strong>
+                              <span>
+                                {t.durationDays ? `${t.durationDays} ngày` : ''}
+                                {t.durationDays && t.price ? ' · ' : ''}
+                                {t.price ? formatPrice(t.price) : ''}
+                              </span>
+                            </div>
+                          </Link>
+                          {t.actions && t.actions.length > 0 && (
+                            <div className={styles.tourCardActions}>
+                              {t.actions.map((a, ai) => (
+                                <button
+                                  key={ai}
+                                  type="button"
+                                  className={styles.tourCardActionBtn}
+                                  onClick={() => handleQuickReply(a.payload || a.label)}
+                                >
+                                  {a.label || a.payload}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
                       ))}
                     </div>
                   )}

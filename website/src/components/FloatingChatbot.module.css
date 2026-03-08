@@ -70,8 +70,20 @@
     @apply space-y-2 mt-2;
 }
 
+.tourCardWrap {
+    @apply rounded-xl border border-gray-200 bg-white overflow-hidden;
+}
+
 .tourCard {
-    @apply flex gap-2 p-2 rounded-xl bg-white border border-gray-200 no-underline text-gray-900 hover:border-primary-400 hover:shadow transition-all;
+    @apply flex gap-2 p-2 no-underline text-gray-900 hover:bg-gray-50 transition-colors;
+}
+
+.tourCardActions {
+    @apply flex flex-wrap gap-1.5 px-2 pb-2 pt-0;
+}
+
+.tourCardActionBtn {
+    @apply px-2.5 py-1 rounded-lg text-xs font-medium bg-gray-100 text-gray-700 hover:bg-primary-100 hover:text-primary-700 border-0 cursor-pointer transition-colors;
 }
 
 .tourCard img {
