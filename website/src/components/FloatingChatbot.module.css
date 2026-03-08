@@ -90,6 +90,22 @@
     @apply text-gray-500;
 }
 
+.quickReplies {
+    @apply flex flex-wrap gap-2 mt-2;
+}
+
+.quickReplyBtn {
+    @apply px-3 py-1.5 rounded-full text-xs font-medium bg-primary-100 text-primary-700 hover:bg-primary-200 transition-colors border-0 cursor-pointer;
+}
+
+.typing {
+    @apply italic text-gray-500;
+}
+
+.errorText {
+    @apply text-red-600 text-xs mt-1 px-2;
+}
+
 .inputRow {
     @apply flex gap-2 p-3 border-t border-gray-200;
 }
