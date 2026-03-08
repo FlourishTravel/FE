@@ -20,15 +20,15 @@ jobs:
         with:
           node-version: "20"
           cache: "npm"
-          cache-dependency-path: website/package-lock.json
+          cache-dependency-path: FE/website/package-lock.json
 
       - name: Install & Build
         run: |
-          cd website && npm ci && npm run build
+          cd FE/website && npm ci && npm run build
 
       - name: Deploy to gh-pages branch
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: website/dist
+          publish_dir: FE/website/dist
           force_orphan: true
