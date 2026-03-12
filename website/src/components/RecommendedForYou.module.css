@@ -2,7 +2,7 @@
 @reference "../index.css";
 
 .section {
-    @apply py-16 bg-gray-50;
+    @apply py-10 bg-gray-50;
 }
 
 .container {

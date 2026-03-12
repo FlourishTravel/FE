@@ -640,6 +640,42 @@
     }
 }
 
+@media (max-width: 480px) {
+    .container {
+        padding-left: 12px;
+        padding-right: 12px;
+        padding-top: 20px;
+    }
+
+    .formSection {
+        padding: 18px 16px;
+        margin-bottom: 16px;
+    }
+
+    .sectionTitle {
+        @apply text-base;
+        margin-bottom: 14px;
+    }
+
+    .stepper {
+        padding: 10px 12px;
+    }
+
+    .stepCircle {
+        width: 30px;
+        height: 30px;
+        @apply text-xs;
+    }
+
+    .btnBack {
+        @apply py-2.5 px-4 text-sm;
+    }
+
+    .btnNext {
+        @apply py-2.5 text-sm;
+    }
+}
+
 /* ===== ANIMATIONS ===== */
 @keyframes fadeIn {
     from {

@@ -135,9 +135,18 @@
     }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
+    .heroSection {
+        @apply pt-20 min-h-[100svh];
+    }
+
+    .heroText {
+        @apply mb-8 px-2;
+    }
+
     .searchBox {
-        padding: 16px 18px;
+        padding: 20px 16px;
+        border-radius: 1.5rem;
     }
 
     .searchInputsRow {
@@ -150,11 +159,32 @@
         width: 100%;
     }
 
+    .buttonGroup {
+        width: 100%;
+    }
+
+    .searchButton {
+        width: 100%;
+        padding: 14px 28px;
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 480px) {
     .title {
         @apply text-3xl;
+        line-height: 1.2;
     }
 
     .subtitle {
-        @apply text-lg;
+        @apply text-base;
+    }
+
+    .searchBox {
+        padding: 16px 14px;
+    }
+
+    .inputWrapper {
+        padding: 12px 14px;
     }
 }

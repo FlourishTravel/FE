@@ -520,4 +520,32 @@
         flex-direction: column;
         gap: 12px;
     }
+
+    .cardImageContainer {
+        height: 160px;
+    }
+}
+
+@media (max-width: 480px) {
+    .pageContainer {
+        padding-top: 70px;
+    }
+
+    .layout {
+        padding-top: 16px;
+        padding-bottom: 32px;
+        gap: 16px;
+    }
+
+    .mainTitle {
+        @apply text-2xl;
+    }
+
+    .cardContent {
+        padding: 14px;
+    }
+
+    .price {
+        @apply text-xl;
+    }
 }

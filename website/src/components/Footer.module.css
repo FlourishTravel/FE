@@ -93,3 +93,48 @@
 .dropdownItem {
     @apply w-full text-left;
 }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .footer {
+        @apply py-10;
+    }
+
+    .footerGrid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px 16px;
+        text-align: left;
+        margin-bottom: 20px;
+    }
+
+    .logo {
+        @apply w-20 h-20;
+    }
+
+    .title {
+        @apply text-lg mb-1;
+    }
+
+    .description {
+        @apply text-xs;
+    }
+
+    .subscribeContainer {
+        @apply mb-5;
+    }
+}
+
+@media (max-width: 480px) {
+    .footerGrid {
+        grid-template-columns: 1fr 1fr;
+        gap: 16px 12px;
+    }
+
+    .bottomBar {
+        @apply text-xs gap-2 flex-col;
+    }
+
+    .links {
+        @apply gap-3;
+    }
+}

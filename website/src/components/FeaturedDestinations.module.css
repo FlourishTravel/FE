@@ -2,7 +2,7 @@
 @reference "../index.css";
 
 .section {
-    @apply py-20 bg-white relative overflow-hidden;
+    @apply py-5 bg-white relative overflow-hidden;
 }
 
 .container {
@@ -19,6 +19,55 @@
 
 .grid {
     @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 767px) {
+    .section {
+        @apply py-8;
+    }
+
+    .header {
+        @apply mb-6 px-1;
+    }
+
+    .title {
+        @apply text-2xl;
+    }
+
+    /* Horizontal scroll on mobile */
+    .grid {
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        gap: 16px;
+        padding-bottom: 12px;
+    }
+
+    .grid::-webkit-scrollbar {
+        height: 4px;
+    }
+
+    .grid::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 2px;
+    }
+
+    .grid::-webkit-scrollbar-thumb {
+        background: #d1d5db;
+        border-radius: 2px;
+    }
+
+    .cardLink {
+        flex: 0 0 72vw;
+        max-width: 280px;
+        scroll-snap-align: start;
+    }
+
+    .cardImage {
+        @apply h-[200px];
+    }
 }
 
 .cardLink {

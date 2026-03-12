@@ -10,19 +10,19 @@ const Mission = () => {
     const slides = [
         {
             id: 0,
-            image: 'https://images.unsplash.com/photo-1542261947-f3eb731f280a?q=80&w=2000&auto=format&fit=crop',
+            image: 'https://cdn.pixabay.com/photo/2019/02/11/16/35/iguazu-falls-3990887_1280.jpg',
             title: 'MEGA ULTIMA SOUTH AMERICA',
             subtitle: '13 Wild Experiences across the continent of extremes.'
         },
         {
             id: 1,
-            image: 'https://images.unsplash.com/photo-1544642878-a28d5789f25a?q=80&w=2000&auto=format&fit=crop',
+            image: 'https://cdn.pixabay.com/photo/2013/11/15/13/57/road-210913_1280.jpg',
             title: 'THE UNTAMED AMAZON',
             subtitle: 'Journey deeper into the lungs of the Earth.'
         },
         {
             id: 2,
-            image: 'https://images.unsplash.com/photo-1518182170546-076616fdcb2e?q=80&w=2000&auto=format&fit=crop',
+            image: 'https://cdn.pixabay.com/photo/2017/06/04/16/32/patagonia-2371353_1280.jpg',
             title: 'PATAGONIA EXPEDITIONS',
             subtitle: 'Where ice and fire meet at the edge of the world.'
         }

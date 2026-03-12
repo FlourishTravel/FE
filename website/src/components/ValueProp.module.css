@@ -2,7 +2,7 @@
 @reference "../index.css";
 
 .section {
-    @apply py-20 bg-white relative overflow-hidden;
+    @apply py-8 bg-white relative overflow-hidden;
 }
 
 .container {
@@ -67,6 +67,41 @@
 
 .collageContainer {
     @apply relative w-full h-[450px] md:h-[550px] flex items-center justify-center;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1023px) {
+    .grid {
+        @apply grid-cols-1 gap-8;
+    }
+
+    .leftContent {
+        @apply max-w-full;
+    }
+
+    .collageContainer {
+        display: none;
+    }
+}
+
+@media (max-width: 640px) {
+    .section {
+        @apply py-10;
+    }
+
+    .title {
+        @apply text-2xl;
+    }
+
+    .features {
+        @apply mb-8;
+    }
+
+    .ctaBtn {
+        @apply w-full text-center;
+        display: flex;
+        justify-content: center;
+    }
 }
 
 .mainImageWrapper {
