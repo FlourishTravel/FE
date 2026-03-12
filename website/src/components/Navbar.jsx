@@ -31,9 +31,9 @@ const Navbar = () => {
                 <div className={styles.inner}>
                     {/* Logo */}
                     <div className={styles.logoContainer}>
-                        <a href="/" className={styles.logoText}>
+                        <Link to="/" className={styles.logoText}>
                             <img src={logo} alt="Flourish Logo" className={styles.logoIcon} /> Flourish Tourism
-                        </a>
+                        </Link>
                     </div>
 
                     {/* Desktop Menu */}

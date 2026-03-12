@@ -23,6 +23,8 @@ jobs:
           cache-dependency-path: website/package-lock.json
 
       - name: Install & Build
+        env:
+          VITE_API_URL: https://be-production-68bb.up.railway.app/api
         run: |
           cd website && npm ci && npm run build
 
