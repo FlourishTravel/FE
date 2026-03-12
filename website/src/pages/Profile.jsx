@@ -237,18 +237,7 @@ const Profile = () => {
                                 </div>
                             </div>
 
-                            {/* Joined */}
-                            {user.joinedDate && (
-                                <div className={styles.infoRow}>
-                                    <div className={styles.infoIconBox}>
-                                        <Calendar size={18} />
-                                    </div>
-                                    <div className={styles.infoContent}>
-                                        <span className={styles.infoLabel}>Ngày tham gia</span>
-                                        <span className={styles.infoValue}>{user.joinedDate}</span>
-                                    </div>
-                                </div>
-                            )}
+
                         </div>
                     </div>
 
