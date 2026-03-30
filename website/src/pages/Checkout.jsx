@@ -3,7 +3,7 @@ import { useParams, useSearchParams, useNavigate, Link } from 'react-router-dom'
 import {
     ChevronRight, User, Mail, Phone, FileText, CreditCard,
     Building2, Wallet, Calendar, Users, MapPin, CheckCircle,
-    ArrowRight, ArrowLeft, ShieldCheck, ClipboardList
+    ArrowRight, ArrowLeft, ShieldCheck, ClipboardList, BadgePercent, Banknote
 } from 'lucide-react';
 import bangkokImg from '../assets/di-chuyen-di-lai-thai-lan-2.webp';
 import styles from './Checkout.module.css';
@@ -57,11 +57,15 @@ const Checkout = () => {
     const navigate = useNavigate();
 
     const tour = TOUR_DATA[tourId] || DEFAULT_TOUR;
-    const date = searchParams.get('date') || '18/11 – 24/11/2024';
-    const travelers = parseInt(searchParams.get('travelers')) || 2;
+    const date = searchParams.get('date') || 'Chưa chọn ngày';
+    const adults = parseInt(searchParams.get('adults')) || 1;
+    const children = parseInt(searchParams.get('children')) || 0;
+    const infants = parseInt(searchParams.get('infants')) || 0;
+    const totalPassengers = adults + children + infants;
 
     const [step, setStep] = useState(1);
     const [paymentMethod, setPaymentMethod] = useState('bank');
+    const [paymentType, setPaymentType] = useState('full');
     const [showSuccess, setShowSuccess] = useState(false);
     const [errors, setErrors] = useState({});
 
@@ -74,9 +78,27 @@ const Checkout = () => {
         note: '',
     });
 
-    const totalPrice = tour.price * travelers;
+    // Price calculation per passenger type
+    const adultPrice = tour.price;
+    const childPrice = Math.round(tour.price * 0.7);
+    const infantPrice = 0;
+    const adultTotal = adults * adultPrice;
+    const childTotal = children * childPrice;
+    const infantTotal = infants * infantPrice;
+    const totalPrice = adultTotal + childTotal + infantTotal;
     const discount = totalPrice * (tour.discountPercent / 100);
     const finalPrice = totalPrice - discount;
+    const amountDue = paymentType === 'deposit' ? Math.round(finalPrice * 0.3) : finalPrice;
+    const remainingAmount = paymentType === 'deposit' ? finalPrice - amountDue : 0;
+
+    // Format passenger summary
+    const passengerSummary = () => {
+        const parts = [];
+        if (adults > 0) parts.push(`${adults} người lớn`);
+        if (children > 0) parts.push(`${children} trẻ em`);
+        if (infants > 0) parts.push(`${infants} trẻ sơ sinh`);
+        return parts.join(', ');
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -125,8 +147,14 @@ const Checkout = () => {
             tourImage: typeof tour.image === 'string' && tour.image.startsWith('http') ? tour.image : '',
             tourDuration: tour.duration,
             date,
-            travelers,
+            adults,
+            children,
+            infants,
+            totalPassengers,
             totalPrice: finalPrice,
+            amountDue,
+            remainingAmount,
+            paymentType,
             paymentMethod,
             customerName: formData.fullName,
             customerEmail: formData.email,
@@ -134,7 +162,7 @@ const Checkout = () => {
             idCard: formData.idCard,
             gender: formData.gender,
             note: formData.note,
-            status: 'confirmed',
+            status: paymentType === 'deposit' ? 'deposit_paid' : 'confirmed',
             bookedAt: new Date().toISOString(),
         };
 
@@ -360,6 +388,51 @@ const Checkout = () => {
                                     </div>
                                 </div>
 
+                                {/* Payment type */}
+                                <div className={styles.formSection}>
+                                    <h2 className={styles.sectionTitle}>
+                                        <Banknote className={styles.sectionIcon} />
+                                        Loại Thanh Toán
+                                    </h2>
+                                    <div className={styles.paymentTypeGrid}>
+                                        {/* Deposit 30% */}
+                                        <div
+                                            className={`${styles.paymentTypeCard} ${paymentType === 'deposit' ? styles.paymentTypeCardActive : ''}`}
+                                            onClick={() => setPaymentType('deposit')}
+                                        >
+                                            <div className={`${styles.paymentTypeIconWrap} ${paymentType === 'deposit' ? styles.paymentTypeIconWrapActive : ''}`}>
+                                                <BadgePercent className={styles.paymentTypeIconSvg} />
+                                            </div>
+                                            <div className={styles.paymentTypeContent}>
+                                                <div className={styles.paymentTypeName}>Đặt cọc 30%</div>
+                                                <div className={styles.paymentTypeDesc}>Thanh toán 30% để giữ chỗ, phần còn lại thanh toán trước ngày khởi hành</div>
+                                                <div className={styles.paymentTypeAmount}>{Math.round(finalPrice * 0.3).toLocaleString('de-DE')} VND</div>
+                                            </div>
+                                            <div className={`${styles.paymentRadio} ${paymentType === 'deposit' ? styles.paymentRadioActive : ''}`}>
+                                                <div className={`${styles.paymentRadioDot} ${paymentType === 'deposit' ? styles.paymentRadioDotActive : ''}`} />
+                                            </div>
+                                        </div>
+                                        {/* Full payment */}
+                                        <div
+                                            className={`${styles.paymentTypeCard} ${paymentType === 'full' ? styles.paymentTypeCardActive : ''}`}
+                                            onClick={() => setPaymentType('full')}
+                                        >
+                                            <div className={`${styles.paymentTypeIconWrap} ${paymentType === 'full' ? styles.paymentTypeIconWrapActive : ''}`}>
+                                                <CreditCard className={styles.paymentTypeIconSvg} />
+                                            </div>
+                                            <div className={styles.paymentTypeContent}>
+                                                <div className={styles.paymentTypeName}>Thanh toán toàn bộ</div>
+                                                <div className={styles.paymentTypeDesc}>Thanh toán 100% giá trị tour ngay lập tức</div>
+                                                <div className={styles.paymentTypeAmount}>{finalPrice.toLocaleString('de-DE')} VND</div>
+                                            </div>
+                                            <div className={`${styles.paymentRadio} ${paymentType === 'full' ? styles.paymentRadioActive : ''}`}>
+                                                <div className={`${styles.paymentRadioDot} ${paymentType === 'full' ? styles.paymentRadioDotActive : ''}`} />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+
                                 {/* Payment method */}
                                 <div className={styles.formSection}>
                                     <h2 className={styles.sectionTitle}>
@@ -398,7 +471,7 @@ const Checkout = () => {
                                         </button>
                                         <button className={styles.btnNext} onClick={handleConfirmBooking}>
                                             <ShieldCheck style={{ width: 18, height: 18 }} />
-                                            Xác Nhận Đặt Tour
+                                            {paymentType === 'deposit' ? `Xác Nhận Cọc ${amountDue.toLocaleString('de-DE')} VND` : 'Xác Nhận Đặt Tour'}
                                         </button>
                                     </div>
                                 </div>
@@ -433,15 +506,29 @@ const Checkout = () => {
                                 </div>
                                 <div className={styles.summaryRow}>
                                     <Users className={styles.summaryRowIcon} />
-                                    {travelers} người lớn
+                                    {passengerSummary()}
                                 </div>
                             </div>
 
                             <div className={styles.priceBreakdown}>
-                                <div className={styles.priceRow}>
-                                    <span>{tour.price.toLocaleString('de-DE')} VND × {travelers} người</span>
-                                    <span>{totalPrice.toLocaleString('de-DE')} VND</span>
-                                </div>
+                                {adults > 0 && (
+                                    <div className={styles.priceRow}>
+                                        <span>{adultPrice.toLocaleString('de-DE')} VND × {adults} người lớn</span>
+                                        <span>{adultTotal.toLocaleString('de-DE')} VND</span>
+                                    </div>
+                                )}
+                                {children > 0 && (
+                                    <div className={styles.priceRow}>
+                                        <span>{childPrice.toLocaleString('de-DE')} VND × {children} trẻ em (70%)</span>
+                                        <span>{childTotal.toLocaleString('de-DE')} VND</span>
+                                    </div>
+                                )}
+                                {infants > 0 && (
+                                    <div className={styles.priceRow}>
+                                        <span>Miễn phí × {infants} trẻ sơ sinh</span>
+                                        <span>0 VND</span>
+                                    </div>
+                                )}
                                 {tour.discountPercent > 0 && (
                                     <div className={styles.priceRow}>
                                         <span className={styles.discountBadge}>Giảm {tour.discountPercent}%</span>
@@ -454,6 +541,27 @@ const Checkout = () => {
                                 <span className={styles.priceLabel}>Tổng cộng</span>
                                 <span className={styles.priceValue}>{finalPrice.toLocaleString('de-DE')} VND</span>
                             </div>
+
+                            {step === 2 && paymentType === 'deposit' && (
+                                <div className={styles.depositSummary}>
+                                    <div className={styles.depositSummaryRow}>
+                                        <span>Cọc 30%</span>
+                                        <span className={styles.depositAmount}>{amountDue.toLocaleString('de-DE')} VND</span>
+                                    </div>
+                                    <div className={styles.depositSummaryRow}>
+                                        <span>Còn lại</span>
+                                        <span>{remainingAmount.toLocaleString('de-DE')} VND</span>
+                                    </div>
+                                </div>
+                            )}
+                            {step === 2 && paymentType === 'full' && (
+                                <div className={styles.depositSummary}>
+                                    <div className={styles.depositSummaryRow}>
+                                        <span>Thanh toán</span>
+                                        <span className={styles.depositAmount}>{finalPrice.toLocaleString('de-DE')} VND</span>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -466,9 +574,17 @@ const Checkout = () => {
                         <div className={styles.successIconCircle}>
                             <CheckCircle className={styles.successIconSvg} />
                         </div>
-                        <h2 className={styles.successTitle}>Đặt Tour Thành Công!</h2>
+                        <h2 className={styles.successTitle}>
+                            {paymentType === 'deposit' ? 'Đặt Cọc Thành Công!' : 'Đặt Tour Thành Công!'}
+                        </h2>
                         <p className={styles.successText}>
                             Cảm ơn bạn đã đặt tour <strong>{tour.title}</strong>.<br />
+                            {paymentType === 'deposit' && (
+                                <>
+                                    Số tiền cọc: <strong>{amountDue.toLocaleString('de-DE')} VND</strong>.<br />
+                                    Số tiền còn lại cần thanh toán: <strong>{remainingAmount.toLocaleString('de-DE')} VND</strong>.<br />
+                                </>
+                            )}
                             Chúng tôi sẽ gửi xác nhận qua email <strong>{formData.email}</strong>.
                         </p>
                         <button className={styles.successBtn} onClick={() => navigate('/my-journey')}>

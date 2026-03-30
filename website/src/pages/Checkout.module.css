@@ -374,6 +374,138 @@
     margin-top: 2px;
 }
 
+/* ===== PAYMENT TYPE CARDS ===== */
+.paymentTypeGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+}
+
+.paymentTypeCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    background: white;
+    position: relative;
+    text-align: center;
+}
+
+.paymentTypeCard:hover {
+    border-color: #d1d5db;
+    background: #fafafa;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.paymentTypeCardActive {
+    border-color: #10b981;
+    background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12), 0 4px 16px rgba(16, 185, 129, 0.1);
+}
+
+.paymentTypeCardActive:hover {
+    border-color: #10b981;
+    background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
+}
+
+.paymentTypeIconWrap {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+}
+
+.paymentTypeIconWrapActive {
+    background: #d1fae5;
+}
+
+.paymentTypeIconSvg {
+    width: 24px;
+    height: 24px;
+    color: #6b7280;
+    transition: color 0.25s ease;
+}
+
+.paymentTypeIconWrapActive .paymentTypeIconSvg {
+    color: #047857;
+}
+
+.paymentTypeContent {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+
+.paymentTypeName {
+    @apply text-sm font-bold text-gray-900;
+}
+
+.paymentTypeDesc {
+    @apply text-xs text-gray-500;
+    line-height: 1.5;
+}
+
+.paymentTypeAmount {
+    @apply text-base font-bold;
+    color: #166534;
+    margin-top: 6px;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Deposit info note */
+.depositNote {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-top: 16px;
+    padding: 14px 16px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 12px;
+    @apply text-sm text-blue-800;
+    line-height: 1.6;
+    animation: fadeInUp 0.3s ease-out;
+}
+
+.depositNoteIcon {
+    flex-shrink: 0;
+    font-size: 16px;
+    margin-top: 1px;
+}
+
+/* Deposit summary in sidebar */
+.depositSummary {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1.5px dashed #d1fae5;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    animation: fadeInUp 0.3s ease-out;
+}
+
+.depositSummaryRow {
+    display: flex;
+    justify-content: space-between;
+    @apply text-sm text-gray-600;
+}
+
+.depositAmount {
+    @apply font-bold;
+    color: #166534;
+}
+
 /* ===== ORDER SUMMARY (SIDEBAR) ===== */
 .summaryCard {
     @apply bg-white rounded-2xl;
@@ -633,6 +765,10 @@
 
     .ctaRow {
         flex-direction: column;
+    }
+
+    .paymentTypeGrid {
+        grid-template-columns: 1fr;
     }
 
     .successCard {
