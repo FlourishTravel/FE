@@ -615,6 +615,393 @@
     @apply text-sm text-gray-400 font-medium;
 }
 
+/* ===== DATE & PASSENGER SECTION ===== */
+.datePassengerSection {
+    display: flex;
+    gap: 0;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 16px;
+    overflow: hidden;
+    background: white;
+}
+
+.datePassengerTitle {
+    @apply text-lg font-bold text-gray-900;
+    margin-bottom: 4px;
+    line-height: 1.3;
+}
+
+.datePassengerSubtitle {
+    @apply text-xs text-emerald-600;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.datePassengerHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+    padding: 20px 24px 0 24px;
+}
+
+/* Calendar */
+.calendarWrap {
+    flex: 1;
+    padding: 0 0 20px 0;
+    border-right: 1.5px solid #e5e7eb;
+}
+
+.calendarSection {
+    padding: 0 24px;
+}
+
+.calendarLabel {
+    @apply text-sm font-semibold text-gray-700;
+    margin-bottom: 12px;
+    display: block;
+}
+
+.calendarHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.calendarMonthYear {
+    @apply text-base font-bold text-gray-900;
+    font-family: 'Inter', sans-serif;
+}
+
+.calendarNavBtn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1.5px solid #e5e7eb;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #374151;
+}
+
+.calendarNavBtn:hover {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+}
+
+.calendarNavBtnDisabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.calendarWeekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    margin-bottom: 4px;
+}
+
+.calendarWeekday {
+    @apply text-xs font-semibold text-gray-400;
+    text-align: center;
+    padding: 6px 0;
+}
+
+.calendarGrid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+}
+
+.calendarDay {
+    width: 100%;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    @apply text-sm font-medium text-gray-700;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+}
+
+.calendarDay:hover {
+    background: #f0fdf4;
+    color: #10b981;
+}
+
+.calendarDaySelected {
+    background: #10b981 !important;
+    color: white !important;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.calendarDayToday {
+    color: #10b981;
+    font-weight: 700;
+}
+
+.calendarDayToday::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #10b981;
+}
+
+.calendarDayDisabled {
+    color: #d1d5db !important;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.calendarDayEmpty {
+    cursor: default;
+    pointer-events: none;
+}
+
+/* Options & Passengers */
+.optionsWrap {
+    flex: 1;
+    padding: 0 0 20px 0;
+}
+
+.optionsSection {
+    padding: 0 24px;
+}
+
+.optionsHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.optionsTitle {
+    @apply text-base font-bold text-gray-900;
+}
+
+.optionsResetBtn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    @apply text-xs font-medium;
+    color: #ef4444;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.optionsResetBtn:hover {
+    background: #fef2f2;
+}
+
+.optionsSubtext {
+    @apply text-xs text-gray-400;
+    margin-bottom: 16px;
+}
+
+.optionGroup {
+    margin-bottom: 20px;
+}
+
+.optionGroupLabel {
+    @apply text-sm font-semibold text-gray-700;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.optionGroupSubLabel {
+    @apply text-xs text-gray-400;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.radioOption {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    cursor: pointer;
+    @apply text-sm text-gray-700;
+}
+
+.radioCircle {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid #d1d5db;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s;
+}
+
+.radioCircleSelected {
+    border-color: #10b981;
+}
+
+.radioCircleInner {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #10b981;
+    transform: scale(0);
+    transition: transform 0.2s;
+}
+
+.radioCircleSelected .radioCircleInner {
+    transform: scale(1);
+}
+
+.radioLabel {
+    @apply text-sm text-gray-700;
+}
+
+/* Passengers */
+.passengersSection {
+    border-top: 1px solid #f3f4f6;
+    padding-top: 16px;
+}
+
+.passengersTitle {
+    @apply text-base font-bold text-gray-900;
+    margin-bottom: 2px;
+}
+
+.passengersSubtext {
+    @apply text-xs text-gray-400;
+    margin-bottom: 14px;
+}
+
+.passengerRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+}
+
+.passengerInfo {
+    display: flex;
+    flex-direction: column;
+}
+
+.passengerLabel {
+    @apply text-sm font-bold text-gray-800;
+}
+
+.passengerAge {
+    @apply text-xs text-gray-400;
+}
+
+.counterWrap {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.counterBtn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid #10b981;
+    background: white;
+    color: #10b981;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    @apply text-lg font-bold;
+}
+
+.counterBtn:hover {
+    background: #f0fdf4;
+}
+
+.counterBtnDisabled {
+    border-color: #e5e7eb;
+    color: #d1d5db;
+    cursor: not-allowed;
+}
+
+.counterBtnDisabled:hover {
+    background: white;
+}
+
+.counterValue {
+    @apply text-xl font-bold text-gray-900;
+    min-width: 24px;
+    text-align: center;
+    font-family: 'Inter', sans-serif;
+}
+
+.updatePriceBtn {
+    @apply w-full py-3 text-white font-semibold text-sm rounded-xl;
+    background: #16a34a;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 16px;
+}
+
+.updatePriceBtn:hover {
+    background: #15803d;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(22, 163, 74, 0.35);
+}
+
+/* Booking Card Info Display (read-only) */
+.bookingInfoDisplay {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 10px;
+    background: #f9fafb;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.bookingInfoDisplay:hover {
+    border-color: #10b981;
+    background: #f0fdf4;
+}
+
+.bookingInfoIcon {
+    width: 16px;
+    height: 16px;
+    color: #6b7280;
+    flex-shrink: 0;
+}
+
+.bookingInfoText {
+    @apply text-sm text-gray-700;
+    flex: 1;
+}
+
+.bookingInfoHint {
+    @apply text-xs text-emerald-600 font-medium;
+    flex-shrink: 0;
+}
+
 /* ===== RESPONSIVE FINISH ===== */
 @media (max-width: 1024px) {
     .bodyLayout {
@@ -635,6 +1022,15 @@
 
     .highlightsGrid {
         grid-template-columns: repeat(2, 1fr);
+    }
+
+    .datePassengerSection {
+        flex-direction: column;
+    }
+
+    .calendarWrap {
+        border-right: none;
+        border-bottom: 1.5px solid #e5e7eb;
     }
 }
 
@@ -685,6 +1081,15 @@
 
     .sectionTitle {
         @apply text-xl;
+    }
+
+    .datePassengerHeader {
+        padding: 16px 16px 0 16px;
+    }
+
+    .calendarSection,
+    .optionsSection {
+        padding: 0 16px;
     }
 }
 
