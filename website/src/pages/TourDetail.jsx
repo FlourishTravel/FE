@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import {
-    MapPin, Star, Clock, Users, Sun, Globe, ChevronRight,
-    Calendar, ChevronDown, Map, CheckCircle, Layers, Image, X
+    MapPin, Star, Clock, Users, Sun, Globe, ChevronRight, ChevronLeft,
+    Calendar, ChevronDown, Map, CheckCircle, Layers, Image, X,
+    Minus, Plus, RefreshCw
 } from 'lucide-react';
 import bangkokImgNew from '../assets/di-chuyen-di-lai-thai-lan-2.webp';
 import bangkokImg2 from '../assets/366426-tour-thai-lan-5n4d-bangkok-pattaya.jpg';
@@ -160,14 +161,142 @@ const TourDetail = () => {
     const navigate = useNavigate();
     const tour = TOUR_DATA[id] || DEFAULT_TOUR;
 
-    const [selectedDate, setSelectedDate] = useState('18/11 – 24/11/2024');
-    const [travelers, setTravelers] = useState(2);
     const [selectedImage, setSelectedImage] = useState(null);
     const [showFullItinerary, setShowFullItinerary] = useState(false);
     const [activeDay, setActiveDay] = useState(1);
     const dayRefs = useRef({});
+    const datePassengerRef = useRef(null);
 
-    const totalPrice = typeof tour.price === 'number' ? tour.price * travelers : 0;
+    // Calendar states
+    const today = new Date();
+    const [currentMonth, setCurrentMonth] = useState(today.getMonth());
+    const [currentYear, setCurrentYear] = useState(today.getFullYear());
+    const [selectedDay, setSelectedDay] = useState(null);
+
+    // Passenger states
+    const [adults, setAdults] = useState(1);
+    const [children, setChildren] = useState(0);
+    const [infants, setInfants] = useState(0);
+
+    // Price calculation
+    const adultPrice = typeof tour.price === 'number' ? tour.price : 0;
+    const childPrice = adultPrice * 0.7;
+    const infantPrice = 0;
+    const totalPrice = (adults * adultPrice) + (children * childPrice) + (infants * infantPrice);
+
+    // Calendar helpers
+    const MONTH_NAMES = [
+        'Tháng Một', 'Tháng Hai', 'Tháng Ba', 'Tháng Tư', 'Tháng Năm', 'Tháng Sáu',
+        'Tháng Bảy', 'Tháng Tám', 'Tháng Chín', 'Tháng Mười', 'Tháng Mười Một', 'Tháng Mười Hai'
+    ];
+    const WEEKDAYS = ['Th 2', 'Th 3', 'Th 4', 'Th 5', 'Th 6', 'Th 7', 'CN'];
+
+    const getDaysInMonth = (month, year) => new Date(year, month + 1, 0).getDate();
+    const getFirstDayOfMonth = (month, year) => {
+        const day = new Date(year, month, 1).getDay();
+        return day === 0 ? 6 : day - 1; // Monday = 0
+    };
+
+    const isPastDay = (day) => {
+        const date = new Date(currentYear, currentMonth, day);
+        const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        return date < todayStart;
+    };
+
+    const isToday = (day) => {
+        return day === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear();
+    };
+
+    const isSelectedDay = (day) => {
+        return selectedDay && selectedDay.day === day && selectedDay.month === currentMonth && selectedDay.year === currentYear;
+    };
+
+    const handlePrevMonth = () => {
+        if (currentMonth === 0) {
+            setCurrentMonth(11);
+            setCurrentYear(currentYear - 1);
+        } else {
+            setCurrentMonth(currentMonth - 1);
+        }
+    };
+
+    const handleNextMonth = () => {
+        if (currentMonth === 11) {
+            setCurrentMonth(0);
+            setCurrentYear(currentYear + 1);
+        } else {
+            setCurrentMonth(currentMonth + 1);
+        }
+    };
+
+    const canGoPrev = () => {
+        return currentYear > today.getFullYear() || (currentYear === today.getFullYear() && currentMonth > today.getMonth());
+    };
+
+    const handleSelectDay = (day) => {
+        if (!isPastDay(day)) {
+            setSelectedDay({ day, month: currentMonth, year: currentYear });
+        }
+    };
+
+    const formatSelectedDate = () => {
+        if (!selectedDay) return 'Chưa chọn ngày';
+        return `${String(selectedDay.day).padStart(2, '0')}/${String(selectedDay.month + 1).padStart(2, '0')}/${selectedDay.year}`;
+    };
+
+    const formatPassengerSummary = () => {
+        const parts = [];
+        if (adults > 0) parts.push(`${adults} Người lớn`);
+        if (children > 0) parts.push(`${children} Trẻ em`);
+        if (infants > 0) parts.push(`${infants} Trẻ sơ sinh`);
+        return parts.join(', ') || '1 Người lớn';
+    };
+
+    const handleReset = () => {
+        setAdults(1);
+        setChildren(0);
+        setInfants(0);
+        setSelectedDay(null);
+    };
+
+    const scrollToDatePassenger = () => {
+        if (datePassengerRef.current) {
+            datePassengerRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    };
+
+    const renderCalendarDays = () => {
+        const daysInMonth = getDaysInMonth(currentMonth, currentYear);
+        const firstDay = getFirstDayOfMonth(currentMonth, currentYear);
+        const cells = [];
+
+        // Empty cells before first day
+        for (let i = 0; i < firstDay; i++) {
+            cells.push(<div key={`empty-${i}`} className={styles.calendarDayEmpty}></div>);
+        }
+
+        // Day cells
+        for (let d = 1; d <= daysInMonth; d++) {
+            const past = isPastDay(d);
+            const todayClass = isToday(d) ? styles.calendarDayToday : '';
+            const selectedClass = isSelectedDay(d) ? styles.calendarDaySelected : '';
+            const disabledClass = past ? styles.calendarDayDisabled : '';
+
+            cells.push(
+                <button
+                    key={d}
+                    type="button"
+                    className={`${styles.calendarDay} ${todayClass} ${selectedClass} ${disabledClass}`}
+                    onClick={() => handleSelectDay(d)}
+                    disabled={past}
+                >
+                    {d}
+                </button>
+            );
+        }
+
+        return cells;
+    };
 
     const getHighlightIcon = (iconName) => {
         switch (iconName) {
@@ -267,6 +396,155 @@ const TourDetail = () => {
                                         <div className={styles.highlightValue}>{h.value}</div>
                                     </div>
                                 ))}
+                            </div>
+                        </section>
+
+                        {/* Date & Passenger Selection */}
+                        <section className={styles.section} ref={datePassengerRef}>
+                            <div className={styles.datePassengerSection}>
+                                {/* Left: Calendar */}
+                                <div className={styles.calendarWrap}>
+                                    <div className={styles.datePassengerHeader}>
+                                        <div>
+                                            <div className={styles.datePassengerTitle}>{tour.title}</div>
+                                            <span className={styles.datePassengerSubtitle}>Chi tiết ›</span>
+                                        </div>
+                                    </div>
+                                    <div className={styles.calendarSection}>
+                                        <span className={styles.calendarLabel}>Chọn ngày</span>
+                                        <div className={styles.calendarHeader}>
+                                            <button
+                                                type="button"
+                                                className={`${styles.calendarNavBtn} ${!canGoPrev() ? styles.calendarNavBtnDisabled : ''}`}
+                                                onClick={handlePrevMonth}
+                                                disabled={!canGoPrev()}
+                                            >
+                                                <ChevronLeft size={16} />
+                                            </button>
+                                            <span className={styles.calendarMonthYear}>
+                                                {MONTH_NAMES[currentMonth]} {currentYear}
+                                            </span>
+                                            <button
+                                                type="button"
+                                                className={styles.calendarNavBtn}
+                                                onClick={handleNextMonth}
+                                            >
+                                                <ChevronRight size={16} />
+                                            </button>
+                                        </div>
+                                        <div className={styles.calendarWeekdays}>
+                                            {WEEKDAYS.map((wd) => (
+                                                <div key={wd} className={styles.calendarWeekday}>{wd}</div>
+                                            ))}
+                                        </div>
+                                        <div className={styles.calendarGrid}>
+                                            {renderCalendarDays()}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Right: Options & Passengers */}
+                                <div className={styles.optionsWrap}>
+                                    <div className={styles.datePassengerHeader}>
+                                        <div>
+                                            <div className={styles.optionsTitle}>Du khách</div>
+                                            <div className={styles.optionsSubtext}>Vui lòng chọn số lượng người tham gia</div>
+                                        </div>
+                                        <button type="button" className={styles.optionsResetBtn} onClick={handleReset}>
+                                            <RefreshCw size={12} />
+                                            <X size={12} /> Xóa
+                                        </button>
+                                    </div>
+                                    <div className={styles.optionsSection}>
+                                        {/* Passengers */}
+                                        <div className={styles.passengersSection}>
+                                            <div className={styles.passengersTitle}>Du khách</div>
+                                            <div className={styles.passengersSubtext}>Tối thiểu 1 người lớn</div>
+
+                                            {/* Adults */}
+                                            <div className={styles.passengerRow}>
+                                                <div className={styles.passengerInfo}>
+                                                    <span className={styles.passengerLabel}>Người lớn (từ 11 tuổi trở lên)</span>
+                                                </div>
+                                                <div className={styles.counterWrap}>
+                                                    <button
+                                                        type="button"
+                                                        className={`${styles.counterBtn} ${adults <= 1 ? styles.counterBtnDisabled : ''}`}
+                                                        onClick={() => setAdults(Math.max(1, adults - 1))}
+                                                        disabled={adults <= 1}
+                                                    >
+                                                        <Minus size={16} />
+                                                    </button>
+                                                    <span className={styles.counterValue}>{adults}</span>
+                                                    <button
+                                                        type="button"
+                                                        className={`${styles.counterBtn} ${adults + children + infants >= 20 ? styles.counterBtnDisabled : ''}`}
+                                                        onClick={() => setAdults(Math.min(20 - children - infants, adults + 1))}
+                                                        disabled={adults + children + infants >= 20}
+                                                    >
+                                                        <Plus size={16} />
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            {/* Children */}
+                                            <div className={styles.passengerRow}>
+                                                <div className={styles.passengerInfo}>
+                                                    <span className={styles.passengerLabel}>Trẻ em (độ tuổi 2-10)</span>
+                                                </div>
+                                                <div className={styles.counterWrap}>
+                                                    <button
+                                                        type="button"
+                                                        className={`${styles.counterBtn} ${children <= 0 ? styles.counterBtnDisabled : ''}`}
+                                                        onClick={() => setChildren(Math.max(0, children - 1))}
+                                                        disabled={children <= 0}
+                                                    >
+                                                        <Minus size={16} />
+                                                    </button>
+                                                    <span className={styles.counterValue}>{children}</span>
+                                                    <button
+                                                        type="button"
+                                                        className={`${styles.counterBtn} ${adults + children + infants >= 20 ? styles.counterBtnDisabled : ''}`}
+                                                        onClick={() => setChildren(Math.min(20 - adults - infants, children + 1))}
+                                                        disabled={adults + children + infants >= 20}
+                                                    >
+                                                        <Plus size={16} />
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            {/* Infants */}
+                                            <div className={styles.passengerRow}>
+                                                <div className={styles.passengerInfo}>
+                                                    <span className={styles.passengerLabel}>Trẻ sơ sinh (độ tuổi 0-1)</span>
+                                                </div>
+                                                <div className={styles.counterWrap}>
+                                                    <button
+                                                        type="button"
+                                                        className={`${styles.counterBtn} ${infants <= 0 ? styles.counterBtnDisabled : ''}`}
+                                                        onClick={() => setInfants(Math.max(0, infants - 1))}
+                                                        disabled={infants <= 0}
+                                                    >
+                                                        <Minus size={16} />
+                                                    </button>
+                                                    <span className={styles.counterValue}>{infants}</span>
+                                                    <button
+                                                        type="button"
+                                                        className={`${styles.counterBtn} ${adults + children + infants >= 20 ? styles.counterBtnDisabled : ''}`}
+                                                        onClick={() => setInfants(Math.min(20 - adults - children, infants + 1))}
+                                                        disabled={adults + children + infants >= 20}
+                                                    >
+                                                        <Plus size={16} />
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <button type="button" className={styles.updatePriceBtn}>
+                                                Cập nhật giá
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </section>
 
@@ -396,49 +674,36 @@ const TourDetail = () => {
                                 )}
                             </div>
 
-                            {/* Select Dates */}
+                            {/* Date Display (read-only) */}
                             <div className={styles.fieldGroup}>
                                 <label className={styles.fieldLabel}>Chọn Ngày</label>
-                                <div className={styles.fieldInput}>
-                                    <Calendar className={styles.fieldIcon} />
-                                    <input
-                                        type="text"
-                                        value={selectedDate}
-                                        onChange={(e) => setSelectedDate(e.target.value)}
-                                        className={styles.fieldText}
-                                        readOnly
-                                    />
-                                    <ChevronDown className={styles.fieldChevron} />
+                                <div className={styles.bookingInfoDisplay} onClick={scrollToDatePassenger}>
+                                    <Calendar className={styles.bookingInfoIcon} />
+                                    <span className={styles.bookingInfoText}>{formatSelectedDate()}</span>
+                                    <span className={styles.bookingInfoHint}>Thay đổi</span>
                                 </div>
                             </div>
 
-                            {/* Travelers */}
+                            {/* Passengers Display (read-only) */}
                             <div className={styles.fieldGroup}>
                                 <label className={styles.fieldLabel}>Số Khách</label>
-                                <div className={styles.fieldInput}>
-                                    <Users className={styles.fieldIcon} />
-                                    <select
-                                        value={travelers}
-                                        onChange={(e) => setTravelers(Number(e.target.value))}
-                                        className={styles.fieldText}
-                                    >
-                                        {[1, 2, 3, 4, 5, 6].map(n => (
-                                            <option key={n} value={n}>{n} Người lớn</option>
-                                        ))}
-                                    </select>
-                                    <ChevronDown className={styles.fieldChevron} />
+                                <div className={styles.bookingInfoDisplay} onClick={scrollToDatePassenger}>
+                                    <Users className={styles.bookingInfoIcon} />
+                                    <span className={styles.bookingInfoText}>{formatPassengerSummary()}</span>
+                                    <span className={styles.bookingInfoHint}>Thay đổi</span>
                                 </div>
                             </div>
+
 
                             <div className={styles.totalRow}>
                                 <span className={styles.totalLabel}>Tổng giá</span>
-                                <span className={styles.totalAmount}>{totalPrice.toLocaleString('de-DE')} VND</span>
+                                <span className={styles.totalAmount}>{Math.round(totalPrice).toLocaleString('de-DE')} VND</span>
                             </div>
 
                             <button
                                 type="button"
                                 className={styles.bookNowBtn}
-                                onClick={() => navigate(`/checkout/${id}?travelers=${travelers}&date=${encodeURIComponent(selectedDate)}`)}
+                                onClick={() => navigate(`/checkout/${id}?adults=${adults}&children=${children}&infants=${infants}&date=${encodeURIComponent(formatSelectedDate())}`)}
                             >
                                 Đặt Ngay
                             </button>

@@ -68,72 +68,73 @@ const CancellationPolicy = () => {
                 <section id="chinh-sach-huy-tour" className={styles.section}>
                     <h2 className={styles.sectionTitle}>2. Chính Sách Hủy Tour</h2>
                     <p className={styles.sectionText}>
-                        Mức hoàn tiền phụ thuộc vào thời điểm bạn yêu cầu hủy tour so với ngày khởi hành.
+                        Mức hoàn tiền cọc phụ thuộc vào thời điểm bạn yêu cầu hủy tour so với ngày khởi hành. Chính sách áp dụng cho cả hình thức đặt cọc 30% và thanh toán toàn bộ.
                     </p>
 
                     <table className={styles.refundTable}>
                         <thead>
                             <tr>
                                 <th>Thời điểm hủy</th>
-                                <th>Mức hoàn tiền</th>
+                                <th>Mức hoàn tiền cọc</th>
                                 <th>Ghi chú</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td>Trước 14 ngày hoặc sớm hơn</td>
-                                <td><span className={styles.refundBadge100}>Hoàn 100%</span></td>
-                                <td>Không áp dụng phí hủy</td>
+                                <td>Trước 30 ngày khởi hành</td>
+                                <td><span className={styles.refundBadge100}>Hoàn 100% tiền cọc</span></td>
+                                <td>Có thể thu phí dịch vụ nhỏ</td>
                             </tr>
                             <tr>
-                                <td>Từ 7 – 13 ngày trước khởi hành</td>
-                                <td><span className={styles.refundBadge70}>Hoàn 70%</span></td>
-                                <td>Phí hủy 30% giá trị tour</td>
+                                <td>Từ 15 – 29 ngày trước khởi hành</td>
+                                <td><span className={styles.refundBadge50}>Hoàn 50% tiền cọc</span></td>
+                                <td>Phí hủy 50% tiền cọc</td>
                             </tr>
                             <tr>
-                                <td>Từ 3 – 6 ngày trước khởi hành</td>
-                                <td><span className={styles.refundBadge50}>Hoàn 50%</span></td>
-                                <td>Phí hủy 50% giá trị tour</td>
-                            </tr>
-                            <tr>
-                                <td>Dưới 72 giờ trước khởi hành</td>
-                                <td><span className={styles.refundBadge0}>Không hoàn tiền</span></td>
-                                <td>Dịch vụ đã được đặt trước</td>
+                                <td>Dưới 15 ngày trước khởi hành</td>
+                                <td><span className={styles.refundBadge0}>Mất 100% tiền cọc</span></td>
+                                <td>Không hoàn lại tiền cọc</td>
                             </tr>
                         </tbody>
                     </table>
 
                     <div className={styles.dangerBox}>
                         <p className={styles.dangerText}>
-                            ❗ <strong>Lưu ý:</strong> Với các trường hợp hủy dưới 72 giờ, các dịch vụ như khách sạn, phương tiện và hoạt động trải nghiệm đã được đặt trước nên không thể hoàn tiền.
+                            ❗ <strong>Lưu ý:</strong> Với các trường hợp hủy dưới 15 ngày, các dịch vụ như khách sạn, phương tiện và hoạt động trải nghiệm đã được đặt trước nên tiền cọc sẽ không được hoàn lại.
                         </p>
                     </div>
                 </section>
 
-                {/* Section 3: Trường hợp đặc biệt */}
+                {/* Section 3: Trường hợp Bất khả kháng (Force Majeure) */}
                 <section id="truong-hop-dac-biet" className={styles.section}>
-                    <h2 className={styles.sectionTitle}>3. Trường Hợp Đặc Biệt</h2>
+                    <h2 className={styles.sectionTitle}>3. Trường Hợp Bất Khả Kháng (Force Majeure)</h2>
                     <p className={styles.sectionText}>
-                        Khách hàng có thể được <strong>hoàn tiền đầy đủ</strong> hoặc <strong>đổi lịch miễn phí</strong> trong các trường hợp sau:
+                        Nếu khách hàng hủy tour do các nguyên nhân bất khả kháng, Flourish Travel sẽ hỗ trợ <strong>hoàn trả 100% tiền cọc</strong> hoặc cho phép <strong>bảo lưu số tiền cọc</strong> để đổi sang ngày khởi hành khác trong tương lai (trong vòng <strong>6 – 12 tháng</strong>).
                     </p>
 
                     <div className={styles.specialGrid}>
                         <div className={styles.specialCard}>
                             <span className={styles.specialIcon}>🌪️</span>
-                            <span className={styles.specialText}>Thiên tai hoặc thời tiết cực đoan</span>
+                            <span className={styles.specialText}>Thiên tai (bão, lũ lụt, động đất...)</span>
                         </div>
                         <div className={styles.specialCard}>
-                            <span className={styles.specialIcon}>⚠️</span>
-                            <span className={styles.specialText}>Sự cố an toàn tại điểm đến</span>
+                            <span className={styles.specialIcon}>🦠</span>
+                            <span className={styles.specialText}>Dịch bệnh (đại dịch, cách ly bắt buộc...)</span>
                         </div>
                         <div className={styles.specialCard}>
-                            <span className={styles.specialIcon}>🚫</span>
-                            <span className={styles.specialText}>Tour bị hủy bởi Flourish Travel</span>
+                            <span className={styles.specialIcon}>⚔️</span>
+                            <span className={styles.specialText}>Chiến tranh hoặc xung đột vũ trang</span>
                         </div>
                         <div className={styles.specialCard}>
-                            <span className={styles.specialIcon}>📋</span>
-                            <span className={styles.specialText}>Các trường hợp bất khả kháng khác theo đánh giá của công ty</span>
+                            <span className={styles.specialIcon}>✈️</span>
+                            <span className={styles.specialText}>Chuyến bay bị hãng hàng không hủy</span>
                         </div>
+                    </div>
+
+                    <div className={styles.infoBox} style={{ marginTop: '20px' }}>
+                        <p className={styles.infoText}>
+                            ℹ️ <strong>Cách xử lý:</strong> Khách hàng được chọn <strong>hoàn trả 100%</strong> tiền cọc hoặc <strong>bảo lưu số tiền cọc</strong> để đổi sang một ngày khởi hành khác trong vòng <strong>6 – 12 tháng</strong>. Vui lòng liên hệ đội ngũ hỗ trợ để được tư vấn.
+                        </p>
                     </div>
                 </section>
 
@@ -172,27 +173,21 @@ const CancellationPolicy = () => {
                     <div className={styles.refundTiersGrid}>
                         <div className={`${styles.refundTierCard} ${styles.tier100}`}>
                             <div className={styles.tierPercent}>100%</div>
-                            <div className={styles.tierLabel}>Hoàn tiền đầy đủ</div>
-                            <div className={styles.tierTime}>Trước 14 ngày khởi hành</div>
-                            <div className={styles.tierNote}>Không phí hủy</div>
-                        </div>
-                        <div className={`${styles.refundTierCard} ${styles.tier70}`}>
-                            <div className={styles.tierPercent}>70%</div>
-                            <div className={styles.tierLabel}>Hoàn tiền phần lớn</div>
-                            <div className={styles.tierTime}>7 – 13 ngày trước khởi hành</div>
-                            <div className={styles.tierNote}>Phí hủy 30%</div>
+                            <div className={styles.tierLabel}>Hoàn 100% tiền cọc</div>
+                            <div className={styles.tierTime}>Trước 30 ngày khởi hành</div>
+                            <div className={styles.tierNote}>Có thể thu phí dịch vụ nhỏ</div>
                         </div>
                         <div className={`${styles.refundTierCard} ${styles.tier50}`}>
                             <div className={styles.tierPercent}>50%</div>
-                            <div className={styles.tierLabel}>Hoàn tiền một nửa</div>
-                            <div className={styles.tierTime}>3 – 6 ngày trước khởi hành</div>
-                            <div className={styles.tierNote}>Phí hủy 50%</div>
+                            <div className={styles.tierLabel}>Hoàn 50% tiền cọc</div>
+                            <div className={styles.tierTime}>15 – 29 ngày trước khởi hành</div>
+                            <div className={styles.tierNote}>Phí hủy 50% tiền cọc</div>
                         </div>
                         <div className={`${styles.refundTierCard} ${styles.tier0}`}>
                             <div className={styles.tierPercent}>0%</div>
-                            <div className={styles.tierLabel}>Không hoàn tiền</div>
-                            <div className={styles.tierTime}>Dưới 72 giờ trước khởi hành</div>
-                            <div className={styles.tierNote}>Dịch vụ đã đặt trước</div>
+                            <div className={styles.tierLabel}>Mất 100% tiền cọc</div>
+                            <div className={styles.tierTime}>Dưới 15 ngày trước khởi hành</div>
+                            <div className={styles.tierNote}>Không hoàn lại tiền cọc</div>
                         </div>
                     </div>
 
