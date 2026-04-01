@@ -26,8 +26,7 @@ jobs:
         env:
           VITE_API_URL: https://be-production-68bb.up.railway.app/api
         run: |
-          cd website && npm ci && npm run build
-          touch website/dist/.nojekyll
+          cd website && npm ci && npm run build && touch dist/.nojekyll
 
       - name: Deploy to gh-pages branch
         uses: peaceiris/actions-gh-pages@v4
