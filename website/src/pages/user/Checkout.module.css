@@ -1,0 +1,862 @@
+@import "tailwindcss";
+@reference "../../index.css";
+
+.pageContainer {
+    @apply bg-gray-50 min-h-screen;
+    padding-top: 80px;
+    width: 100%;
+}
+
+.container {
+    @apply container-custom;
+    padding-top: 32px;
+    padding-bottom: 60px;
+}
+
+/* ===== BREADCRUMB ===== */
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    @apply text-sm text-gray-500;
+    margin-bottom: 24px;
+}
+
+.breadcrumbItem {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.breadcrumbSep {
+    width: 14px;
+    height: 14px;
+    color: #9ca3af;
+}
+
+.breadcrumbActive {
+    @apply text-gray-900 font-medium;
+}
+
+/* ===== HEADER ===== */
+.pageHeader {
+    margin-bottom: 32px;
+}
+
+.pageTitle {
+    @apply text-3xl font-bold text-gray-900;
+    margin-bottom: 8px;
+}
+
+.pageSubtitle {
+    @apply text-sm text-gray-500;
+}
+
+/* ===== STEPPER ===== */
+.stepper {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 36px;
+    background: white;
+    padding: 16px 24px;
+    border-radius: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.stepItem {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.stepCircle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    @apply text-sm font-bold;
+    background: #f3f4f6;
+    color: #9ca3af;
+    flex-shrink: 0;
+    transition: all 0.3s;
+}
+
+.stepCircleActive {
+    background: #16a34a;
+    color: white;
+    box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.15);
+}
+
+.stepCircleDone {
+    background: #d1fae5;
+    color: #047857;
+}
+
+.stepInfo {
+    display: flex;
+    flex-direction: column;
+}
+
+.stepLabel {
+    @apply text-xs text-gray-400 font-medium;
+}
+
+.stepLabelActive {
+    color: #047857;
+}
+
+.stepName {
+    @apply text-sm font-semibold text-gray-400;
+}
+
+.stepNameActive {
+    @apply text-gray-900;
+}
+
+.stepConnector {
+    flex: 0.5;
+    height: 2px;
+    background: #e5e7eb;
+    margin: 0 12px;
+    border-radius: 2px;
+    transition: background 0.3s;
+}
+
+.stepConnectorDone {
+    background: #10b981;
+}
+
+/* ===== TWO COLUMN LAYOUT ===== */
+.bodyLayout {
+    display: flex;
+    gap: 32px;
+    align-items: flex-start;
+}
+
+.mainCol {
+    flex: 65;
+    min-width: 0;
+}
+
+.sideCol {
+    flex: 35;
+    position: sticky;
+    top: 100px;
+    align-self: flex-start;
+}
+
+/* ===== FORM SECTIONS ===== */
+.formSection {
+    @apply bg-white rounded-2xl;
+    padding: 28px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    animation: fadeInUp 0.4s ease-out forwards;
+}
+
+.sectionTitle {
+    @apply text-xl font-bold text-gray-900;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sectionIcon {
+    width: 22px;
+    height: 22px;
+    color: #10b981;
+}
+
+.formGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.formGroupFull {
+    grid-column: 1 / -1;
+}
+
+.formLabel {
+    @apply text-sm font-medium text-gray-700;
+}
+
+.formInput {
+    @apply text-sm text-gray-900;
+    padding: 11px 14px;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 10px;
+    outline: none;
+    transition: all 0.2s;
+    background: white;
+    width: 100%;
+}
+
+.formInput:focus {
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.formInput::placeholder {
+    @apply text-gray-400;
+}
+
+.formTextarea {
+    composes: formInput;
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* ===== GENDER OPTIONS ===== */
+.genderOptions {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-top: 4px;
+}
+
+.genderOption {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.genderRadio {
+    display: none;
+}
+
+.radioVisual {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1.5px solid #0ea5e9;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.radioDot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #84cc16;
+    transform: scale(0);
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Focus and Inner Shadow effect matching the design */
+.genderOptionActive .radioVisual {
+    border-color: #0284c7;
+    background: #e0f2fe;
+    box-shadow: inset 0 0 0 2px white;
+}
+
+.genderOptionActive .radioDot {
+    transform: scale(1);
+}
+
+.genderLabel {
+    font-size: 15px;
+    color: #374151;
+    font-weight: 500;
+}
+
+/* ===== PAYMENT METHODS ===== */
+.paymentMethods {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.paymentOption {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 18px;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: white;
+}
+
+.paymentOption:hover {
+    border-color: #d1d5db;
+    background: #fafafa;
+}
+
+.paymentOptionActive {
+    border-color: #10b981;
+    background: #f0fdf4;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.08);
+}
+
+.paymentRadio {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid #d1d5db;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s;
+}
+
+.paymentRadioActive {
+    border-color: #10b981;
+}
+
+.paymentRadioDot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #10b981;
+    transform: scale(0);
+    transition: transform 0.2s;
+}
+
+.paymentRadioDotActive {
+    transform: scale(1);
+}
+
+.paymentIcon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.paymentIconSvg {
+    width: 20px;
+    height: 20px;
+    color: #6b7280;
+}
+
+.paymentIconActive {
+    background: #d1fae5;
+}
+
+.paymentIconActive .paymentIconSvg {
+    color: #047857;
+}
+
+.paymentInfo {
+    flex: 1;
+}
+
+.paymentName {
+    @apply text-sm font-semibold text-gray-900;
+}
+
+.paymentDesc {
+    @apply text-xs text-gray-500;
+    margin-top: 2px;
+}
+
+/* ===== PAYMENT TYPE CARDS ===== */
+.paymentTypeGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+}
+
+.paymentTypeCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    background: white;
+    position: relative;
+    text-align: center;
+}
+
+.paymentTypeCard:hover {
+    border-color: #d1d5db;
+    background: #fafafa;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.paymentTypeCardActive {
+    border-color: #10b981;
+    background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12), 0 4px 16px rgba(16, 185, 129, 0.1);
+}
+
+.paymentTypeCardActive:hover {
+    border-color: #10b981;
+    background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
+}
+
+.paymentTypeIconWrap {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+}
+
+.paymentTypeIconWrapActive {
+    background: #d1fae5;
+}
+
+.paymentTypeIconSvg {
+    width: 24px;
+    height: 24px;
+    color: #6b7280;
+    transition: color 0.25s ease;
+}
+
+.paymentTypeIconWrapActive .paymentTypeIconSvg {
+    color: #047857;
+}
+
+.paymentTypeContent {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+
+.paymentTypeName {
+    @apply text-sm font-bold text-gray-900;
+}
+
+.paymentTypeDesc {
+    @apply text-xs text-gray-500;
+    line-height: 1.5;
+}
+
+.paymentTypeAmount {
+    @apply text-base font-bold;
+    color: #166534;
+    margin-top: 6px;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Deposit info note */
+.depositNote {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-top: 16px;
+    padding: 14px 16px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 12px;
+    @apply text-sm text-blue-800;
+    line-height: 1.6;
+    animation: fadeInUp 0.3s ease-out;
+}
+
+.depositNoteIcon {
+    flex-shrink: 0;
+    font-size: 16px;
+    margin-top: 1px;
+}
+
+/* Deposit summary in sidebar */
+.depositSummary {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1.5px dashed #d1fae5;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    animation: fadeInUp 0.3s ease-out;
+}
+
+.depositSummaryRow {
+    display: flex;
+    justify-content: space-between;
+    @apply text-sm text-gray-600;
+}
+
+.depositAmount {
+    @apply font-bold;
+    color: #166534;
+}
+
+/* ===== ORDER SUMMARY (SIDEBAR) ===== */
+.summaryCard {
+    @apply bg-white rounded-2xl;
+    padding: 24px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.summaryTitle {
+    @apply text-lg font-bold text-gray-900;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.summaryTitleIcon {
+    width: 20px;
+    height: 20px;
+    color: #10b981;
+}
+
+.summaryImage {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin-bottom: 16px;
+}
+
+.summaryTourName {
+    @apply text-base font-bold text-gray-900;
+    margin-bottom: 12px;
+}
+
+.summaryDetails {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #f3f4f6;
+    margin-bottom: 16px;
+}
+
+.summaryRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    @apply text-sm text-gray-600;
+}
+
+.summaryRowIcon {
+    width: 16px;
+    height: 16px;
+    color: #10b981;
+    flex-shrink: 0;
+}
+
+/* Price breakdown */
+.priceBreakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.priceRow {
+    display: flex;
+    justify-content: space-between;
+    @apply text-sm text-gray-600;
+}
+
+.priceRowTotal {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 12px;
+    border-top: 1.5px solid #e5e7eb;
+}
+
+.priceLabel {
+    @apply text-base font-semibold text-gray-900;
+}
+
+.priceValue {
+    @apply text-xl font-bold;
+    color: #166534;
+    font-family: 'Inter', sans-serif;
+}
+
+.discountBadge {
+    @apply text-xs font-bold;
+    color: #047857;
+}
+
+/* ===== CTA BUTTONS ===== */
+.ctaRow {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.btnBack {
+    @apply py-3 px-6 text-sm font-semibold rounded-xl;
+    background: white;
+    border: 1.5px solid #e5e7eb;
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btnBack:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+}
+
+.btnNext {
+    @apply flex-1 py-3 text-white font-semibold text-base rounded-xl;
+    background: #16a34a;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btnNext:hover {
+    background: #15803d;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(22, 163, 74, 0.35);
+}
+
+.btnNextIcon {
+    width: 18px;
+    height: 18px;
+}
+
+/* ===== SUCCESS OVERLAY ===== */
+.successOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.successCard {
+    background: white;
+    border-radius: 24px;
+    padding: 48px;
+    text-align: center;
+    max-width: 440px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    animation: scaleIn 0.4s ease-out;
+}
+
+.successIconCircle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #d1fae5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    animation: bounceIn 0.6s ease-out 0.2s both;
+}
+
+.successIconSvg {
+    width: 40px;
+    height: 40px;
+    color: #16a34a;
+}
+
+.successTitle {
+    @apply text-2xl font-bold text-gray-900;
+    margin-bottom: 8px;
+}
+
+.successText {
+    @apply text-sm text-gray-500;
+    margin-bottom: 28px;
+    line-height: 1.6;
+}
+
+.successBtn {
+    @apply py-3 px-8 text-white font-semibold text-base rounded-xl;
+    background: #16a34a;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.successBtn:hover {
+    background: #15803d;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(22, 163, 74, 0.35);
+}
+
+/* ===== FORM VALIDATION ===== */
+.inputError {
+    border-color: #ef4444 !important;
+}
+
+.errorText {
+    @apply text-xs;
+    color: #ef4444;
+    margin-top: 2px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1024px) {
+    .bodyLayout {
+        flex-direction: column-reverse;
+    }
+
+    .sideCol {
+        position: static;
+        width: 100%;
+    }
+
+    .stepper {
+        overflow-x: auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .formGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .pageTitle {
+        @apply text-2xl;
+    }
+
+    .stepper {
+        padding: 12px 16px;
+        gap: 0;
+    }
+
+    .stepInfo {
+        display: none;
+    }
+
+    .stepConnector {
+        margin: 0 8px;
+    }
+
+    .ctaRow {
+        flex-direction: column;
+    }
+
+    .paymentTypeGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .successCard {
+        padding: 32px 24px;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding-left: 12px;
+        padding-right: 12px;
+        padding-top: 20px;
+    }
+
+    .formSection {
+        padding: 18px 16px;
+        margin-bottom: 16px;
+    }
+
+    .sectionTitle {
+        @apply text-base;
+        margin-bottom: 14px;
+    }
+
+    .stepper {
+        padding: 10px 12px;
+    }
+
+    .stepCircle {
+        width: 30px;
+        height: 30px;
+        @apply text-xs;
+    }
+
+    .btnBack {
+        @apply py-2.5 px-4 text-sm;
+    }
+
+    .btnNext {
+        @apply py-2.5 text-sm;
+    }
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes bounceIn {
+    0% {
+        transform: scale(0);
+    }
+
+    50% {
+        transform: scale(1.15);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}

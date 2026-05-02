@@ -11,27 +11,35 @@ import FloatingChatbot from './components/FloatingChatbot';
 import ScrollToTop from './components/ScrollToTop';
 
 // Import pages
-import Help from './pages/Help';
-import PrivacySettings from './pages/PrivacySettings';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import CookiePolicy from './pages/CookiePolicy';
-import PrivacyPolicy from './pages/PrivacyPolicy';
-import TermsOfService from './pages/TermsOfService';
-import CompanyDetails from './pages/CompanyDetails';
-import TourListing from './pages/TourListing';
-import TourDetail from './pages/TourDetail';
-import MyJourney from './pages/MyJourney';
-import Destinations from './pages/Destinations';
-import Guide from './pages/Guide';
-import About from './pages/About';
-import Careers from './pages/Careers';
-import News from './pages/News';
-import Stories from './pages/Stories';
-import Profile from './pages/Profile';
-import Checkout from './pages/Checkout';
-import GroupChat from './pages/GroupChat';
-import CancellationPolicy from './pages/CancellationPolicy';
+import Help from './pages/user/Help';
+import PrivacySettings from './pages/user/PrivacySettings';
+import Login from './pages/user/Login';
+import Register from './pages/user/Register';
+import CookiePolicy from './pages/user/CookiePolicy';
+import PrivacyPolicy from './pages/user/PrivacyPolicy';
+import TermsOfService from './pages/user/TermsOfService';
+import CompanyDetails from './pages/user/CompanyDetails';
+import TourListing from './pages/user/TourListing';
+import TourDetail from './pages/user/TourDetail';
+import MyJourney from './pages/user/MyJourney';
+import Destinations from './pages/user/Destinations';
+import Guide from './pages/user/Guide';
+import About from './pages/user/About';
+import Careers from './pages/user/Careers';
+import News from './pages/user/News';
+import Stories from './pages/user/Stories';
+import Profile from './pages/user/Profile';
+import Checkout from './pages/user/Checkout';
+import GroupChat from './pages/user/GroupChat';
+import CancellationPolicy from './pages/user/CancellationPolicy';
+
+// Admin imports
+import AdminLayout from './pages/admin/AdminLayout';
+import ProtectedAdminRoute from './pages/admin/components/ProtectedAdminRoute';
+import Dashboard from './pages/admin/pages/Dashboard';
+import TourManagement from './pages/admin/pages/TourManagement';
+import BookingManagement from './pages/admin/pages/BookingManagement';
+import CustomerManagement from './pages/admin/pages/CustomerManagement';
 
 // Home page component (inline)
 const HomePage = () => (
@@ -74,9 +82,18 @@ function App() {
         <Route path="/news" element={<><Navbar /><News /><Footer /></>} />
         <Route path="/stories" element={<><Navbar /><Stories /><Footer /></>} />
         <Route path="/cancellation-policy" element={<><Navbar /><CancellationPolicy /><Footer /></>} />
+
+        {/* Admin Routes */}
+        <Route path="/admin" element={<ProtectedAdminRoute><AdminLayout /></ProtectedAdminRoute>}>
+          <Route index element={<Dashboard />} />
+          <Route path="tours" element={<TourManagement />} />
+          <Route path="bookings" element={<BookingManagement />} />
+          <Route path="customers" element={<CustomerManagement />} />
+        </Route>
       </Routes>
     </>
   );
 }
 
 export default App;
+

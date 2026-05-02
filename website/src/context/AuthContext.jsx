@@ -8,6 +8,12 @@ export const MOCK_CREDENTIALS = {
     password: 'flourish123',
 };
 
+// Admin credentials
+export const ADMIN_CREDENTIALS = {
+    email: 'admin@flourish.com',
+    password: 'admin123',
+};
+
 export const MOCK_USER = {
     id: 1,
     email: MOCK_CREDENTIALS.email,
@@ -17,6 +23,19 @@ export const MOCK_USER = {
     gender: 'Nam',
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&q=80',
     joinedDate: '01/2025',
+    role: 'user',
+};
+
+export const MOCK_ADMIN = {
+    id: 99,
+    email: ADMIN_CREDENTIALS.email,
+    name: 'Super Admin',
+    phone: '0900 000 001',
+    address: 'Flourish Travel HQ',
+    gender: 'Nam',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
+    joinedDate: '01/2024',
+    role: 'admin',
 };
 
 const AuthContext = createContext(null);
@@ -62,7 +81,16 @@ export const AuthProvider = ({ children }) => {
         );
     };
 
-    const value = { user, login, logout, updateUser, checkCredentials, MOCK_USER };
+    const checkAdminCredentials = (email, password) => {
+        return (
+            email.toLowerCase().trim() === ADMIN_CREDENTIALS.email &&
+            password === ADMIN_CREDENTIALS.password
+        );
+    };
+
+    const isAdmin = user?.role === 'admin';
+
+    const value = { user, login, logout, updateUser, checkCredentials, checkAdminCredentials, isAdmin, MOCK_USER, MOCK_ADMIN };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
