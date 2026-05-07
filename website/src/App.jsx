@@ -38,8 +38,12 @@ import AdminLayout from './pages/admin/AdminLayout';
 import ProtectedAdminRoute from './pages/admin/components/ProtectedAdminRoute';
 import Dashboard from './pages/admin/pages/Dashboard';
 import TourManagement from './pages/admin/pages/TourManagement';
+import TourItineraryBuilder from './pages/admin/pages/TourItineraryBuilder';
+import TourDispatch from './pages/admin/pages/TourDispatch';
 import BookingManagement from './pages/admin/pages/BookingManagement';
 import CustomerManagement from './pages/admin/pages/CustomerManagement';
+import FinancialManagement from './pages/admin/pages/FinancialManagement';
+import StaffManagement from './pages/admin/pages/StaffManagement';
 
 // Home page component (inline)
 const HomePage = () => (
@@ -87,8 +91,12 @@ function App() {
         <Route path="/admin" element={<ProtectedAdminRoute><AdminLayout /></ProtectedAdminRoute>}>
           <Route index element={<Dashboard />} />
           <Route path="tours" element={<TourManagement />} />
+          <Route path="tours/itinerary/:tourId" element={<TourItineraryBuilder />} />
+          <Route path="dispatch" element={<TourDispatch />} />
           <Route path="bookings" element={<BookingManagement />} />
           <Route path="customers" element={<CustomerManagement />} />
+          <Route path="financials" element={<FinancialManagement />} />
+          <Route path="staff" element={<StaffManagement />} />
         </Route>
       </Routes>
     </>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import StatCard from '../components/StatCard';
 import DataTable from '../components/DataTable';
+import CreateTourModal from '../components/CreateTourModal';
 import styles from './TourManagement.module.css';
 
 const MOCK_TOURS = [
@@ -25,6 +26,7 @@ const STATUS_CONFIG = {
 const TourManagement = () => {
     const [filterStatus, setFilterStatus] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
     const filteredTours = MOCK_TOURS.filter(t => {
         if (filterStatus !== 'all' && t.status !== filterStatus) return false;
@@ -97,7 +99,7 @@ const TourManagement = () => {
                     <h1 className={styles.pageTitle}>Quản Lý Tour</h1>
                     <p className={styles.pageSubtitle}>Quản lý tất cả các tour du lịch của Flourish Travel</p>
                 </div>
-                <button className={styles.addBtn}>
+                <button className={styles.addBtn} onClick={() => setIsCreateModalOpen(true)}>
                     <span className="material-icons-round" style={{ fontSize: '18px' }}>add</span>
                     Thêm Tour Mới
                 </button>
@@ -145,6 +147,11 @@ const TourManagement = () => {
                 data={filteredTours}
                 selectable={true}
                 totalLabel="tour"
+            />
+            
+            <CreateTourModal 
+                isOpen={isCreateModalOpen} 
+                onClose={() => setIsCreateModalOpen(false)} 
             />
         </div>
     );

@@ -6,10 +6,11 @@ import styles from './AdminLayout.module.css';
 const NAV_ITEMS = [
     { path: '/admin', icon: 'dashboard', label: 'Dashboard', end: true },
     { path: '/admin/tours', icon: 'explore', label: 'Quản Lý Tour' },
+    { path: '/admin/dispatch', icon: 'calendar_month', label: 'Điều Hành Tour' },
     { path: '/admin/bookings', icon: 'book_online', label: 'Quản Lý Đặt Chỗ' },
     { path: '/admin/customers', icon: 'group', label: 'Khách Hàng' },
-    { path: '/admin/finance', icon: 'payments', label: 'Tài Chính' },
-    { path: '/admin/marketing', icon: 'campaign', label: 'Marketing' },
+    { path: '/admin/financials', icon: 'payments', label: 'Tài Chính' },
+    { path: '/admin/staff', icon: 'manage_accounts', label: 'Nhân Viên' },
     { path: '/admin/settings', icon: 'settings', label: 'Cài Đặt' },
 ];
 

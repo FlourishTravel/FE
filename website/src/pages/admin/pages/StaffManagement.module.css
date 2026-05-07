@@ -1,0 +1,190 @@
+@import "tailwindcss";
+@reference "../../../index.css";
+
+.page {
+    padding: 24px;
+    height: 100%;
+}
+
+.pageHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.pageTitle {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.75rem;
+    color: #111827;
+    margin: 0;
+}
+
+.pageSubtitle {
+    color: #6b7280;
+    margin: 4px 0 0 0;
+    font-size: 0.95rem;
+}
+
+.addBtn {
+    background-color: #10b981;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2);
+}
+
+.addBtn:hover {
+    background-color: #059669;
+}
+
+.contentArea {
+    background-color: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
+}
+
+.filterBar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.filterTabs {
+    display: flex;
+    gap: 8px;
+}
+
+.filterTab {
+    padding: 6px 12px;
+    border: 1px solid #d1d5db;
+    background: white;
+    color: #4b5563;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.filterTabActive {
+    background-color: #f3f4f6;
+    border-color: #9ca3af;
+    color: #111827;
+    font-weight: 500;
+}
+
+.filterSearch {
+    display: flex;
+    align-items: center;
+    background-color: #f9fafb;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 6px 12px;
+    width: 250px;
+}
+
+.filterInput {
+    border: none;
+    background: transparent;
+    padding: 4px 8px;
+    width: 100%;
+    font-size: 0.85rem;
+}
+
+.filterInput:focus {
+    outline: none;
+}
+
+/* Table Cells */
+.staffCell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.staffAvatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6b7280;
+    font-weight: 600;
+}
+
+.staffName {
+    font-weight: 600;
+    color: #111827;
+}
+
+.staffId {
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+.contactInfo {
+    display: flex;
+    flex-direction: column;
+}
+
+.contactPhone { font-weight: 500; color: #374151; font-size: 0.85rem; }
+.contactEmail { font-size: 0.8rem; color: #6b7280; }
+
+.roleBadge {
+    padding: 4px 8px;
+    background-color: #eff6ff;
+    color: #2563eb;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.statusBadge {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.statusActive { background-color: #d1fae5; color: #065f46; }
+.statusOnLeave { background-color: #fef3c7; color: #92400e; }
+.statusInactive { background-color: #f3f4f6; color: #4b5563; }
+
+.actions {
+    display: flex;
+    gap: 8px;
+}
+
+.actionBtn {
+    background: none;
+    border: none;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.actionBtn:hover {
+    background-color: #f3f4f6;
+    color: #111827;
+}
+
+.actionDanger:hover {
+    color: #ef4444;
+    background-color: #fef2f2;
+}
