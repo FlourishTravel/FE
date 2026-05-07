@@ -1,0 +1,258 @@
+@import "tailwindcss";
+@reference "../../../index.css";
+
+.page {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.pageHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.pageTitle {
+    font-size: 26px;
+    font-weight: 700;
+    color: #111827;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: -0.02em;
+}
+
+.pageSubtitle {
+    font-size: 14px;
+    color: #6b7280;
+    margin-top: 4px;
+}
+
+.addBtn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+    box-shadow: 0 2px 8px rgba(46, 204, 113, 0.3);
+}
+
+.addBtn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(46, 204, 113, 0.4);
+}
+
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+/* Filter Bar */
+.filterBar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 8px 12px;
+}
+
+.filterTabs {
+    display: flex;
+    gap: 4px;
+}
+
+.filterTab {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    font-size: 13px;
+    font-weight: 500;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+}
+
+.filterTab:hover {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.filterTabActive {
+    background: #ecfdf5 !important;
+    color: #059669 !important;
+    font-weight: 600;
+}
+
+.filterSearch {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #f3f4f6;
+    border-radius: 6px;
+    padding: 6px 10px;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+}
+
+.filterSearch:focus-within {
+    background: white;
+    border-color: #2ecc71;
+}
+
+.filterInput {
+    border: none;
+    background: none;
+    outline: none;
+    font-size: 13px;
+    color: #374151;
+    width: 180px;
+    font-family: 'Inter', sans-serif;
+}
+
+.filterInput::placeholder {
+    color: #9ca3af;
+}
+
+/* Tour Cell */
+.tourCell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.tourThumb {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.tourName {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.tourCode {
+    font-size: 12px;
+    color: #9ca3af;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Spots Cell */
+.spotsCell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.spotsBar {
+    width: 60px;
+    height: 6px;
+    background: #e5e7eb;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.spotsFill {
+    height: 100%;
+    background: linear-gradient(90deg, #2ecc71, #27ae60);
+    border-radius: 3px;
+    transition: width 0.3s;
+}
+
+.spotsText {
+    font-size: 12px;
+    color: #6b7280;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+}
+
+/* Status Badge */
+.statusBadge {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+}
+
+.statusActive {
+    color: #059669;
+    background: #ecfdf5;
+}
+
+.statusUpcoming {
+    color: #d97706;
+    background: #fffbeb;
+}
+
+.statusFull {
+    color: #dc2626;
+    background: #fef2f2;
+}
+
+/* Actions */
+.actions {
+    display: flex;
+    gap: 4px;
+}
+
+.actionBtn {
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    border: none;
+    background: none;
+    color: #6b7280;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.actionBtn:hover {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.actionDanger:hover {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+/* Responsive */
+@media (max-width: 1280px) {
+    .statsGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .statsGrid {
+        grid-template-columns: 1fr;
+    }
+    .filterBar {
+        flex-direction: column;
+        gap: 8px;
+        align-items: stretch;
+    }
+    .pageHeader {
+        flex-direction: column;
+        gap: 12px;
+    }
+}

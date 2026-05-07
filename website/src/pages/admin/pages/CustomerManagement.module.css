@@ -1,0 +1,79 @@
+@import "tailwindcss";
+@reference "../../../index.css";
+
+.page { display: flex; flex-direction: column; gap: 20px; }
+.pageHeader { display: flex; justify-content: space-between; align-items: flex-start; }
+.pageTitle { font-size: 26px; font-weight: 700; color: #111827; font-family: 'Inter', sans-serif; letter-spacing: -0.02em; }
+.pageSub { font-size: 14px; color: #6b7280; margin-top: 4px; }
+.addBtn { display: flex; align-items: center; gap: 6px; padding: 8px 18px; border-radius: 8px; background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; font-size: 13px; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; box-shadow: 0 2px 8px rgba(46,204,113,0.3); }
+.addBtn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(46,204,113,0.4); }
+.statsGrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+
+/* Main Layout */
+.mainLayout { display: flex; gap: 20px; align-items: flex-start; }
+.tableSection { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
+
+/* Filter */
+.filterBar { display: flex; justify-content: space-between; align-items: center; background: white; border: 1px solid #e5e7eb; border-radius: 10px; padding: 8px 12px; }
+.tabs { display: flex; gap: 4px; }
+.tab { padding: 6px 14px; border-radius: 6px; border: none; background: transparent; font-size: 13px; font-weight: 500; color: #6b7280; cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; }
+.tab:hover { background: #f3f4f6; color: #374151; }
+.tabActive { background: #ecfdf5 !important; color: #059669 !important; font-weight: 600; }
+.search { display: flex; align-items: center; gap: 6px; background: #f3f4f6; border-radius: 6px; padding: 6px 10px; border: 1px solid transparent; transition: all 0.2s; }
+.search:focus-within { background: white; border-color: #2ecc71; }
+.searchInput { border: none; background: none; outline: none; font-size: 13px; color: #374151; width: 180px; font-family: 'Inter', sans-serif; }
+.searchInput::placeholder { color: #9ca3af; }
+
+/* Table cells */
+.custCell { display: flex; align-items: center; gap: 10px; }
+.custAvatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+.custName { font-size: 14px; font-weight: 600; color: #111827; }
+.custEmail { font-size: 12px; color: #9ca3af; }
+.tier { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 6px; white-space: nowrap; }
+.tierVIP { color: #7c3aed; background: #f5f3ff; }
+.tierGold { color: #d97706; background: #fffbeb; }
+.tierSilver { color: #6b7280; background: #f3f4f6; }
+.tierStandard { color: #374151; background: #f9fafb; }
+.viewBtn { width: 30px; height: 30px; border-radius: 6px; border: none; background: none; color: #6b7280; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+.viewBtn:hover { background: #f3f4f6; color: #374151; }
+
+/* Detail Panel */
+.panel { width: 320px; flex-shrink: 0; background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; position: sticky; top: 80px; max-height: calc(100vh - 120px); overflow-y: auto; }
+.panelHead { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.panelTitle { font-size: 16px; font-weight: 600; color: #111827; font-family: 'Inter', sans-serif; }
+.closeBtn { width: 28px; height: 28px; border-radius: 6px; border: none; background: none; color: #6b7280; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.closeBtn:hover { background: #f3f4f6; }
+
+/* Profile */
+.profile { text-align: center; padding-bottom: 16px; border-bottom: 1px solid #f3f4f6; margin-bottom: 16px; }
+.profileAvatar { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; margin: 0 auto 10px; border: 3px solid #ecfdf5; display: block; }
+.profileName { font-size: 18px; font-weight: 600; color: #111827; margin-bottom: 6px; font-family: 'Inter', sans-serif; }
+
+/* Section */
+.section { margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #f3f4f6; }
+.sectionTitle { font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; font-family: 'Inter', sans-serif; }
+.infoRow { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #374151; padding: 4px 0; }
+
+/* Panel Stats */
+.panelStats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #f3f4f6; }
+.pStat { text-align: center; background: #f9fafb; border-radius: 8px; padding: 12px 8px; }
+.pStatVal { display: block; font-size: 18px; font-weight: 700; color: #111827; font-family: 'Inter', sans-serif; }
+.pStatLbl { font-size: 11px; color: #6b7280; font-weight: 500; }
+
+/* Activity */
+.actItem { display: flex; gap: 10px; padding: 6px 0; }
+.actDot { width: 8px; height: 8px; border-radius: 50%; background: #2ecc71; margin-top: 5px; flex-shrink: 0; }
+.actDate { font-size: 11px; color: #9ca3af; font-family: 'Inter', sans-serif; }
+.actText { font-size: 13px; color: #374151; }
+
+/* Panel Actions */
+.panelActions { display: flex; gap: 8px; margin-top: 4px; }
+.btnPrimary { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 12px; border-radius: 8px; background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; font-size: 13px; font-weight: 600; border: none; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.2s; }
+.btnPrimary:hover { transform: translateY(-1px); }
+.btnSecondary { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 12px; border-radius: 8px; background: white; color: #374151; font-size: 13px; font-weight: 600; border: 1px solid #e5e7eb; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.2s; }
+.btnSecondary:hover { background: #f3f4f6; }
+
+/* Responsive */
+@media (max-width: 1280px) { .statsGrid { grid-template-columns: repeat(2, 1fr); } .panel { width: 280px; } }
+@media (max-width: 1024px) { .mainLayout { flex-direction: column; } .panel { width: 100%; position: static; max-height: none; } }
+@media (max-width: 768px) { .statsGrid { grid-template-columns: 1fr; } .filterBar { flex-direction: column; gap: 8px; align-items: stretch; } .pageHeader { flex-direction: column; gap: 12px; } }

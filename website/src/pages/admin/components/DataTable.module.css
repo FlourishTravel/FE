@@ -1,0 +1,165 @@
+@import "tailwindcss";
+@reference "../../../index.css";
+
+.tableContainer {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.tableWrapper {
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Inter', sans-serif;
+}
+
+.th {
+    text-align: left;
+    padding: 12px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+    white-space: nowrap;
+    user-select: none;
+}
+
+.thContent {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.sortable {
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.sortable:hover {
+    color: #374151;
+}
+
+.tr {
+    transition: background-color 0.15s;
+}
+
+.tr:hover {
+    background: #f9fafb;
+}
+
+.tr:not(:last-child) {
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+.selected {
+    background: #ecfdf5 !important;
+}
+
+.td {
+    padding: 14px 16px;
+    font-size: 14px;
+    color: #374151;
+    vertical-align: middle;
+}
+
+.checkboxCol {
+    width: 44px;
+    padding: 12px 16px;
+    text-align: center;
+}
+
+.checkbox {
+    width: 16px;
+    height: 16px;
+    accent-color: #2ecc71;
+    cursor: pointer;
+}
+
+.emptyRow {
+    text-align: center;
+    padding: 48px 16px;
+    color: #9ca3af;
+    font-size: 14px;
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-top: 1px solid #e5e7eb;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.pageInfo {
+    font-size: 13px;
+    color: #6b7280;
+    font-family: 'Inter', sans-serif;
+}
+
+.pageButtons {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.pageBtn {
+    min-width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+    background: white;
+    font-size: 13px;
+    font-weight: 500;
+    color: #374151;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    padding: 0 6px;
+    font-family: 'Inter', sans-serif;
+}
+
+.pageBtn:hover:not(:disabled) {
+    border-color: #2ecc71;
+    color: #059669;
+}
+
+.pageBtn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.pageActive {
+    background: #2ecc71 !important;
+    border-color: #2ecc71 !important;
+    color: white !important;
+}
+
+.pageDots {
+    font-size: 13px;
+    color: #9ca3af;
+    padding: 0 4px;
+}
+
+.selectedInfo {
+    font-size: 13px;
+    color: #059669;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+}

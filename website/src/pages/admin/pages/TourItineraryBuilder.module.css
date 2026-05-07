@@ -1,0 +1,389 @@
+@import "tailwindcss";
+@reference "../../../index.css";
+
+.page {
+    padding: 24px;
+    height: 100%;
+}
+
+.pageHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.titleArea {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.backBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.2s;
+}
+
+.backBtn:hover {
+    background-color: #f3f4f6;
+    color: #111827;
+}
+
+.pageTitle {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.75rem;
+    color: #111827;
+    margin: 0;
+}
+
+.pageSubtitle {
+    color: #6b7280;
+    margin: 4px 0 0 0;
+    font-size: 0.95rem;
+}
+
+.saveBtn {
+    background-color: #10b981;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2);
+}
+
+.saveBtn:hover {
+    background-color: #059669;
+}
+
+.builderLayout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+    align-items: start;
+}
+
+/* LEFT COLUMN - ITINERARY */
+.itineraryCard {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+}
+
+.dayTabs {
+    display: flex;
+    background-color: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+    overflow-x: auto;
+}
+
+.dayTab {
+    padding: 16px 24px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    font-weight: 500;
+    color: #6b7280;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+
+.dayTabActive {
+    color: #10b981;
+    border-bottom-color: #10b981;
+    background-color: white;
+}
+
+.addDayBtn {
+    padding: 16px;
+    background: none;
+    border: none;
+    color: #10b981;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 500;
+}
+
+.addDayBtn:hover {
+    background-color: #ecfdf5;
+}
+
+.dayContent {
+    padding: 24px;
+}
+
+.dayHeader {
+    margin-bottom: 20px;
+}
+
+.dayHeader input {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #111827;
+    border: 1px solid transparent;
+    padding: 8px 12px;
+    width: 100%;
+    border-radius: 6px;
+    background-color: #f9fafb;
+    transition: all 0.2s;
+}
+
+.dayHeader input:focus {
+    outline: none;
+    border-color: #10b981;
+    background-color: white;
+}
+
+.activityList {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: relative;
+}
+
+/* Timeline vertical line */
+.activityList::before {
+    content: '';
+    position: absolute;
+    top: 20px;
+    bottom: 20px;
+    left: 15px;
+    width: 2px;
+    background-color: #e5e7eb;
+    z-index: 0;
+}
+
+.activityItem {
+    position: relative;
+    z-index: 1;
+    background-color: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 16px;
+    margin-left: 40px;
+    transition: box-shadow 0.2s;
+}
+
+.activityItem:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.activityDot {
+    position: absolute;
+    left: -33px;
+    top: 20px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: #10b981;
+    border: 4px solid white;
+    box-shadow: 0 0 0 1px #e5e7eb;
+}
+
+.activityHeader {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.inputGroup {
+    display: flex;
+    align-items: center;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    overflow: hidden;
+    background-color: #f9fafb;
+}
+
+.inputIcon {
+    padding: 8px;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+}
+
+.activityInput {
+    border: none;
+    padding: 8px 12px;
+    width: 100%;
+    background: transparent;
+    font-weight: 500;
+}
+
+.activityInput:focus {
+    outline: none;
+    background-color: white;
+}
+
+.activityDesc {
+    width: 100%;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 12px;
+    resize: vertical;
+    min-height: 80px;
+    font-size: 0.9rem;
+    font-family: inherit;
+}
+
+.activityDesc:focus {
+    outline: none;
+    border-color: #10b981;
+}
+
+.deleteActivity {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background-color: white;
+    color: #ef4444;
+    border: 1px solid #e5e7eb;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.activityItem:hover .deleteActivity {
+    opacity: 1;
+}
+
+.addActivityBtn {
+    margin-top: 16px;
+    margin-left: 40px;
+    padding: 12px;
+    background-color: #f3f4f6;
+    border: 2px dashed #d1d5db;
+    border-radius: 8px;
+    color: #6b7280;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.addActivityBtn:hover {
+    border-color: #10b981;
+    color: #10b981;
+    background-color: #ecfdf5;
+}
+
+
+/* RIGHT COLUMN - SUMMARY */
+.summaryCard {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
+    padding: 24px;
+    position: sticky;
+    top: 24px;
+}
+
+.summaryTitle {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    color: #111827;
+    margin: 0 0 20px 0;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.statList {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.statItem {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.statIcon {
+    background-color: #ecfdf5;
+    color: #10b981;
+    padding: 8px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.statInfo {
+    display: flex;
+    flex-direction: column;
+}
+
+.statLabel {
+    color: #6b7280;
+    font-size: 0.85rem;
+    margin-bottom: 2px;
+}
+
+.statValue {
+    color: #111827;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.tourInfo {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px dashed #e5e7eb;
+}
+
+.tourImage {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.tourCode {
+    display: inline-block;
+    background-color: #f3f4f6;
+    color: #4b5563;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.tourName {
+    font-weight: 600;
+    color: #111827;
+    margin: 0 0 8px 0;
+}

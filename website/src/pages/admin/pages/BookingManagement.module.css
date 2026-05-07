@@ -1,0 +1,276 @@
+@import "tailwindcss";
+@reference "../../../index.css";
+
+.page {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.pageHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.pageTitle {
+    font-size: 26px;
+    font-weight: 700;
+    color: #111827;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: -0.02em;
+}
+
+.pageSubtitle {
+    font-size: 14px;
+    color: #6b7280;
+    margin-top: 4px;
+}
+
+.addBtn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+    box-shadow: 0 2px 8px rgba(46, 204, 113, 0.3);
+}
+
+.addBtn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(46, 204, 113, 0.4);
+}
+
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+/* Filter Bar */
+.filterBar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 8px 12px;
+}
+
+.filterTabs {
+    display: flex;
+    gap: 4px;
+}
+
+.filterTab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    font-size: 13px;
+    font-weight: 500;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+}
+
+.filterTab:hover {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.filterTabActive {
+    background: #ecfdf5 !important;
+    color: #059669 !important;
+    font-weight: 600;
+}
+
+.tabCount {
+    font-size: 11px;
+    font-weight: 700;
+    background: #e5e7eb;
+    color: #6b7280;
+    padding: 1px 6px;
+    border-radius: 10px;
+    min-width: 20px;
+    text-align: center;
+}
+
+.filterTabActive .tabCount {
+    background: #d1fae5;
+    color: #059669;
+}
+
+.filterSearch {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #f3f4f6;
+    border-radius: 6px;
+    padding: 6px 10px;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+}
+
+.filterSearch:focus-within {
+    background: white;
+    border-color: #2ecc71;
+}
+
+.filterInput {
+    border: none;
+    background: none;
+    outline: none;
+    font-size: 13px;
+    color: #374151;
+    width: 200px;
+    font-family: 'Inter', sans-serif;
+}
+
+.filterInput::placeholder {
+    color: #9ca3af;
+}
+
+/* Table cells */
+.bookingIdCell {
+    font-weight: 600;
+    color: #374151;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+}
+
+.customerName {
+    font-size: 14px;
+    font-weight: 500;
+    color: #111827;
+}
+
+.customerEmail {
+    font-size: 12px;
+    color: #9ca3af;
+}
+
+.tourName {
+    font-size: 14px;
+    font-weight: 500;
+    color: #111827;
+}
+
+.tourCode {
+    font-size: 12px;
+    color: #9ca3af;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Badges */
+.statusBadge,
+.payBadge {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+}
+
+.statusConfirmed {
+    color: #059669;
+    background: #ecfdf5;
+}
+
+.statusPending {
+    color: #d97706;
+    background: #fffbeb;
+}
+
+.statusCancelled {
+    color: #dc2626;
+    background: #fef2f2;
+}
+
+.statusCancelReq {
+    color: #9333ea;
+    background: #f5f3ff;
+}
+
+.payFull {
+    color: #059669;
+    background: #ecfdf5;
+}
+
+.payDeposit {
+    color: #2563eb;
+    background: #eff6ff;
+}
+
+.payRefunded {
+    color: #6b7280;
+    background: #f3f4f6;
+}
+
+.payPendingRefund {
+    color: #d97706;
+    background: #fffbeb;
+}
+
+/* Actions */
+.actions {
+    display: flex;
+    gap: 4px;
+}
+
+.actionBtn {
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    border: none;
+    background: none;
+    color: #6b7280;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.actionBtn:hover {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+/* Responsive */
+@media (max-width: 1280px) {
+    .statsGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .statsGrid {
+        grid-template-columns: 1fr;
+    }
+    .filterBar {
+        flex-direction: column;
+        gap: 8px;
+        align-items: stretch;
+    }
+    .filterTabs {
+        flex-wrap: wrap;
+    }
+    .pageHeader {
+        flex-direction: column;
+        gap: 12px;
+    }
+}
