@@ -45,6 +45,17 @@ import CustomerManagement from './pages/admin/pages/CustomerManagement';
 import FinancialManagement from './pages/admin/pages/FinancialManagement';
 import StaffManagement from './pages/admin/pages/StaffManagement';
 
+// Guide imports
+import GuideLayout from './pages/guide/GuideLayout';
+import ProtectedGuideRoute from './pages/guide/components/ProtectedGuideRoute';
+import GuideDashboard from './pages/guide/pages/GuideDashboard';
+import GuideTourList from './pages/guide/pages/GuideTourList';
+import GuideTourDetail from './pages/guide/pages/GuideTourDetail';
+import GuideGuestManagement from './pages/guide/pages/GuideGuestManagement';
+import GuideCommunication from './pages/guide/pages/GuideCommunication';
+import GuideOperations from './pages/guide/pages/GuideOperations';
+import GuideExpenses from './pages/guide/pages/GuideExpenses';
+
 // Home page component (inline)
 const HomePage = () => (
   <div className="min-h-screen w-full">
@@ -72,7 +83,7 @@ function App() {
         <Route path="/profile" element={<><Navbar /><Profile /><Footer /></>} />
         <Route path="/my-journey" element={<><Navbar /><MyJourney /><Footer /></>} />
         <Route path="/destinations" element={<><Navbar /><Destinations /><Footer /></>} />
-        <Route path="/guide" element={<><Navbar /><Guide /><Footer /></>} />
+        <Route path="/our-guides" element={<><Navbar /><Guide /><Footer /></>} />
         <Route path="/tours" element={<><Navbar /><TourListing /><Footer /></>} />
         <Route path="/tours/:id" element={<><Navbar /><TourDetail /><Footer /></>} />
         <Route path="/checkout/:tourId" element={<><Navbar /><Checkout /><Footer /></>} />
@@ -97,6 +108,17 @@ function App() {
           <Route path="customers" element={<CustomerManagement />} />
           <Route path="financials" element={<FinancialManagement />} />
           <Route path="staff" element={<StaffManagement />} />
+        </Route>
+
+        {/* Guide Routes */}
+        <Route path="/guide" element={<ProtectedGuideRoute><GuideLayout /></ProtectedGuideRoute>}>
+          <Route index element={<GuideDashboard />} />
+          <Route path="tours" element={<GuideTourList />} />
+          <Route path="tours/:tourId" element={<GuideTourDetail />} />
+          <Route path="guests" element={<GuideGuestManagement />} />
+          <Route path="communication" element={<GuideCommunication />} />
+          <Route path="operations" element={<GuideOperations />} />
+          <Route path="expenses" element={<GuideExpenses />} />
         </Route>
       </Routes>
     </>

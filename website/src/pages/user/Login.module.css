@@ -119,6 +119,7 @@
 
 .errorMsg {
     @apply text-sm text-red-600 bg-red-50 rounded-lg py-2 px-3;
+    white-space: pre-line;
 }
 
 .inputGroup {

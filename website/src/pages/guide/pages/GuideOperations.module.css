@@ -1,0 +1,617 @@
+@import "tailwindcss";
+@reference "../../../index.css";
+
+.page {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* Header */
+.pageHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.headerLeft {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.pageTitle {
+    font-size: 24px;
+    font-weight: 700;
+    color: #111827;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: -0.01em;
+}
+
+.pageSubtitle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: #6b7280;
+    font-family: 'Inter', sans-serif;
+}
+
+.headerActions {
+    display: flex;
+    gap: 12px;
+}
+
+.btnOutline {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    background: white;
+    color: #374151;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.2s;
+}
+
+.btnOutline:hover {
+    background: #f9fafb;
+    border-color: #9ca3af;
+}
+
+.btnPrimary {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: none;
+    background: #059669;
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.2s;
+}
+
+.btnPrimary:hover {
+    background: #047857;
+}
+
+/* Main Grid */
+.mainGrid {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 24px;
+    align-items: start;
+}
+
+/* Timeline Card */
+.timelineCard {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.cardTitle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #111827;
+    font-family: 'Inter', sans-serif;
+}
+
+.progressBadge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    background: #10b981;
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+}
+
+.timeline {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.timelineItem {
+    display: flex;
+    gap: 20px;
+    min-height: 120px;
+}
+
+.timelineLeft {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 40px;
+    flex-shrink: 0;
+}
+
+.iconWrap {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    z-index: 2;
+}
+
+.timelineItem.completed .iconWrap {
+    background: #059669;
+}
+
+.timelineItem.current .iconWrap {
+    background: #a7f3d0;
+    color: #059669;
+    border: 2px solid #059669;
+}
+
+.timelineItem.upcoming .iconWrap {
+    background: #d1d5db;
+    color: #6b7280;
+}
+
+.verticalLine {
+    flex: 1;
+    width: 2px;
+    background: #d1d5db;
+    margin: 4px 0;
+}
+
+.timelineItem.completed .verticalLine {
+    background: #059669;
+}
+
+.contentBox {
+    flex: 1;
+    background: #f9fafb;
+    border: 1px solid #f3f4f6;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+}
+
+.timelineItem.current .contentBox {
+    border-left: 4px solid #059669;
+    background: white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.itemHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+}
+
+.itemTitle {
+    font-size: 16px;
+    font-weight: 700;
+    color: #111827;
+    font-family: 'Inter', sans-serif;
+}
+
+.itemRight {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+}
+
+.itemTime {
+    font-size: 13px;
+    color: #6b7280;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+}
+
+.currentBadge {
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: #10b981;
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+}
+
+.itemDesc {
+    font-size: 13px;
+    color: #6b7280;
+    line-height: 1.5;
+    margin-bottom: 16px;
+    font-family: 'Inter', sans-serif;
+}
+
+.itemActions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.completedText {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #059669;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+}
+
+.actionGroup {
+    display: flex;
+    gap: 12px;
+}
+
+.btnDisabled {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: none;
+    background: #f3f4f6;
+    color: #9ca3af;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+}
+
+.btnAction {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: none;
+    background: #059669;
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: background 0.2s;
+}
+
+.btnAction:hover {
+    background: #047857;
+}
+
+.btnUpcoming {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+    background: #f9fafb;
+    color: #374151;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: background 0.2s;
+}
+
+.btnUpcoming:hover {
+    background: #f3f4f6;
+}
+
+/* SOS Card */
+.sosCard {
+    background: #fef2f2;
+    border: 1px solid #fee2e2;
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.sosIcon {
+    margin-bottom: 12px;
+}
+
+.sosIcon .material-icons-round {
+    font-size: 36px;
+    color: #ef4444;
+}
+
+.sosTitle {
+    font-size: 18px;
+    font-weight: 700;
+    color: #991b1b;
+    margin-bottom: 8px;
+    font-family: 'Inter', sans-serif;
+}
+
+.sosDesc {
+    font-size: 13px;
+    color: #b91c1c;
+    line-height: 1.5;
+    margin-bottom: 20px;
+    font-family: 'Inter', sans-serif;
+}
+
+.sosBtn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    background: #dc2626;
+    color: white;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: background 0.2s;
+}
+
+.sosBtn:hover {
+    background: #b91c1c;
+}
+
+/* Quick Polls Card */
+.pollsCard {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    margin-bottom: 24px;
+}
+
+.pollsHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.pollsTitle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #111827;
+    font-family: 'Inter', sans-serif;
+}
+
+.addPollBtn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: none;
+    background: #f3f4f6;
+    color: #059669;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.addPollBtn:hover {
+    background: #e5e7eb;
+}
+
+.pollsList {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.pollItem {
+    background: #f9fafb;
+    border: 1px solid #f3f4f6;
+    border-radius: 10px;
+    padding: 16px;
+}
+
+.pollItemHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+}
+
+.pollQuestion {
+    font-size: 14px;
+    font-weight: 700;
+    color: #111827;
+    font-family: 'Inter', sans-serif;
+    line-height: 1.4;
+    padding-right: 10px;
+}
+
+.pollBadge {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    white-space: nowrap;
+}
+
+.badgeOpen {
+    background: #a7f3d0;
+    color: #065f46;
+}
+
+.badgeClosed {
+    background: #e5e7eb;
+    color: #6b7280;
+}
+
+.pollOptions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.optionRow {
+    position: relative;
+    height: 32px;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.optionBg {
+    position: absolute;
+    inset: 0;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+}
+
+.optionFill {
+    height: 100%;
+    background: #a7f3d0;
+    opacity: 0.5;
+}
+
+.optionContent {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 12px;
+    font-size: 12px;
+    font-family: 'Inter', sans-serif;
+}
+
+.optionText {
+    font-weight: 600;
+    color: #111827;
+}
+
+.optionVotes {
+    color: #374151;
+}
+
+.pollFooter {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.pollInfo {
+    font-size: 11px;
+    color: #6b7280;
+    font-family: 'Inter', sans-serif;
+}
+
+.closePollBtn {
+    background: none;
+    border: none;
+    color: #059669;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+}
+
+.pollResult {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.resultLabel {
+    font-size: 12px;
+    color: #6b7280;
+    font-family: 'Inter', sans-serif;
+}
+
+.resultValue {
+    font-size: 14px;
+    font-weight: 700;
+    color: #111827;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Weather Widget */
+.weatherCard {
+    background: #1f2937;
+    border-radius: 12px;
+    padding: 20px;
+    color: white;
+}
+
+.weatherLabel {
+    font-size: 11px;
+    font-weight: 600;
+    color: #9ca3af;
+    margin-bottom: 12px;
+    letter-spacing: 0.05em;
+    font-family: 'Inter', sans-serif;
+}
+
+.weatherContent {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.temp {
+    font-size: 28px;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+}
+
+.weatherDesc {
+    font-size: 13px;
+    color: #d1d5db;
+    font-family: 'Inter', sans-serif;
+    flex: 1;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .mainGrid {
+        grid-template-columns: 1fr;
+    }
+}
+@media (max-width: 640px) {
+    .pageHeader {
+        flex-direction: column;
+        gap: 16px;
+    }
+    .headerActions {
+        width: 100%;
+    }
+    .btnOutline, .btnPrimary {
+        flex: 1;
+        justify-content: center;
+    }
+}
