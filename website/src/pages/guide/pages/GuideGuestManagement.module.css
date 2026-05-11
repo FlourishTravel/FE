@@ -1,0 +1,455 @@
+@import "tailwindcss";
+@reference "../../../index.css";
+
+.page {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.pageHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pageTitle {
+    font-size: 26px;
+    font-weight: 700;
+    color: #111827;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: -0.02em;
+}
+
+.qrBtn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: none;
+    background: #059669;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+    box-shadow: 0 2px 8px rgba(5, 150, 105, 0.3);
+}
+
+.qrBtn:hover {
+    background: #047857;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(5, 150, 105, 0.4);
+}
+
+/* Stats Row */
+.statsRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.statCard {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 20px 24px;
+}
+
+.statContent {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 6px;
+}
+
+.statLabel {
+    font-size: 13px;
+    color: #6b7280;
+    font-family: 'Inter', sans-serif;
+}
+
+.statValueLarge {
+    font-size: 28px;
+    font-weight: 700;
+    color: #111827;
+    font-family: 'Inter', sans-serif;
+    line-height: 1;
+    display: block;
+    margin-top: 4px;
+}
+
+.statUnit {
+    font-size: 14px;
+    font-weight: 500;
+    color: #6b7280;
+}
+
+.statRow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.statIconWrap {
+    flex-shrink: 0;
+}
+
+.statProgress {
+    margin-top: 12px;
+}
+
+.progressBar {
+    width: 100%;
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.progressFill {
+    height: 100%;
+    background: linear-gradient(90deg, #2ecc71, #059669);
+    border-radius: 8px;
+}
+
+.specialTags {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.specialTag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: #ecfdf5;
+    color: #059669;
+    font-size: 12px;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Main Grid */
+.mainGrid {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 20px;
+    align-items: start;
+}
+
+/* Guest List */
+.guestListCard {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 20px;
+}
+
+.searchBar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f3f4f6;
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+}
+
+.searchBar:focus-within {
+    background: white;
+    border-color: #2ecc71;
+    box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.1);
+}
+
+.searchInput {
+    border: none;
+    background: none;
+    outline: none;
+    font-size: 14px;
+    color: #374151;
+    width: 100%;
+    font-family: 'Inter', sans-serif;
+}
+
+.searchInput::placeholder {
+    color: #9ca3af;
+}
+
+.guestList {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.guestItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 1px solid #f3f4f6;
+    transition: all 0.2s;
+}
+
+.guestItem:hover {
+    background: #f9fafb;
+    border-color: #e5e7eb;
+}
+
+.guestLeft {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.avatarWrap {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.guestAvatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.avatarInitials {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #e5e7eb;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+}
+
+.onlineDot {
+    position: absolute;
+    bottom: 1px;
+    right: 1px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #059669;
+    border: 2px solid white;
+}
+
+.guestInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.guestName {
+    font-size: 15px;
+    font-weight: 600;
+    color: #111827;
+    font-family: 'Inter', sans-serif;
+}
+
+.guestMeta {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    color: #6b7280;
+    font-family: 'Inter', sans-serif;
+}
+
+.guestRight {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.allergyTag {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: #fef2f2;
+    color: #ef4444;
+    font-size: 12px;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+}
+
+.checkedActions {
+    display: flex;
+    gap: 4px;
+}
+
+.iconBtn {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #6b7280;
+    transition: all 0.2s;
+}
+
+.iconBtn:hover {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.checkInBtn {
+    padding: 6px 16px;
+    border-radius: 8px;
+    border: 1px solid #3b82f6;
+    background: white;
+    color: #3b82f6;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+}
+
+.checkInBtn:hover {
+    background: #3b82f6;
+    color: white;
+}
+
+/* Right Column */
+.rightColumn {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Guest Locator */
+.locatorCard {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 20px;
+}
+
+.locatorHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+}
+
+.locatorTitle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #111827;
+    font-family: 'Inter', sans-serif;
+}
+
+.onlineIndicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #059669;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.mapPlaceholder {
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+}
+
+.mapContent {
+    height: 160px;
+    background: linear-gradient(135deg, #ecfdf5, #eff6ff);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    color: #9ca3af;
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+}
+
+.mapAlert {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 10px 12px;
+    background: #fef2f2;
+    font-size: 12px;
+    color: #991b1b;
+    font-family: 'Inter', sans-serif;
+    line-height: 1.4;
+}
+
+/* Internal Info */
+.internalCard {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 20px;
+}
+
+.internalTitle {
+    font-size: 15px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 14px;
+    font-family: 'Inter', sans-serif;
+}
+
+.internalList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.internalItem {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: #374151;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .mainGrid {
+        grid-template-columns: 1fr;
+    }
+    .statsRow {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .pageHeader {
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+    }
+}

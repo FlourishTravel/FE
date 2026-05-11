@@ -1,0 +1,278 @@
+@import "tailwindcss";
+@reference "../../../index.css";
+
+.page {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.pageHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.pageTitle {
+    font-size: 26px;
+    font-weight: 700;
+    color: #111827;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: -0.02em;
+}
+
+.pageSubtitle {
+    font-size: 14px;
+    color: #6b7280;
+    margin-top: 4px;
+    font-family: 'Inter', sans-serif;
+}
+
+.filterGroup {
+    display: flex;
+    gap: 8px;
+}
+
+.filterBtn {
+    padding: 8px 18px;
+    border-radius: 20px;
+    border: 1px solid #e5e7eb;
+    background: white;
+    color: #6b7280;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+}
+
+.filterBtn:hover {
+    border-color: #059669;
+    color: #059669;
+}
+
+.filterActive {
+    background: #059669;
+    color: white !important;
+    border-color: #059669 !important;
+}
+
+/* Tour Grid */
+.tourGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+/* Tour Card */
+.tourCard {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 20px;
+    transition: all 0.2s;
+}
+
+.tourCard:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    transform: translateY(-1px);
+}
+
+.tourCardHeader {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.tourBadge {
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+}
+
+.badge_today {
+    background: #ecfdf5;
+    color: #059669;
+}
+
+.badge_tomorrow {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.badge_future {
+    background: #eff6ff;
+    color: #3b82f6;
+}
+
+.tourId {
+    font-size: 13px;
+    color: #9ca3af;
+    font-family: 'Inter', sans-serif;
+}
+
+.moreBtn {
+    margin-left: auto;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #9ca3af;
+    padding: 4px;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.moreBtn:hover {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.tourCardBody {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.tourImage {
+    width: 120px;
+    height: 100px;
+    border-radius: 10px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.tourInfo {
+    flex: 1;
+    min-width: 0;
+}
+
+.tourName {
+    font-size: 16px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 10px;
+    font-family: 'Inter', sans-serif;
+    line-height: 1.3;
+}
+
+.tourMeta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.metaItem {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #6b7280;
+    font-family: 'Inter', sans-serif;
+}
+
+.metaItem .material-icons-round {
+    color: #9ca3af;
+}
+
+/* Progress */
+.tourProgress {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.progressBar {
+    flex: 1;
+    height: 6px;
+    background: #e5e7eb;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.progressFill {
+    height: 100%;
+    background: linear-gradient(90deg, #2ecc71, #27ae60);
+    border-radius: 6px;
+}
+
+.progressLabel {
+    font-size: 12px;
+    color: #6b7280;
+    white-space: nowrap;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Card Footer */
+.tourCardFooter {
+    display: flex;
+    gap: 10px;
+}
+
+.btnOutline {
+    flex: 1;
+    padding: 10px 16px;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    background: white;
+    color: #374151;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+}
+
+.btnOutline:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+}
+
+.btnPrimary {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 16px;
+    border-radius: 10px;
+    border: none;
+    background: #059669;
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+}
+
+.btnPrimary:hover {
+    background: #047857;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .tourGrid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .pageHeader {
+        flex-direction: column;
+        gap: 12px;
+    }
+    .filterGroup {
+        flex-wrap: wrap;
+    }
+    .tourCardBody {
+        flex-direction: column;
+    }
+    .tourImage {
+        width: 100%;
+        height: 160px;
+    }
+}

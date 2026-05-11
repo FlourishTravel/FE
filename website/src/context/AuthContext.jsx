@@ -14,6 +14,12 @@ export const ADMIN_CREDENTIALS = {
     password: 'admin123',
 };
 
+// Guide credentials
+export const GUIDE_CREDENTIALS = {
+    email: 'guide@flourish.com',
+    password: 'guide123',
+};
+
 export const MOCK_USER = {
     id: 1,
     email: MOCK_CREDENTIALS.email,
@@ -36,6 +42,18 @@ export const MOCK_ADMIN = {
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
     joinedDate: '01/2024',
     role: 'admin',
+};
+
+export const MOCK_GUIDE = {
+    id: 42,
+    email: GUIDE_CREDENTIALS.email,
+    name: 'HDV Trần Bình',
+    phone: '0988 777 666',
+    address: 'Flourish Guide Center',
+    gender: 'Nam',
+    avatar: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&w=200&q=80',
+    joinedDate: '03/2023',
+    role: 'guide',
 };
 
 const AuthContext = createContext(null);
@@ -88,9 +106,22 @@ export const AuthProvider = ({ children }) => {
         );
     };
 
-    const isAdmin = user?.role === 'admin';
+    const checkGuideCredentials = (email, password) => {
+        return (
+            email.toLowerCase().trim() === GUIDE_CREDENTIALS.email &&
+            password === GUIDE_CREDENTIALS.password
+        );
+    };
 
-    const value = { user, login, logout, updateUser, checkCredentials, checkAdminCredentials, isAdmin, MOCK_USER, MOCK_ADMIN };
+    const isAdmin = user?.role === 'admin';
+    const isGuide = user?.role === 'guide';
+
+    const value = { 
+        user, login, logout, updateUser, 
+        checkCredentials, checkAdminCredentials, checkGuideCredentials,
+        isAdmin, isGuide, 
+        MOCK_USER, MOCK_ADMIN, MOCK_GUIDE 
+    };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

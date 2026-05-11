@@ -11,7 +11,7 @@ const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
     const navigate = useNavigate();
-    const { login, checkCredentials, MOCK_USER, checkAdminCredentials, MOCK_ADMIN } = useAuth();
+    const { login, checkCredentials, MOCK_USER, checkAdminCredentials, MOCK_ADMIN, checkGuideCredentials, MOCK_GUIDE } = useAuth();
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -19,11 +19,14 @@ const Login = () => {
         if (checkAdminCredentials(email, password)) {
             login(MOCK_ADMIN);
             navigate('/admin');
+        } else if (checkGuideCredentials(email, password)) {
+            login(MOCK_GUIDE);
+            navigate('/guide');
         } else if (checkCredentials(email, password)) {
             login(MOCK_USER);
             navigate('/profile');
         } else {
-            setError('Email hoặc mật khẩu không đúng. Thử: demo@flourish.com / flourish123 hoặc admin@flourish.com / admin123');
+            setError('Email hoặc mật khẩu không đúng. Thử:\nUser: demo@flourish.com / flourish123\nAdmin: admin@flourish.com / admin123\nGuide: guide@flourish.com / guide123');
         }
     };
 
