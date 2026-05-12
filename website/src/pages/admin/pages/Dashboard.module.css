@@ -33,6 +33,15 @@
     gap: 8px;
 }
 
+.errorBanner {
+    padding: 10px 14px;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    background: #fef2f2;
+    color: #b91c1c;
+    font-size: 13px;
+}
+
 .exportBtn {
     display: flex;
     align-items: center;
@@ -123,6 +132,15 @@
 
 .chartArea {
     height: 280px;
+}
+
+.placeholder {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #9ca3af;
+    font-size: 14px;
 }
 
 .canvas {

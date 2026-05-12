@@ -88,6 +88,22 @@
     @apply w-5 h-5;
 }
 
+.emptyHint {
+    @apply text-sm text-gray-500 text-center px-4;
+}
+
+.retryBtn {
+    @apply mt-3 px-4 py-2 rounded-full text-sm font-semibold bg-primary-500 text-white border-0 cursor-pointer hover:bg-primary-600;
+}
+
+.sendBtn:disabled {
+    @apply opacity-50 cursor-not-allowed;
+}
+
+.input:disabled {
+    @apply bg-gray-50 text-gray-400;
+}
+
 .popup {
     @apply fixed bottom-24 left-4 right-4 max-w-md mx-auto flex items-start gap-3 p-4 bg-white rounded-xl shadow-xl border border-gray-200 z-50 animate-fade-in-up;
 }

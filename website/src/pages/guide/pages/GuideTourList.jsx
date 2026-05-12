@@ -1,44 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from './GuideTourList.module.css';
-
-const TOURS = [
-    {
-        id: 'FL-HN-092',
-        name: 'Khám phá Văn hóa Phố Cổ Hà Nội',
-        image: 'https://images.unsplash.com/photo-1583417319070-4a69db38a482?auto=format&fit=crop&w=400&q=80',
-        time: '08:00 - 12:00 (4 giờ)',
-        location: 'Hồ Hoàn Kiếm, Hà Nội',
-        guests: '12 Khách (2 Trẻ em)',
-        badge: 'Hôm nay',
-        badgeType: 'today',
-        status: 'starting',
-        progress: 30,
-    },
-    {
-        id: 'FL-NB-104',
-        name: 'Hành trình Tràng An – Bái Đính',
-        image: 'https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=400&q=80',
-        time: '07:30 - 18:00 (Cả ngày)',
-        location: 'Ninh Bình',
-        guests: '25 Khách (Đoàn VIP)',
-        badge: 'Ngày mai',
-        badgeType: 'tomorrow',
-        status: 'upcoming',
-        progress: 0,
-    },
-    {
-        id: 'FL-HL-210',
-        name: 'Nghỉ dưỡng 2N1Đ Cruise Hạ Long',
-        image: 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?auto=format&fit=crop&w=400&q=80',
-        time: '2 Ngày 1 Đêm',
-        location: 'Vịnh Hạ Long, Quảng Ninh',
-        guests: '8 Khách (Gia đình)',
-        badge: '15 Thg 10',
-        badgeType: 'future',
-        status: 'upcoming',
-        progress: 0,
-    },
-];
+import { listMyGuideSessions } from '../../../api/guideTours';
 
 const FILTERS = [
     { key: 'upcoming', label: 'Sắp diễn ra' },
@@ -47,7 +10,40 @@ const FILTERS = [
 ];
 
 const GuideTourList = () => {
+    const navigate = useNavigate();
     const [activeFilter, setActiveFilter] = useState('upcoming');
+    const [tours, setTours] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+
+    useEffect(() => {
+        let mounted = true;
+        async function load() {
+            try {
+                setLoading(true);
+                setError('');
+                const data = await listMyGuideSessions();
+                if (mounted) setTours(data);
+            } catch (err) {
+                if (mounted) setError(err?.message || 'Khong the tai danh sach tour');
+            } finally {
+                if (mounted) setLoading(false);
+            }
+        }
+        load();
+        return () => { mounted = false; };
+    }, []);
+
+    const filteredTours = useMemo(
+        () => tours.filter((tour) => (tour?.status || 'upcoming') === activeFilter),
+        [tours, activeFilter],
+    );
+
+    const toShortDate = (dateStr) => {
+        if (!dateStr) return 'Dang cap nhat';
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' });
+    };
 
     return (
         <div className={styles.page}>
@@ -69,58 +65,61 @@ const GuideTourList = () => {
                 </div>
             </div>
 
+            {error && <div className={styles.pageSubtitle} style={{ color: '#dc2626' }}>{error}</div>}
+            {loading && <div className={styles.pageSubtitle}>Dang tai danh sach tour...</div>}
+            {!loading && (
             <div className={styles.tourGrid}>
-                {TOURS.map(tour => (
-                    <div key={tour.id} className={styles.tourCard}>
+                {filteredTours.map(tour => (
+                    <div key={tour.sessionId} className={styles.tourCard}>
                         <div className={styles.tourCardHeader}>
-                            <span className={`${styles.tourBadge} ${styles[`badge_${tour.badgeType}`]}`}>
-                                {tour.badge}
+                            <span className={`${styles.tourBadge} ${styles.badge_future}`}>
+                                {toShortDate(tour.startDate)}
                             </span>
-                            <span className={styles.tourId}>Mã: {tour.id}</span>
-                            <button className={styles.moreBtn}>
-                                <span className="material-icons-round">more_vert</span>
-                            </button>
+                            <span className={styles.tourId}>Mã: {tour.tourCode || 'N/A'}</span>
                         </div>
                         <div className={styles.tourCardBody}>
-                            <img src={tour.image} alt={tour.name} className={styles.tourImage} />
+                            <img src={tour.thumbnailUrl || 'https://picsum.photos/400/220'} alt={tour.tourTitle} className={styles.tourImage} />
                             <div className={styles.tourInfo}>
-                                <h3 className={styles.tourName}>{tour.name}</h3>
+                                <h3 className={styles.tourName}>{tour.tourTitle}</h3>
                                 <div className={styles.tourMeta}>
                                     <div className={styles.metaItem}>
                                         <span className="material-icons-round" style={{ fontSize: '16px' }}>schedule</span>
-                                        <span>{tour.time}</span>
+                                        <span>{toShortDate(tour.startDate)} - {toShortDate(tour.endDate)}</span>
                                     </div>
                                     <div className={styles.metaItem}>
                                         <span className="material-icons-round" style={{ fontSize: '16px' }}>location_on</span>
-                                        <span>{tour.location}</span>
+                                        <span>{tour.location || 'Dang cap nhat'}</span>
                                     </div>
                                     <div className={styles.metaItem}>
                                         <span className="material-icons-round" style={{ fontSize: '16px' }}>groups</span>
-                                        <span>{tour.guests}</span>
+                                        <span>{tour.currentParticipants}/{tour.maxParticipants} khach</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        {tour.status === 'starting' && (
-                            <div className={styles.tourProgress}>
-                                <div className={styles.progressBar}>
-                                    <div className={styles.progressFill} style={{ width: `${tour.progress}%` }}></div>
-                                </div>
-                                <span className={styles.progressLabel}>Sắp bắt đầu</span>
+                        <div className={styles.tourProgress}>
+                            <div className={styles.progressBar}>
+                                <div
+                                    className={styles.progressFill}
+                                    style={{ width: `${tour.maxParticipants ? Math.round((tour.currentParticipants / tour.maxParticipants) * 100) : 0}%` }}
+                                />
                             </div>
-                        )}
+                            <span className={styles.progressLabel}>Check-in: {tour.checkedInParticipants || 0}</span>
+                        </div>
                         <div className={styles.tourCardFooter}>
-                            <button className={styles.btnOutline}>Xem chi tiết</button>
-                            {tour.status === 'starting' && (
-                                <button className={styles.btnPrimary}>
-                                    <span className="material-icons-round" style={{ fontSize: '16px' }}>play_arrow</span>
-                                    Bắt đầu Tour
-                                </button>
-                            )}
+                            <button className={styles.btnOutline} onClick={() => navigate(`/guide/tours/${tour.sessionId}`)}>Xem chi tiết</button>
+                            <button className={styles.btnPrimary} onClick={() => navigate(`/guide/tours/${tour.sessionId}`)}>
+                                <span className="material-icons-round" style={{ fontSize: '16px' }}>travel_explore</span>
+                                Quan ly tour
+                            </button>
                         </div>
                     </div>
                 ))}
+                {!filteredTours.length && (
+                    <div className={styles.pageSubtitle}>Khong co tour nao trong muc nay.</div>
+                )}
             </div>
+            )}
         </div>
     );
 };

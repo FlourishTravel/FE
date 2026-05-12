@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './CreateTourModal.module.css';
 import { listCategories } from '../../../api/categories';
-import { createTour } from '../../../api/tours';
+import { createAdminSession, createTour } from '../../../api/tours';
+import AdminImageField from './AdminImageField';
 
 const EMPTY_FORM = {
     title: '',
@@ -13,6 +14,7 @@ const EMPTY_FORM = {
     durationNights: '',
     categoryId: '',
     thumbnailUrl: '',
+    departureDate: '',
 };
 
 const CreateTourModal = ({ isOpen, onClose, onCreated }) => {
@@ -21,6 +23,13 @@ const CreateTourModal = ({ isOpen, onClose, onCreated }) => {
     const [categories, setCategories] = useState([]);
     const [submitting, setSubmitting] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
+
+    const addDays = (isoDate, daysToAdd) => {
+        const d = new Date(`${isoDate}T00:00:00`);
+        if (Number.isNaN(d.getTime())) return isoDate;
+        d.setDate(d.getDate() + daysToAdd);
+        return d.toISOString().slice(0, 10);
+    };
 
     useEffect(() => {
         if (!isOpen) return;
@@ -58,7 +67,26 @@ const CreateTourModal = ({ isOpen, onClose, onCreated }) => {
                 thumbnailUrl: formData.thumbnailUrl.trim() || null,
             };
             const created = await createTour(payload);
-            if (onCreated) onCreated(created);
+
+            let departureWarning = '';
+            if (formData.departureDate && created?.id) {
+                const tripDays = Number(formData.durationDays);
+                const endDate = addDays(
+                    formData.departureDate,
+                    Number.isFinite(tripDays) && tripDays > 1 ? tripDays - 1 : 0
+                );
+                try {
+                    await createAdminSession({
+                        tourId: created.id,
+                        startDate: formData.departureDate,
+                        endDate,
+                    });
+                } catch (sessionErr) {
+                    departureWarning = sessionErr?.message || 'Tạo lịch khởi hành đầu tiên thất bại';
+                }
+            }
+
+            if (onCreated) onCreated(created, departureWarning);
             onClose();
             if (created?.id) {
                 navigate(`/admin/tours/itinerary/${created.id}`);
@@ -171,14 +199,24 @@ const CreateTourModal = ({ isOpen, onClose, onCreated }) => {
                         </div>
 
                         <div className={styles.formGroup}>
-                            <label htmlFor="tour-thumb">URL Hình ảnh thu nhỏ</label>
+                            <label htmlFor="tour-departure-date">Ngày khởi hành đầu tiên</label>
                             <input
-                                type="url"
-                                id="tour-thumb"
-                                name="thumbnailUrl"
-                                placeholder="https://example.com/image.jpg"
-                                value={formData.thumbnailUrl}
+                                type="date"
+                                id="tour-departure-date"
+                                name="departureDate"
+                                value={formData.departureDate}
                                 onChange={handleChange}
+                            />
+                        </div>
+
+                        <div className={styles.formGroup}>
+                            <AdminImageField
+                                label="Hình ảnh thu nhỏ"
+                                value={formData.thumbnailUrl}
+                                onChange={(v) =>
+                                    setFormData((prev) => ({ ...prev, thumbnailUrl: v }))
+                                }
+                                placeholder="https://... hoặc tải ảnh lên"
                             />
                         </div>
 

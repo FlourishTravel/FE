@@ -122,6 +122,11 @@
     align-items: start;
 }
 
+.leftColumn {
+    display: flex;
+    flex-direction: column;
+}
+
 /* Overview Card */
 .overviewCard {
     background: white;
@@ -185,6 +190,38 @@
 .progressPercent {
     font-weight: 600;
     color: #059669;
+}
+
+.rollSub {
+    margin: 0 0 10px;
+    font-size: 12px;
+    color: #6b7280;
+    line-height: 1.45;
+    font-family: 'Inter', sans-serif;
+}
+
+.rollSub strong {
+    color: #111827;
+}
+
+.rollBadgeOk,
+.rollBadgeWarn {
+    margin-left: 8px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    vertical-align: middle;
+}
+
+.rollBadgeOk {
+    background: #ecfdf5;
+    color: #047857;
+}
+
+.rollBadgeWarn {
+    background: #fffbeb;
+    color: #b45309;
 }
 
 .progressBar {
@@ -395,6 +432,14 @@
     font-family: 'Inter', sans-serif;
 }
 
+.dayIntro {
+    font-size: 14px;
+    color: #6b7280;
+    line-height: 1.55;
+    margin-bottom: 16px;
+    font-family: 'Inter', sans-serif;
+}
+
 /* Timeline */
 .timeline {
     display: flex;
@@ -446,20 +491,19 @@
 }
 
 .timelineTime {
-    width: 60px;
+    min-width: 72px;
+    max-width: 130px;
     flex-shrink: 0;
-    padding-top: 0;
+    padding-top: 2px;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     gap: 4px;
-}
-
-.timelineTime {
-    font-size: 15px;
+    font-size: 12px;
     font-weight: 700;
     color: #111827;
     font-family: 'Inter', sans-serif;
+    line-height: 1.35;
 }
 
 .currentLabel {
@@ -501,6 +545,45 @@
     font-family: 'Inter', sans-serif;
 }
 
+.activityMeta {
+    margin-bottom: 6px;
+}
+
+.activityTypeBadge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    background: #ecfdf5;
+    color: #047857;
+    font-family: 'Inter', sans-serif;
+}
+
+.activityLocation {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: #6b7280;
+    margin-bottom: 6px;
+    font-family: 'Inter', sans-serif;
+}
+
+.activityLocation .material-icons-round {
+    font-size: 14px;
+    color: #9ca3af;
+}
+
+.activityImage {
+    margin-top: 10px;
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+}
+
 .actionBtn {
     display: inline-flex;
     align-items: center;
@@ -520,6 +603,27 @@
 
 .actionBtn:hover {
     background: #f3f4f6;
+}
+
+.memberModalOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+
+.memberModal {
+    width: min(680px, 100%);
+    max-height: 80vh;
+    overflow: auto;
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    padding: 20px;
 }
 
 /* Responsive */

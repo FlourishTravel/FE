@@ -6,6 +6,7 @@ import {
     saveTourItinerary,
     getAdminTourDetail,
 } from '../../../api/tours';
+import AdminImageField from '../components/AdminImageField';
 
 const PLACEHOLDER_IMG =
     'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80';
@@ -204,11 +205,13 @@ const TourItineraryBuilder = () => {
         setLoading(true);
         setErrorMsg('');
         try {
-            const [detail, itin] = await Promise.all([
+            // Itinerary là dữ liệu chính của màn hình này: nếu fetch lỗi thì phải báo lỗi,
+            // không fallback sang form trắng để tránh ghi đè dữ liệu cũ.
+            const [detailRes, itin] = await Promise.all([
                 getAdminTourDetail(tourId).catch(() => null),
-                getTourItinerary(tourId).catch(() => []),
+                getTourItinerary(tourId),
             ]);
-            setTour(detail);
+            setTour(detailRes);
             const mapped = itin.length ? fromServer(itin) : [newDay(1)];
             setDays(mapped);
             setActiveKey(mapped[0]?._key ?? null);
@@ -234,6 +237,7 @@ const TourItineraryBuilder = () => {
         () => days.find((d) => d._key === activeKey) || null,
         [days, activeKey]
     );
+    const activeDayHasActivities = (activeDay?.activities?.length || 0) > 0;
 
     const markDirty = () => setDirty(true);
 
@@ -418,6 +422,14 @@ const TourItineraryBuilder = () => {
         };
     }, [days]);
 
+    const debugDayCounts = useMemo(
+        () =>
+            days
+                .map((d) => `D${d.dayNumber || '?'}:${(d.activities || []).length}`)
+                .join(' | '),
+        [days]
+    );
+
     return (
         <div className={styles.page}>
             <div className={styles.pageHeader}>
@@ -454,6 +466,14 @@ const TourItineraryBuilder = () => {
                         {saving ? 'Đang lưu...' : 'Lưu Lịch Trình'}
                     </button>
                 </div>
+            </div>
+
+            <div className={styles.debugBox}>
+                <strong>Debug:</strong>{' '}
+                routeTourId=<code>{tourId || '—'}</code> | detailTourId=
+                <code>{tour?.id || '—'}</code> | days=
+                <code>{days.length}</code> | activities=
+                <code>{debugDayCounts || 'none'}</code>
             </div>
 
             {(errorMsg || successMsg) && (
@@ -542,15 +562,11 @@ const TourItineraryBuilder = () => {
                                     />
                                 </div>
                                 <div className={styles.formField}>
-                                    <label>Ảnh cover ngày</label>
-                                    <input
-                                        type="url"
-                                        placeholder="https://..."
+                                    <AdminImageField
+                                        label="Ảnh cover ngày"
                                         value={activeDay.coverImageUrl}
-                                        onChange={(e) =>
-                                            updateDay(activeDay._key, {
-                                                coverImageUrl: e.target.value,
-                                            })
+                                        onChange={(v) =>
+                                            updateDay(activeDay._key, { coverImageUrl: v })
                                         }
                                     />
                                 </div>
@@ -780,16 +796,17 @@ const TourItineraryBuilder = () => {
 
                                         {/* Row: image + cost */}
                                         <div className={styles.actGridMedia}>
-                                            <input
-                                                type="url"
-                                                placeholder="URL ảnh hoạt động"
-                                                value={act.imageUrl}
-                                                onChange={(e) =>
-                                                    updateActivity(activeDay._key, act._key, {
-                                                        imageUrl: e.target.value,
-                                                    })
-                                                }
-                                            />
+                                            <div style={{ minWidth: 0 }}>
+                                                <AdminImageField
+                                                    label="Ảnh hoạt động"
+                                                    value={act.imageUrl}
+                                                    onChange={(v) =>
+                                                        updateActivity(activeDay._key, act._key, {
+                                                            imageUrl: v,
+                                                        })
+                                                    }
+                                                />
+                                            </div>
                                             <div className={styles.costGroup}>
                                                 <input
                                                     type="number"
@@ -853,13 +870,20 @@ const TourItineraryBuilder = () => {
                                     </div>
                                 ))}
                             </div>
+                            {!activeDayHasActivities && (
+                                <div className={styles.emptyActivities}>
+                                    Chưa có `tour_activity` cho ngày này. Hãy tạo hoạt động đầu tiên.
+                                </div>
+                            )}
 
                             <button
                                 className={styles.addActivityBtn}
                                 onClick={() => handleAddActivity(activeDay._key)}
                             >
                                 <span className="material-icons-round">add_circle_outline</span>
-                                Thêm hoạt động mới
+                                {activeDayHasActivities
+                                    ? 'Thêm hoạt động mới'
+                                    : 'Tạo hoạt động đầu tiên'}
                             </button>
                         </div>
                     )}

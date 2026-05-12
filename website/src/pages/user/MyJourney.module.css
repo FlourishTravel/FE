@@ -122,6 +122,21 @@
     color: #047857;
 }
 
+.statusPaid {
+    background: #d1fae5;
+    color: #047857;
+}
+
+.statusPending {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.statusCancelled {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
 .statusIcon {
     width: 13px;
     height: 13px;
@@ -172,7 +187,33 @@
 
 .cardActions {
     display: flex;
+    flex-wrap: wrap;
     gap: 8px;
+}
+
+.btnDetail {
+    @apply text-sm font-semibold rounded-xl;
+    padding: 10px 20px;
+    background: white;
+    color: #1d4ed8;
+    border: 1.5px solid #93c5fd;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btnDetail:hover {
+    background: #eff6ff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(29, 78, 216, 0.12);
+}
+
+.btnDetailIcon {
+    width: 16px;
+    height: 16px;
 }
 
 .btnChat {
@@ -198,6 +239,20 @@
 .btnChatIcon {
     width: 16px;
     height: 16px;
+}
+
+.btnChatDisabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+    color: #64748b;
+    border-color: #cbd5e1;
+}
+
+.btnChatDisabled:hover {
+    background: white;
+    transform: none;
+    box-shadow: none;
 }
 
 .btnViewTour {

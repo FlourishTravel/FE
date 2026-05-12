@@ -99,6 +99,20 @@ export async function deleteTour(id) {
 }
 
 /**
+ * Tạo lịch khởi hành đầu tiên cho tour vừa khởi tạo.
+ * Backend endpoint: POST /admin/sessions
+ */
+export async function createAdminSession(payload) {
+  const res = await fetch(`${API_BASE}/admin/sessions`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify(payload),
+  });
+  const json = await parseJson(res);
+  return json?.data;
+}
+
+/**
  * Lấy danh sách lịch trình đầy đủ (kèm activities) cho Itinerary Builder.
  * @returns {Promise<Array<{
  *   id, dayNumber, title, description, summary, coverImageUrl,
@@ -121,6 +135,56 @@ export async function saveTourItinerary(tourId, days) {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify(days),
+  });
+  const json = await parseJson(res);
+  return Array.isArray(json?.data) ? json.data : [];
+}
+
+/**
+ * Danh sách tour công khai (còn chỗ theo backend) — dùng trang Tour trải nghiệm.
+ * @param {{ destination?: string, minPrice?: number, maxPrice?: number, categoryId?: string, startDate?: string, page?: number, size?: number }} params
+ */
+export async function listPublicTours(params = {}) {
+  const search = new URLSearchParams();
+  if (params.destination) search.set('destination', params.destination);
+  if (params.minPrice != null && params.minPrice !== '') search.set('minPrice', String(params.minPrice));
+  if (params.maxPrice != null && params.maxPrice !== '') search.set('maxPrice', String(params.maxPrice));
+  if (params.categoryId) search.set('categoryId', params.categoryId);
+  if (params.startDate) search.set('startDate', params.startDate);
+  if (params.page != null) search.set('page', String(params.page));
+  if (params.size != null) search.set('size', String(params.size));
+
+  const url = `${API_BASE}/tours${search.toString() ? `?${search.toString()}` : ''}`;
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  const json = await parseJson(res);
+  const page = json?.data || {};
+  return {
+    content: Array.isArray(page.content) ? page.content : [],
+    totalElements: page.totalElements ?? 0,
+    totalPages: page.totalPages ?? 0,
+    number: page.number ?? 0,
+    size: page.size ?? 0,
+  };
+}
+
+/** Chi tiết tour công khai (ảnh, lịch trình, session đặt chỗ). */
+export async function getPublicTour(id) {
+  const res = await fetch(`${API_BASE}/tours/${id}`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  const json = await parseJson(res);
+  return json?.data;
+}
+
+/** Tour gợi ý tương tự (cùng danh mục / mới nhất). */
+export async function getSimilarTours(tourId, limit = 4) {
+  const res = await fetch(`${API_BASE}/tours/${tourId}/similar?limit=${limit}`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
   });
   const json = await parseJson(res);
   return Array.isArray(json?.data) ? json.data : [];

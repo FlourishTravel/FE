@@ -22,6 +22,7 @@ import CompanyDetails from './pages/user/CompanyDetails';
 import TourListing from './pages/user/TourListing';
 import TourDetail from './pages/user/TourDetail';
 import MyJourney from './pages/user/MyJourney';
+import BookingDetail from './pages/user/BookingDetail';
 import Destinations from './pages/user/Destinations';
 import Guide from './pages/user/Guide';
 import About from './pages/user/About';
@@ -30,6 +31,7 @@ import News from './pages/user/News';
 import Stories from './pages/user/Stories';
 import Profile from './pages/user/Profile';
 import Checkout from './pages/user/Checkout';
+import CheckoutPaymentResult from './pages/user/CheckoutPaymentResult';
 import GroupChat from './pages/user/GroupChat';
 import CancellationPolicy from './pages/user/CancellationPolicy';
 
@@ -83,10 +85,12 @@ function App() {
         <Route path="/register" element={<><Navbar /><Register /></>} />
         <Route path="/profile" element={<><Navbar /><Profile /><Footer /></>} />
         <Route path="/my-journey" element={<><Navbar /><MyJourney /><Footer /></>} />
+        <Route path="/my-journey/booking/:bookingId" element={<><Navbar /><BookingDetail /><Footer /></>} />
         <Route path="/destinations" element={<><Navbar /><Destinations /><Footer /></>} />
         <Route path="/our-guides" element={<><Navbar /><Guide /><Footer /></>} />
         <Route path="/tours" element={<><Navbar /><TourListing /><Footer /></>} />
         <Route path="/tours/:id" element={<><Navbar /><TourDetail /><Footer /></>} />
+        <Route path="/checkout/result" element={<><Navbar /><CheckoutPaymentResult /><Footer /></>} />
         <Route path="/checkout/:tourId" element={<><Navbar /><Checkout /><Footer /></>} />
         <Route path="/chat/:bookingId" element={<><Navbar /><GroupChat /></>} />
         <Route path="/cookie-policy" element={<><Navbar /><CookiePolicy /><Footer /></>} />

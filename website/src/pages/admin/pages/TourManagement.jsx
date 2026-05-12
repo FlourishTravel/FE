@@ -106,8 +106,12 @@ const TourManagement = () => {
         return { total: tours.length, ...counts };
     }, [tours]);
 
-    const handleCreated = () => {
-        setSuccessMsg('Đã tạo tour mới');
+    const handleCreated = (_, departureWarning) => {
+        setSuccessMsg(
+            departureWarning
+                ? `Đã tạo tour mới. Lưu ý: ${departureWarning}`
+                : 'Đã tạo tour mới'
+        );
         fetchTours();
     };
 

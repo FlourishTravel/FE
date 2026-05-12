@@ -1,0 +1,225 @@
+@import "tailwindcss";
+@reference "../../index.css";
+
+.page {
+    @apply bg-gray-50 min-h-screen;
+    padding-top: 80px;
+    width: 100%;
+}
+
+.inner {
+    @apply container-custom;
+    padding-top: 28px;
+    padding-bottom: 56px;
+    max-width: 960px;
+}
+
+.backRow {
+    margin-bottom: 16px;
+}
+
+.backLink {
+    @apply inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 no-underline;
+}
+
+.hero {
+    @apply bg-white rounded-2xl border border-gray-100 overflow-hidden;
+    display: flex;
+    flex-wrap: wrap;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.heroImg {
+    width: 100%;
+    max-width: 320px;
+    min-height: 200px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.heroBody {
+    flex: 1;
+    padding: 24px;
+    min-width: 240px;
+}
+
+.heroTop {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.title {
+    @apply text-2xl font-bold text-gray-900;
+    margin: 0 0 4px;
+}
+
+.meta {
+    @apply text-sm text-gray-500;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+}
+
+.metaItem {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.statusBadge {
+    @apply text-xs font-semibold rounded-full px-3 py-1 inline-flex items-center gap-1;
+}
+
+.statusPaid {
+    background: #d1fae5;
+    color: #047857;
+}
+
+.statusPending {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.statusCancelled {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.statusConfirmed {
+    background: #e0e7ff;
+    color: #3730a3;
+}
+
+.priceBlock {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #f3f4f6;
+}
+
+.priceRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+}
+
+.priceLabel {
+    @apply text-sm text-gray-500;
+}
+
+.priceValue {
+    @apply text-xl font-bold;
+    color: #166534;
+}
+
+.discountNote {
+    @apply text-sm text-amber-700 mt-1;
+}
+
+.section {
+    @apply bg-white rounded-2xl border border-gray-100 mt-5 p-5;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.sectionTitle {
+    @apply text-lg font-bold text-gray-900 m-0 mb-3;
+}
+
+.grid2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px 20px;
+}
+
+.label {
+    @apply text-xs font-semibold text-gray-400 uppercase tracking-wide;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.value {
+    @apply text-sm text-gray-800;
+    margin: 0;
+}
+
+.tableWrap {
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.table th {
+    @apply text-left text-gray-500 font-semibold;
+    padding: 8px 10px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.table td {
+    padding: 10px;
+    border-bottom: 1px solid #f3f4f6;
+    vertical-align: top;
+}
+
+.emptyLine {
+    @apply text-sm text-gray-500 m-0;
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.btnPrimary {
+    @apply text-sm font-semibold rounded-xl px-4 py-2.5 border-0 cursor-pointer no-underline inline-flex items-center gap-2;
+    background: #16a34a;
+    color: white;
+    transition: opacity 0.2s;
+}
+
+.btnPrimary:hover {
+    opacity: 0.92;
+}
+
+.btnOutline {
+    @apply text-sm font-semibold rounded-xl px-4 py-2.5 cursor-pointer no-underline inline-flex items-center gap-2;
+    background: white;
+    color: #16a34a;
+    border: 1.5px solid #16a34a;
+}
+
+.btnMuted {
+    @apply text-sm font-semibold rounded-xl px-4 py-2.5 cursor-pointer inline-flex items-center gap-2;
+    background: #f3f4f6;
+    color: #374151;
+    border: none;
+}
+
+.btnDanger {
+    @apply text-sm font-semibold rounded-xl px-4 py-2.5 cursor-pointer inline-flex items-center gap-2;
+    background: white;
+    color: #b91c1c;
+    border: 1.5px solid #fecaca;
+}
+
+.btnDanger:hover {
+    background: #fef2f2;
+}
+
+.errorBox {
+    @apply text-sm text-red-700 bg-red-50 rounded-xl px-4 py-3;
+}
+
+.loading {
+    @apply text-gray-500 text-center py-16;
+}

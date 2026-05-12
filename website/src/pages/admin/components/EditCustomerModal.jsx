@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styles from './EditCustomerModal.module.css';
 import { updateAdminCustomer } from '../../../api/adminCustomers';
+import AdminImageField from './AdminImageField';
 
 /**
  * Modal chỉnh sửa thông tin khách hàng (admin).
@@ -112,13 +113,10 @@ const EditCustomerModal = ({ customer, onClose, onSaved }) => {
                             />
                         </div>
                         <div className={styles.field}>
-                            <label className={styles.label}>Avatar URL</label>
-                            <input
-                                className={styles.input}
-                                type="url"
+                            <AdminImageField
+                                label="Ảnh đại diện"
                                 value={form.avatarUrl}
-                                onChange={setField('avatarUrl')}
-                                placeholder="https://..."
+                                onChange={(v) => setForm((prev) => ({ ...prev, avatarUrl: v }))}
                             />
                         </div>
                     </div>

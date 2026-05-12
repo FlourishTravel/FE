@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { resolveMediaUrl } from '../../../api/config';
 import { getAdminTourDetail } from '../../../api/tours';
 import styles from './TourDetailModal.module.css';
 
@@ -54,11 +55,38 @@ const formatDuration = (seconds) => {
     return `${m}:${String(s).padStart(2, '0')}`;
 };
 
+/** LocalTime từ BE: chuỗi "HH:mm:ss", mảng [h,m,s], hoặc object { hour, minute }. */
+const formatTimePart = (t) => {
+    if (t == null || t === '') return '';
+    if (typeof t === 'string') {
+        const s = t.trim();
+        return s.length >= 5 ? s.slice(0, 5) : s;
+    }
+    if (Array.isArray(t) && t.length >= 2) {
+        const [h, m] = t;
+        return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+    }
+    if (typeof t === 'object' && t.hour != null && t.minute != null) {
+        return `${String(t.hour).padStart(2, '0')}:${String(t.minute).padStart(2, '0')}`;
+    }
+    return '';
+};
+
+const formatActivityTimeWindow = (a) => {
+    const st = formatTimePart(a?.startTime);
+    const en = formatTimePart(a?.endTime);
+    if (st && en) return `${st} – ${en}`;
+    if (st) return st;
+    if (a?.durationMinutes != null && a.durationMinutes > 0) return `${a.durationMinutes} phút`;
+    return '';
+};
+
 const TourDetailModal = ({ isOpen, tourId, onClose, onEdit }) => {
     const [tab, setTab] = useState('overview');
     const [detail, setDetail] = useState(null);
     const [loading, setLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
+    const [expandedItineraryId, setExpandedItineraryId] = useState(null);
 
     useEffect(() => {
         if (!isOpen || !tourId) return;
@@ -71,6 +99,14 @@ const TourDetailModal = ({ isOpen, tourId, onClose, onEdit }) => {
             .catch((err) => setErrorMsg(err?.message || 'Không tải được chi tiết tour'))
             .finally(() => setLoading(false));
     }, [isOpen, tourId]);
+
+    useEffect(() => {
+        setExpandedItineraryId(null);
+    }, [tourId, isOpen]);
+
+    useEffect(() => {
+        if (tab !== 'itinerary') setExpandedItineraryId(null);
+    }, [tab]);
 
     const heroImage = useMemo(() => {
         if (!detail?.images?.length) return PLACEHOLDER_IMG;
@@ -199,19 +235,146 @@ const TourDetailModal = ({ isOpen, tourId, onClose, onEdit }) => {
                         <div className={styles.section}>
                             {detail.itineraries?.length ? (
                                 <div className={styles.timeline}>
-                                    {detail.itineraries.map((it) => (
-                                        <div key={it.id} className={styles.timelineItem}>
-                                            <div className={styles.timelineMarker}>
-                                                <span>{it.dayNumber}</span>
+                                    <p className={styles.itineraryHint}>
+                                        Chọn một ngày để xem các hoạt động và ảnh minh hoạ.
+                                    </p>
+                                    {detail.itineraries.map((it) => {
+                                        const isDayExpanded = expandedItineraryId === it.id;
+                                        const acts = [...(it.activities || [])].sort(
+                                            (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)
+                                        );
+                                        const coverSrc = it.coverImageUrl
+                                            ? resolveMediaUrl(it.coverImageUrl)
+                                            : '';
+                                        return (
+                                            <div key={it.id} className={styles.timelineItem}>
+                                                <div className={styles.timelineMarker}>
+                                                    <span>{it.dayNumber}</span>
+                                                </div>
+                                                <div className={styles.timelineColumn}>
+                                                    <button
+                                                        type="button"
+                                                        className={styles.timelineDayToggle}
+                                                        onClick={() =>
+                                                            setExpandedItineraryId((prev) =>
+                                                                prev === it.id ? null : it.id
+                                                            )
+                                                        }
+                                                        aria-expanded={isDayExpanded}
+                                                    >
+                                                        <div className={styles.timelineDayToggleMain}>
+                                                            {coverSrc ? (
+                                                                <img
+                                                                    src={coverSrc}
+                                                                    alt=""
+                                                                    className={styles.dayCoverThumb}
+                                                                    onError={(e) => {
+                                                                        e.currentTarget.style.display = 'none';
+                                                                    }}
+                                                                />
+                                                            ) : null}
+                                                            <div className={styles.timelineDayText}>
+                                                                <div className={styles.timelineTitle}>
+                                                                    Ngày {it.dayNumber ?? '—'}
+                                                                    {it.title ? ` — ${it.title}` : ''}
+                                                                </div>
+                                                                {it.summary ? (
+                                                                    <p className={styles.timelineSummary}>
+                                                                        {it.summary}
+                                                                    </p>
+                                                                ) : null}
+                                                                {!isDayExpanded && it.description ? (
+                                                                    <p className={styles.timelineDescPreview}>
+                                                                        {it.description}
+                                                                    </p>
+                                                                ) : null}
+                                                                <span className={styles.activityCountBadge}>
+                                                                    {acts.length} hoạt động
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <span
+                                                            className={`material-icons-round ${styles.timelineChevron}`}
+                                                        >
+                                                            {isDayExpanded ? 'expand_less' : 'expand_more'}
+                                                        </span>
+                                                    </button>
+                                                    {isDayExpanded && (
+                                                        <div className={styles.timelineExpand}>
+                                                            {it.description && (
+                                                                <p className={styles.timelineDesc}>{it.description}</p>
+                                                            )}
+                                                            {acts.length === 0 ? (
+                                                                <div className={styles.activityEmpty}>
+                                                                    Chưa có hoạt động chi tiết cho ngày này.
+                                                                </div>
+                                                            ) : (
+                                                                <ul className={styles.activityList}>
+                                                                    {acts.map((act) => {
+                                                                        const imgSrc = act.imageUrl
+                                                                            ? resolveMediaUrl(act.imageUrl)
+                                                                            : '';
+                                                                        const timeWin = formatActivityTimeWindow(act);
+                                                                        return (
+                                                                            <li key={act.id} className={styles.activityRow}>
+                                                                                {imgSrc ? (
+                                                                                    <div className={styles.activityThumbWrap}>
+                                                                                        <img
+                                                                                            src={imgSrc}
+                                                                                            alt=""
+                                                                                            className={styles.activityThumb}
+                                                                                            onError={(e) => {
+                                                                                                e.currentTarget.style.display =
+                                                                                                    'none';
+                                                                                            }}
+                                                                                        />
+                                                                                    </div>
+                                                                                ) : (
+                                                                                    <div
+                                                                                        className={styles.activityThumbPh}
+                                                                                        aria-hidden
+                                                                                    >
+                                                                                        <span className="material-icons-round">
+                                                                                            image
+                                                                                        </span>
+                                                                                    </div>
+                                                                                )}
+                                                                                <div className={styles.activityBody}>
+                                                                                    <div className={styles.activityTitle}>
+                                                                                        {act.title || 'Hoạt động'}
+                                                                                    </div>
+                                                                                    <div className={styles.activityMeta}>
+                                                                                        {timeWin ? (
+                                                                                            <span>{timeWin}</span>
+                                                                                        ) : null}
+                                                                                        {act.activityType ? (
+                                                                                            <span className={styles.activityType}>
+                                                                                                {act.activityType}
+                                                                                            </span>
+                                                                                        ) : null}
+                                                                                        {act.locationName ? (
+                                                                                            <span className={styles.activityLoc}>
+                                                                                                {act.locationName}
+                                                                                            </span>
+                                                                                        ) : null}
+                                                                                    </div>
+                                                                                    {act.description ? (
+                                                                                        <p className={styles.activityDesc}>
+                                                                                            {act.description}
+                                                                                        </p>
+                                                                                    ) : null}
+                                                                                </div>
+                                                                            </li>
+                                                                        );
+                                                                    })}
+                                                                </ul>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
-                                            <div className={styles.timelineBody}>
-                                                <div className={styles.timelineTitle}>{it.title}</div>
-                                                {it.description && (
-                                                    <p className={styles.timelineDesc}>{it.description}</p>
-                                                )}
-                                            </div>
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             ) : (
                                 <EmptyHint icon="event_note" text="Chưa có lịch trình chi tiết cho tour này." />

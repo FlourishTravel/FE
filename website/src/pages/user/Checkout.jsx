@@ -1,14 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useSearchParams, useNavigate, Link } from 'react-router-dom';
 import {
-    ChevronRight, User, Mail, Phone, FileText, CreditCard,
-    Building2, Wallet, Calendar, Users, MapPin, CheckCircle,
-    ArrowRight, ArrowLeft, ShieldCheck, ClipboardList, BadgePercent, Banknote
+    ChevronRight, User, Mail, Phone, MapPin, CreditCard,
+    Building2, Wallet, Calendar, Users, CheckCircle,
+    ArrowRight, ArrowLeft, ShieldCheck, FileText, Minus, Plus, LogIn, Plane,
 } from 'lucide-react';
 import bangkokImg from '../../assets/di-chuyen-di-lai-thai-lan-2.webp';
 import styles from './Checkout.module.css';
+import { getPublicTour } from '../../api/tours';
+import { resolveMediaUrl } from '../../api/config';
+import { createBooking, validateBookingPromo } from '../../api/bookings';
+import { getAccessToken } from '../../api/auth';
+import { useAuth } from '../../context/AuthContext';
 
-// Reuse the same tour data
+function isUuid(s) {
+    return (
+        typeof s === 'string' &&
+        /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/.test(s)
+    );
+}
+
+function formatIsoDateViDash(iso) {
+    if (!iso) return '';
+    const parts = String(iso).split('-');
+    if (parts.length < 3) return iso;
+    const [y, m, d] = parts;
+    return `${d}/${m}/${y}`;
+}
+
 const TOUR_DATA = {
     1: {
         title: 'BANGKOK - PATAYA',
@@ -31,80 +50,304 @@ const TOUR_DATA = {
 const DEFAULT_TOUR = TOUR_DATA[1];
 
 const PAYMENT_METHODS = [
-    {
-        id: 'bank',
-        name: 'Chuyển khoản ngân hàng',
-        desc: 'Chuyển khoản qua tài khoản ngân hàng nội địa',
-        icon: Building2,
-    },
-    {
-        id: 'card',
-        name: 'Thẻ tín dụng / Ghi nợ',
-        desc: 'Visa, Mastercard, JCB',
-        icon: CreditCard,
-    },
-    {
-        id: 'ewallet',
-        name: 'Ví điện tử',
-        desc: 'MoMo, ZaloPay, VNPay',
-        icon: Wallet,
-    },
+    { id: 'bank', name: 'Chuyển khoản ngân hàng', desc: 'Chuyển khoản qua tài khoản ngân hàng nội địa', icon: Building2 },
+    { id: 'card', name: 'Thẻ tín dụng / Ghi nợ', desc: 'Visa, Mastercard, JCB', icon: CreditCard },
+    { id: 'ewallet', name: 'Ví điện tử', desc: 'MoMo, ZaloPay, VNPay', icon: Wallet },
 ];
+
+const SINGLE_ROOM_PRICE_VI = '4.500.000₫ / phòng';
+const SINGLE_ROOM_HINT = `Phòng đơn dành cho khách hàng từ 12 tuổi trở lên, giá phòng đơn là: ${SINGLE_ROOM_PRICE_VI}`;
+
+function formatDdMmYyyyFromDate(d) {
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const y = d.getFullYear();
+    return `${day}/${month}/${y}`;
+}
+
+/** Mốc tuổi: người lớn ≥12, trẻ em 2–11, em bé dưới 2 tuổi (theo ngày hiện tại). */
+function getAgeCutoffLabels() {
+    const now = new Date();
+    const adultLine = new Date(now);
+    adultLine.setFullYear(adultLine.getFullYear() - 12);
+    const childUpper = new Date(now);
+    childUpper.setFullYear(childUpper.getFullYear() - 2);
+    return {
+        adultBornBefore: formatDdMmYyyyFromDate(adultLine),
+        childBornAfter: formatDdMmYyyyFromDate(adultLine),
+        childBornBefore: formatDdMmYyyyFromDate(childUpper),
+    };
+}
+
+function emptyGuestSlot() {
+    return {
+        fullName: '',
+        dobDay: '',
+        dobMonth: '',
+        dobYear: '',
+        gender: 'Nam',
+        phone: '',
+        idNumber: '',
+    };
+}
+
+function dmyToIso(day, month, year) {
+    const d = parseInt(String(day).trim(), 10);
+    const m = parseInt(String(month).trim(), 10);
+    const y = parseInt(String(year).trim(), 10);
+    if (!d || !m || !y || m < 1 || m > 12 || d < 1 || d > 31 || y < 1900 || y > 2100) return '';
+    const dt = new Date(y, m - 1, d);
+    if (dt.getFullYear() !== y || dt.getMonth() !== m - 1 || dt.getDate() !== d) return '';
+    return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+}
+
+function slotDobIso(d) {
+    if (!d) return '';
+    return dmyToIso(d.dobDay, d.dobMonth, d.dobYear);
+}
+
+function phoneOptionalOk(p) {
+    const s = normalizePhone(p);
+    if (!s) return true;
+    return phoneOk(p);
+}
+
+/** Gộp state ô ngày sinh với bản ghi cũ chỉ có dateOfBirth (yyyy-mm-dd). */
+function slotDisplayData(raw) {
+    const base = { ...emptyGuestSlot(), ...raw };
+    if ((!base.dobDay && !base.dobMonth && !base.dobYear) && raw?.dateOfBirth) {
+        const iso = String(raw.dateOfBirth);
+        const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+        if (m) {
+            base.dobYear = m[1];
+            base.dobMonth = String(parseInt(m[2], 10));
+            base.dobDay = String(parseInt(m[3], 10));
+        }
+    }
+    if (base.gender !== 'Nữ' && base.gender !== 'Nam') base.gender = 'Nam';
+    return base;
+}
+
+function buildSlotKeys(adults, children, infants) {
+    const keys = [];
+    for (let i = 0; i < adults; i++) keys.push({ key: `adult-${i}`, kind: 'adult', idx: i });
+    for (let i = 0; i < children; i++) keys.push({ key: `child-${i}`, kind: 'child', idx: i });
+    for (let i = 0; i < infants; i++) keys.push({ key: `infant-${i}`, kind: 'infant', idx: i });
+    return keys;
+}
+
+function normalizePhone(p) {
+    return String(p || '').replace(/\s/g, '');
+}
+
+function phoneOk(p) {
+    const s = normalizePhone(p);
+    if (!s) return false;
+    if (/^\+?[0-9]{9,14}$/.test(s)) return true;
+    return /^[0-9]{9,11}$/.test(s);
+}
 
 const Checkout = () => {
     const { tourId } = useParams();
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
+    const { user } = useAuth();
 
-    const tour = TOUR_DATA[tourId] || DEFAULT_TOUR;
-    const date = searchParams.get('date') || 'Chưa chọn ngày';
-    const adults = parseInt(searchParams.get('adults')) || 1;
-    const children = parseInt(searchParams.get('children')) || 0;
-    const infants = parseInt(searchParams.get('infants')) || 0;
-    const totalPassengers = adults + children + infants;
+    const sessionIdParam = searchParams.get('sessionId');
+    const isLiveBooking = isUuid(tourId) && sessionIdParam && isUuid(sessionIdParam);
+
+    const [liveTour, setLiveTour] = useState(null);
+    const [liveLoading, setLiveLoading] = useState(isLiveBooking);
+    const [liveError, setLiveError] = useState('');
+    const [submitError, setSubmitError] = useState('');
+    const [submitting, setSubmitting] = useState(false);
 
     const [step, setStep] = useState(1);
-    const [paymentMethod, setPaymentMethod] = useState('bank');
+    const [paymentMethod, setPaymentMethod] = useState('ewallet');
     const [paymentType, setPaymentType] = useState('full');
-    const [showSuccess, setShowSuccess] = useState(false);
     const [errors, setErrors] = useState({});
+
+    const [adults, setAdults] = useState(() => Math.max(1, parseInt(searchParams.get('adults'), 10) || 1));
+    const [children, setChildren] = useState(() => Math.max(0, parseInt(searchParams.get('children'), 10) || 0));
+    const [infants, setInfants] = useState(() => Math.max(0, parseInt(searchParams.get('infants'), 10) || 0));
 
     const [formData, setFormData] = useState({
         fullName: '',
         email: '',
         phone: '',
-        idCard: '',
-        gender: 'Nam',
+        address: '',
         note: '',
+        promoInput: '',
     });
+    const [agreeTerms, setAgreeTerms] = useState(false);
+    const [promoResult, setPromoResult] = useState(null);
+    const [promoLoading, setPromoLoading] = useState(false);
+    const [slotData, setSlotData] = useState({});
+    const [singleRoom, setSingleRoom] = useState({});
 
-    // Price calculation per passenger type
+    const ageCutoffLabels = useMemo(() => getAgeCutoffLabels(), []);
+
+    const tour = useMemo(() => {
+        if (isLiveBooking && liveTour) {
+            const imgs = (liveTour.images || []).map((i) => resolveMediaUrl(i?.imageUrl)).filter(Boolean);
+            const loc =
+                (liveTour.locations || []).map((l) => l.locationName).filter(Boolean).join(' · ') ||
+                liveTour.category?.name ||
+                '—';
+            return {
+                title: liveTour.title,
+                location: loc,
+                price: liveTour.basePrice != null ? Number(liveTour.basePrice) : 0,
+                discountPercent: 0,
+                duration:
+                    liveTour.durationDays && liveTour.durationNights != null
+                        ? `${liveTour.durationDays} Ngày / ${liveTour.durationNights} Đêm`
+                        : '—',
+                image: imgs[0] || bangkokImg,
+                slug: liveTour.slug,
+            };
+        }
+        return TOUR_DATA[tourId] || DEFAULT_TOUR;
+    }, [isLiveBooking, liveTour, tourId]);
+
+    const sessionOk = useMemo(() => {
+        if (!isLiveBooking || !liveTour || !sessionIdParam) return true;
+        return (liveTour.sessions || []).some((s) => s.id === sessionIdParam);
+    }, [isLiveBooking, liveTour, sessionIdParam]);
+
+    const selectedSession = useMemo(() => {
+        if (!isLiveBooking || !liveTour || !sessionIdParam) return null;
+        return (liveTour.sessions || []).find((s) => s.id === sessionIdParam) || null;
+    }, [isLiveBooking, liveTour, sessionIdParam]);
+
+    const date = useMemo(() => {
+        if (selectedSession?.startDate) {
+            const end = selectedSession.endDate ? ` → ${formatIsoDateViDash(selectedSession.endDate)}` : '';
+            return `${formatIsoDateViDash(selectedSession.startDate)}${end}`;
+        }
+        return searchParams.get('date') || 'Chưa chọn ngày';
+    }, [selectedSession, searchParams]);
+
+    const tourOrderCode = useMemo(() => {
+        if (isLiveBooking && tour?.slug && sessionIdParam) {
+            const p = String(tour.slug).replace(/-/g, '').toUpperCase().slice(0, 10);
+            const s = String(sessionIdParam).replace(/-/g, '').toUpperCase().slice(0, 12);
+            return `${p}-${s}`;
+        }
+        return `FT-${String(tourId || 'demo').toUpperCase()}-${String(Date.now()).slice(-6)}`;
+    }, [isLiveBooking, tour, sessionIdParam, tourId]);
+
+    const useLivePricing = isLiveBooking && liveTour;
+    const totalPassengers = adults + children + infants;
+    const maxParty = useMemo(() => {
+        if (!selectedSession) return 20;
+        const rem = Math.max(0, (selectedSession.maxParticipants ?? 0) - (selectedSession.currentParticipants ?? 0));
+        return Math.max(1, Math.min(20, rem || 20));
+    }, [selectedSession]);
+
     const adultPrice = tour.price;
-    const childPrice = Math.round(tour.price * 0.7);
-    const infantPrice = 0;
+    const childPrice = useLivePricing ? adultPrice : Math.round(tour.price * 0.7);
     const adultTotal = adults * adultPrice;
     const childTotal = children * childPrice;
-    const infantTotal = infants * infantPrice;
-    const totalPrice = adultTotal + childTotal + infantTotal;
-    const discount = totalPrice * (tour.discountPercent / 100);
-    const finalPrice = totalPrice - discount;
+    const subtotalBeforePromo = useLivePricing
+        ? adultPrice * Math.max(1, totalPassengers)
+        : adultTotal + childTotal;
+    const mockDiscount = !useLivePricing ? subtotalBeforePromo * ((tour.discountPercent || 0) / 100) : 0;
+    const promoDiscount = promoResult?.valid && promoResult.discountAmount != null ? Number(promoResult.discountAmount) : 0;
+    const finalPrice = Math.max(0, subtotalBeforePromo - mockDiscount - promoDiscount);
     const amountDue = paymentType === 'deposit' ? Math.round(finalPrice * 0.3) : finalPrice;
     const remainingAmount = paymentType === 'deposit' ? finalPrice - amountDue : 0;
 
-    // Format passenger summary
-    const passengerSummary = () => {
-        const parts = [];
-        if (adults > 0) parts.push(`${adults} người lớn`);
-        if (children > 0) parts.push(`${children} trẻ em`);
-        if (infants > 0) parts.push(`${infants} trẻ sơ sinh`);
-        return parts.join(', ');
-    };
+    const slotList = useMemo(() => buildSlotKeys(adults, children, infants), [adults, children, infants]);
+
+    const returnUrl = `/checkout/${tourId}?${searchParams.toString()}`;
+
+    useEffect(() => {
+        if (!isLiveBooking) {
+            setLiveLoading(false);
+            return undefined;
+        }
+        let cancel = false;
+        setLiveLoading(true);
+        setLiveError('');
+        (async () => {
+            try {
+                const data = await getPublicTour(tourId);
+                if (!cancel) setLiveTour(data);
+            } catch (e) {
+                if (!cancel) setLiveError(e.message || 'Không tải được tour.');
+            } finally {
+                if (!cancel) setLiveLoading(false);
+            }
+        })();
+        return () => {
+            cancel = true;
+        };
+    }, [tourId, isLiveBooking]);
+
+    useEffect(() => {
+        if (isLiveBooking) setPaymentType('full');
+    }, [isLiveBooking]);
+
+    useEffect(() => {
+        if (!user) return;
+        setFormData((prev) => ({
+            ...prev,
+            fullName: prev.fullName || user.name || '',
+            email: prev.email || user.email || '',
+        }));
+    }, [user]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-        if (errors[name]) {
-            setErrors(prev => ({ ...prev, [name]: '' }));
+        setFormData((prev) => ({ ...prev, [name]: value }));
+        if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
+    };
+
+    const passengerSummary = useCallback(() => {
+        const parts = [];
+        if (adults > 0) parts.push(`${adults} người lớn`);
+        if (children > 0) parts.push(`${children} trẻ em`);
+        if (infants > 0) parts.push(`${infants} em bé`);
+        return parts.join(', ') || '1 người lớn';
+    }, [adults, children, infants]);
+
+    const patchSlot = useCallback((key, patch) => {
+        setSlotData((prev) => ({
+            ...prev,
+            [key]: { ...emptyGuestSlot(), ...prev[key], ...patch },
+        }));
+        setErrors((prev) => (prev[`slot_${key}`] ? { ...prev, [`slot_${key}`]: '' } : prev));
+    }, []);
+
+    const applyPromo = async () => {
+        const code = formData.promoInput.trim();
+        if (!code) {
+            setPromoResult({ valid: false, message: 'Nhập mã ưu đãi.' });
+            return;
+        }
+        if (!isLiveBooking || !sessionIdParam) {
+            setPromoResult({ valid: false, message: 'Mã ưu đãi chỉ áp dụng khi đặt tour qua hệ thống (chọn lịch từ trang tour).' });
+            return;
+        }
+        setPromoLoading(true);
+        setPromoResult(null);
+        try {
+            const r = await validateBookingPromo({
+                code,
+                sessionId: sessionIdParam,
+                guestCount: Math.max(1, totalPassengers),
+            });
+            setPromoResult({
+                valid: !!r.valid,
+                discountAmount: r.discountAmount,
+                message: r.message,
+                code: r.valid ? code : null,
+            });
+        } catch (e) {
+            setPromoResult({ valid: false, message: e.message || 'Không kiểm tra được mã.' });
+        } finally {
+            setPromoLoading(false);
         }
     };
 
@@ -116,29 +359,134 @@ const Checkout = () => {
         } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
             newErrors.email = 'Email không hợp lệ';
         }
-        if (!formData.phone.trim()) {
-            newErrors.phone = 'Vui lòng nhập số điện thoại';
-        } else if (!/^[0-9]{9,11}$/.test(formData.phone.replace(/\s/g, ''))) {
-            newErrors.phone = 'Số điện thoại không hợp lệ';
+        if (!phoneOk(formData.phone)) newErrors.phone = 'Số điện thoại không hợp lệ';
+        if (!agreeTerms) newErrors.terms = 'Vui lòng đồng ý điều khoản';
+
+        for (const s of slotList) {
+            if (s.kind === 'infant') continue;
+            const d = slotDisplayData(slotData[s.key]);
+            if (!d.fullName.trim()) {
+                newErrors[`slot_${s.key}`] = 'Nhập họ tên hành khách';
+            } else if (!slotDobIso(d)) {
+                newErrors[`slot_${s.key}`] = 'Nhập ngày sinh hợp lệ (dd/mm/yyyy)';
+            } else if (!d.idNumber?.trim()) {
+                newErrors[`slot_${s.key}`] = 'Nhập số CCCD/CMND';
+            } else if (!phoneOptionalOk(d.phone)) {
+                newErrors[`slot_${s.key}`] = 'Số điện thoại hành khách không hợp lệ';
+            }
         }
-        if (!formData.idCard.trim()) {
-            newErrors.idCard = 'Vui lòng nhập số căn cước công dân';
-        }
+
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleNextStep = () => {
-        if (step === 1) {
-            if (validateStep1()) {
-                setStep(2);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
+    const step1Complete = useMemo(() => {
+        if (!formData.fullName.trim() || !formData.email.trim() || !phoneOk(formData.phone) || !agreeTerms) return false;
+        for (const s of slotList) {
+            if (s.kind === 'infant') continue;
+            const d = slotDisplayData(slotData[s.key]);
+            if (!d.fullName.trim() || !slotDobIso(d) || !d.idNumber?.trim() || !phoneOptionalOk(d.phone)) return false;
+        }
+        return true;
+    }, [formData, agreeTerms, slotList, slotData]);
+
+    const goStep2 = () => {
+        if (validateStep1()) {
+            setStep(2);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     };
 
-    const handleConfirmBooking = () => {
-        // Save to localStorage
+    const buildSpecialRequests = () => {
+        const parts = [];
+        if (formData.note.trim()) parts.push(formData.note.trim());
+        const sr = [];
+        for (let i = 0; i < adults; i++) {
+            if (singleRoom[`adult-${i}`]) sr.push(`Người lớn #${i + 1}`);
+        }
+        if (sr.length) parts.push(`Yêu cầu phòng đơn: ${sr.join(', ')}. ${SINGLE_ROOM_HINT}`);
+        const metaLines = [];
+        for (const s of slotList) {
+            if (s.kind === 'infant') continue;
+            const d = slotDisplayData(slotData[s.key]);
+            if (!d.fullName?.trim()) continue;
+            const bits = [];
+            if (d.gender) bits.push(`Giới tính: ${d.gender}`);
+            const gp = normalizePhone(d.phone);
+            if (gp) bits.push(`SĐT: ${gp}`);
+            if (bits.length) metaLines.push(`${d.fullName.trim()} — ${bits.join(', ')}`);
+        }
+        if (metaLines.length) {
+            parts.push(['Thông tin bổ sung hành khách (theo form đặt chỗ):', ...metaLines].join('\n'));
+        }
+        return parts.length ? parts.join('\n\n') : undefined;
+    };
+
+    const buildGuestsPayload = () => {
+        const guests = [];
+        for (const s of slotList) {
+            if (s.kind === 'infant') {
+                const d = slotDisplayData(slotData[s.key]);
+                if (d?.fullName?.trim()) {
+                    const dob = slotDobIso(d);
+                    guests.push({
+                        fullName: d.fullName.trim(),
+                        idNumber: d.idNumber?.trim() || undefined,
+                        dateOfBirth: dob || undefined,
+                    });
+                }
+                continue;
+            }
+            const d = slotDisplayData(slotData[s.key]);
+            if (!d?.fullName?.trim()) continue;
+            const dob = slotDobIso(d);
+            guests.push({
+                fullName: d.fullName.trim(),
+                idNumber: d.idNumber?.trim() || undefined,
+                dateOfBirth: dob || undefined,
+            });
+        }
+        return guests.length ? guests : undefined;
+    };
+
+    const handleConfirmBooking = async () => {
+        setSubmitError('');
+        if (isLiveBooking) {
+            const token = getAccessToken();
+            if (!token) {
+                navigate(`/login?return=${encodeURIComponent(returnUrl)}`);
+                return;
+            }
+            if (!sessionOk || !liveTour) {
+                setSubmitError('Lịch khởi hành không hợp lệ hoặc đã đóng.');
+                return;
+            }
+            setSubmitting(true);
+            try {
+                const guestCount = Math.max(1, totalPassengers);
+                const result = await createBooking({
+                    sessionId: sessionIdParam,
+                    guestCount,
+                    specialRequests: buildSpecialRequests(),
+                    contactPhone: normalizePhone(formData.phone),
+                    pickupAddress: formData.address.trim() || undefined,
+                    promotionCode: promoResult?.valid && promoResult.code ? promoResult.code : undefined,
+                    guests: buildGuestsPayload(),
+                    paymentMethod,
+                });
+                if (result?.paymentUrl) {
+                    window.location.assign(result.paymentUrl);
+                    return;
+                }
+                setStep(3);
+            } catch (e) {
+                setSubmitError(e.message || 'Không tạo được đơn.');
+            } finally {
+                setSubmitting(false);
+            }
+            return;
+        }
+
         const booking = {
             id: Date.now(),
             tourId: tourId || '1',
@@ -159,288 +507,777 @@ const Checkout = () => {
             customerName: formData.fullName,
             customerEmail: formData.email,
             customerPhone: formData.phone,
-            idCard: formData.idCard,
-            gender: formData.gender,
+            address: formData.address,
             note: formData.note,
             status: paymentType === 'deposit' ? 'deposit_paid' : 'confirmed',
             bookedAt: new Date().toISOString(),
         };
-
         const existingBookings = JSON.parse(localStorage.getItem('flourish_bookings') || '[]');
         existingBookings.push(booking);
         localStorage.setItem('flourish_bookings', JSON.stringify(existingBookings));
-
-        setShowSuccess(true);
+        setStep(3);
     };
 
-    const steps = [
-        { num: 1, label: 'Bước 1', name: 'Thông tin cá nhân' },
-        { num: 2, label: 'Bước 2', name: 'Thanh toán' },
+    if (isLiveBooking && liveLoading) {
+        return (
+            <div className={styles.pageContainer}>
+                <div className={styles.container} style={{ padding: '80px 24px', textAlign: 'center' }}>
+                    Đang tải thông tin tour...
+                </div>
+            </div>
+        );
+    }
+
+    if (isLiveBooking && liveError) {
+        return (
+            <div className={styles.pageContainer}>
+                <div className={styles.container} style={{ padding: '80px 24px', textAlign: 'center' }}>
+                    <p style={{ marginBottom: 16, color: '#b91c1c' }}>{liveError}</p>
+                    <Link to={`/tours/${tourId}`}>← Quay lại chi tiết tour</Link>
+                </div>
+            </div>
+        );
+    }
+
+    if (isLiveBooking && liveTour && !sessionOk) {
+        return (
+            <div className={styles.pageContainer}>
+                <div className={styles.container} style={{ padding: '80px 24px', textAlign: 'center' }}>
+                    <p style={{ marginBottom: 16 }}>Lịch khởi hành không còn hợp lệ. Vui lòng chọn lại trên trang tour.</p>
+                    <Link to={`/tours/${tourId}`}>← Quay lại chi tiết tour</Link>
+                </div>
+            </div>
+        );
+    }
+
+    const stepsMeta = [
+        { num: 1, short: '1', name: 'Nhập thông tin' },
+        { num: 2, short: '2', name: 'Thanh toán' },
+        { num: 3, short: '3', name: 'Hoàn tất' },
     ];
+
+    const renderStepper = (compact = false) => (
+        <div className={compact ? styles.checkoutStepperCompact : styles.stepper}>
+            {stepsMeta.map((s, idx) => (
+                <React.Fragment key={s.num}>
+                    <div
+                        className={compact ? styles.stepItemCompact : styles.stepItem}
+                        onClick={() => {
+                            if (s.num < step) setStep(s.num);
+                        }}
+                        style={{ cursor: s.num < step ? 'pointer' : 'default' }}
+                    >
+                        <div
+                            className={
+                                compact
+                                    ? `${styles.stepCircleSm} ${step === s.num ? styles.stepCircleSmActive : ''} ${step > s.num ? styles.stepCircleSmDone : ''}`
+                                    : `${styles.stepCircle} ${step === s.num ? styles.stepCircleActive : ''} ${step > s.num ? styles.stepCircleDone : ''}`
+                            }
+                        >
+                            {step > s.num ? <CheckCircle style={{ width: compact ? 14 : 18, height: compact ? 14 : 18 }} /> : s.short}
+                        </div>
+                        <div className={compact ? styles.stepTextSm : styles.stepInfo}>
+                            {compact ? (
+                                <>
+                                    <span className={styles.stepNumSm}>Bước {s.num}</span>
+                                    <span className={styles.stepNameSm}>{s.name}</span>
+                                </>
+                            ) : (
+                                <>
+                                    <span className={`${styles.stepLabel} ${step >= s.num ? styles.stepLabelActive : ''}`}>Bước {s.num}</span>
+                                    <span className={`${styles.stepName} ${step >= s.num ? styles.stepNameActive : ''}`}>{s.name}</span>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                    {idx < stepsMeta.length - 1 && (
+                        <div
+                            className={
+                                compact
+                                    ? `${styles.stepConnectorSm} ${step > s.num ? styles.stepConnectorSmDone : ''}`
+                                    : `${styles.stepConnector} ${step > s.num ? styles.stepConnectorDone : ''}`
+                            }
+                        />
+                    )}
+                </React.Fragment>
+            ))}
+        </div>
+    );
+
+    if (step === 3) {
+        return (
+            <div className={styles.pageContainer}>
+                <div className={styles.container}>
+                    <nav className={styles.breadcrumb}>
+                        <span className={styles.breadcrumbItem}>
+                            <Link to="/">Trang chủ</Link>
+                        </span>
+                        <ChevronRight className={styles.breadcrumbSep} />
+                        <span className={styles.breadcrumbActive}>Hoàn tất</span>
+                    </nav>
+                    <div className={styles.checkoutTopBar}>
+                        <div className={styles.checkoutTopLeft} />
+                        {renderStepper(true)}
+                    </div>
+                    <div className={styles.formSection}>
+                        <div className={styles.successPage}>
+                            <CheckCircle className={styles.successPageIcon} />
+                            <h1 className={styles.checkoutMainTitle}>Đặt tour thành công</h1>
+                            <p className={styles.checkoutMainSubtitle}>
+                                Cảm ơn bạn đã chọn FlourishTravel. Thông tin xác nhận sẽ được gửi tới{' '}
+                                <strong>{formData.email}</strong> (nếu đặt qua hệ thống thanh toán, vui lòng hoàn tất giao dịch trên cổng thanh toán).
+                            </p>
+                            <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap', marginTop: 24 }}>
+                                <button type="button" className={styles.btnNext} onClick={() => navigate('/my-journey')}>
+                                    Xem chuyến đi của tôi
+                                </button>
+                                <button type="button" className={styles.btnBack} onClick={() => navigate('/')}>
+                                    Về trang chủ
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className={styles.pageContainer}>
             <div className={styles.container}>
-                {/* Breadcrumb */}
                 <nav className={styles.breadcrumb}>
                     <span className={styles.breadcrumbItem}>
-                        <Link to="/" style={{ color: 'inherit', textDecoration: 'none' }}>Trang chủ</Link>
+                        <Link to="/" style={{ color: 'inherit', textDecoration: 'none' }}>
+                            Trang chủ
+                        </Link>
                     </span>
                     <ChevronRight className={styles.breadcrumbSep} />
                     <span className={styles.breadcrumbItem}>
-                        <Link to={`/tours/${tourId || 1}`} style={{ color: 'inherit', textDecoration: 'none' }}>{tour.title}</Link>
+                        <Link to={`/tours/${tourId || 1}`} style={{ color: 'inherit', textDecoration: 'none' }}>
+                            {tour.title}
+                        </Link>
                     </span>
                     <ChevronRight className={styles.breadcrumbSep} />
-                    <span className={styles.breadcrumbActive}>Thanh toán</span>
+                    <span className={styles.breadcrumbActive}>Đặt tour</span>
                 </nav>
 
-                {/* Header */}
-                <div className={styles.pageHeader}>
-                    <h1 className={styles.pageTitle}>Thanh Toán</h1>
-                    <p className={styles.pageSubtitle}>Hoàn tất thông tin để đặt tour của bạn</p>
+                <div className={styles.checkoutTopBar}>
+                    <div className={styles.checkoutTopLeft}>
+                        <h1 className={styles.checkoutMainTitle}>Đặt tour của bạn</h1>
+                        <p className={styles.checkoutMainSubtitle}>
+                            Hãy đảm bảo tất cả thông tin chi tiết trên trang này đã chính xác trước khi tiến hành thanh toán.
+                        </p>
+                    </div>
+                    {renderStepper(true)}
                 </div>
 
-                {/* Stepper */}
-                <div className={styles.stepper}>
-                    {steps.map((s, idx) => (
-                        <React.Fragment key={s.num}>
-                            <div className={styles.stepItem} onClick={() => s.num < step && setStep(s.num)}>
-                                <div className={`${styles.stepCircle} ${step === s.num ? styles.stepCircleActive : ''} ${step > s.num ? styles.stepCircleDone : ''}`}>
-                                    {step > s.num ? <CheckCircle style={{ width: 18, height: 18 }} /> : s.num}
-                                </div>
-                                <div className={styles.stepInfo}>
-                                    <span className={`${styles.stepLabel} ${step >= s.num ? styles.stepLabelActive : ''}`}>{s.label}</span>
-                                    <span className={`${styles.stepName} ${step >= s.num ? styles.stepNameActive : ''}`}>{s.name}</span>
-                                </div>
-                            </div>
-                            {idx < steps.length - 1 && (
-                                <div className={`${styles.stepConnector} ${step > s.num ? styles.stepConnectorDone : ''}`} />
-                            )}
-                        </React.Fragment>
-                    ))}
-                </div>
-
-                {/* Body */}
                 <div className={styles.bodyLayout}>
-                    {/* Left Column - Form */}
                     <div className={styles.mainCol}>
                         {step === 1 && (
-                            <div className={styles.formSection}>
-                                <h2 className={styles.sectionTitle}>
-                                    <User className={styles.sectionIcon} />
-                                    Thông Tin Liên Hệ
-                                </h2>
-                                <div className={styles.formGrid}>
-                                    <div className={styles.formGroup}>
-                                        <label className={styles.formLabel}>Họ và tên *</label>
-                                        <input
-                                            type="text"
-                                            name="fullName"
-                                            value={formData.fullName}
-                                            onChange={handleChange}
-                                            placeholder="Nguyễn Văn A"
-                                            className={`${styles.formInput} ${errors.fullName ? styles.inputError : ''}`}
-                                        />
-                                        {errors.fullName && <span className={styles.errorText}>{errors.fullName}</span>}
+                            <>
+                                <div className={styles.formSection}>
+                                    <h2 className={styles.sectionTitle}>
+                                        <User className={styles.sectionIcon} />
+                                        Thông tin liên lạc
+                                    </h2>
+                                    <div className={styles.loginBanner}>
+                                        <LogIn style={{ width: 18, height: 18, flexShrink: 0 }} />
+                                        <span>
+                                            Đăng nhập để nhận ưu đãi, tích điểm và quản lý đơn hàng dễ dàng hơn!{' '}
+                                            <Link to={`/login?return=${encodeURIComponent(returnUrl)}`}>Đăng nhập</Link>
+                                        </span>
                                     </div>
-                                    <div className={styles.formGroup}>
-                                        <label className={styles.formLabel}>Email *</label>
-                                        <input
-                                            type="email"
-                                            name="email"
-                                            value={formData.email}
-                                            onChange={handleChange}
-                                            placeholder="example@email.com"
-                                            className={`${styles.formInput} ${errors.email ? styles.inputError : ''}`}
-                                        />
-                                        {errors.email && <span className={styles.errorText}>{errors.email}</span>}
-                                    </div>
-                                    <div className={styles.formGroup}>
-                                        <label className={styles.formLabel}>Số điện thoại *</label>
-                                        <input
-                                            type="tel"
-                                            name="phone"
-                                            value={formData.phone}
-                                            onChange={handleChange}
-                                            placeholder="0901 234 567"
-                                            className={`${styles.formInput} ${errors.phone ? styles.inputError : ''}`}
-                                        />
-                                        {errors.phone && <span className={styles.errorText}>{errors.phone}</span>}
-                                    </div>
-                                    <div className={styles.formGroup}>
-                                        <label className={styles.formLabel}>Căn cước công dân *</label>
-                                        <input
-                                            type="text"
-                                            name="idCard"
-                                            value={formData.idCard}
-                                            onChange={handleChange}
-                                            placeholder="Nhập số CCCD"
-                                            className={`${styles.formInput} ${errors.idCard ? styles.inputError : ''}`}
-                                        />
-                                        {errors.idCard && <span className={styles.errorText}>{errors.idCard}</span>}
-                                    </div>
-                                    <div className={styles.formGroup}>
-                                        <label className={styles.formLabel}>Giới tính (không bắt buộc)</label>
-                                        <div className={styles.genderOptions}>
-                                            <label className={`${styles.genderOption} ${formData.gender === 'Nam' ? styles.genderOptionActive : ''}`}>
-                                                <input
-                                                    type="radio"
-                                                    name="gender"
-                                                    value="Nam"
-                                                    checked={formData.gender === 'Nam'}
-                                                    onChange={handleChange}
-                                                    className={styles.genderRadio}
-                                                />
-                                                <div className={styles.radioVisual}>
-                                                    <div className={styles.radioDot} />
-                                                </div>
-                                                <span className={styles.genderLabel}>Nam</span>
-                                            </label>
-                                            <label className={`${styles.genderOption} ${formData.gender === 'Nữ' ? styles.genderOptionActive : ''}`}>
-                                                <input
-                                                    type="radio"
-                                                    name="gender"
-                                                    value="Nữ"
-                                                    checked={formData.gender === 'Nữ'}
-                                                    onChange={handleChange}
-                                                    className={styles.genderRadio}
-                                                />
-                                                <div className={styles.radioVisual}>
-                                                    <div className={styles.radioDot} />
-                                                </div>
-                                                <span className={styles.genderLabel}>Nữ</span>
-                                            </label>
+                                    <div className={styles.formGrid}>
+                                        <div className={styles.formGroup}>
+                                            <label className={styles.formLabel}>Họ tên (*)</label>
+                                            <input
+                                                type="text"
+                                                name="fullName"
+                                                value={formData.fullName}
+                                                onChange={handleChange}
+                                                placeholder="Ví dụ: Nguyễn Văn A"
+                                                className={`${styles.formInput} ${errors.fullName ? styles.inputError : ''}`}
+                                            />
+                                            {errors.fullName && <span className={styles.errorText}>{errors.fullName}</span>}
+                                        </div>
+                                        <div className={styles.formGroup}>
+                                            <label className={styles.formLabel}>Số điện thoại (*)</label>
+                                            <input
+                                                type="tel"
+                                                name="phone"
+                                                value={formData.phone}
+                                                onChange={handleChange}
+                                                placeholder="Ví dụ: 0901234567 / +84901234567"
+                                                className={`${styles.formInput} ${errors.phone ? styles.inputError : ''}`}
+                                            />
+                                            {errors.phone && <span className={styles.errorText}>{errors.phone}</span>}
+                                        </div>
+                                        <div className={styles.formGroup}>
+                                            <label className={styles.formLabel}>Email (*)</label>
+                                            <input
+                                                type="email"
+                                                name="email"
+                                                value={formData.email}
+                                                onChange={handleChange}
+                                                placeholder="Ví dụ: email@example.com"
+                                                className={`${styles.formInput} ${errors.email ? styles.inputError : ''}`}
+                                            />
+                                            {errors.email && <span className={styles.errorText}>{errors.email}</span>}
+                                        </div>
+                                        <div className={styles.formGroup}>
+                                            <label className={styles.formLabel}>Địa chỉ</label>
+                                            <input
+                                                type="text"
+                                                name="address"
+                                                value={formData.address}
+                                                onChange={handleChange}
+                                                placeholder="Ví dụ: 190 Pasteur, Phường Xuân Hoà, TP.HCM"
+                                                className={styles.formInput}
+                                            />
                                         </div>
                                     </div>
-                                    <div className={`${styles.formGroup} ${styles.formGroupFull}`}>
-                                        <label className={styles.formLabel}>Ghi chú (tuỳ chọn)</label>
-                                        <textarea
-                                            name="note"
-                                            value={formData.note}
-                                            onChange={handleChange}
-                                            placeholder="Yêu cầu đặc biệt, dị ứng thực phẩm,..."
-                                            className={styles.formTextarea}
-                                            rows={3}
-                                        />
+                                </div>
+
+                                <div className={styles.formSection}>
+                                    <h2 className={styles.sectionTitle}>
+                                        <Users className={styles.sectionIcon} />
+                                        Hành khách
+                                    </h2>
+                                    <div className={styles.counterGrid}>
+                                        <div className={styles.counterCard}>
+                                            <div className={styles.counterLabel}>Người lớn</div>
+                                            <div className={styles.counterHint}>Từ 12 tuổi trở lên</div>
+                                            <div className={styles.counterRow}>
+                                                <button
+                                                    type="button"
+                                                    className={styles.counterBtnSm}
+                                                    onClick={() => setAdults((a) => Math.max(1, a - 1))}
+                                                    disabled={adults <= 1}
+                                                >
+                                                    <Minus size={16} />
+                                                </button>
+                                                <span className={styles.counterVal}>{adults}</span>
+                                                <button
+                                                    type="button"
+                                                    className={styles.counterBtnSm}
+                                                    onClick={() =>
+                                                        setAdults((a) => Math.min(maxParty - children - infants, a + 1))
+                                                    }
+                                                    disabled={adults + children + infants >= maxParty}
+                                                >
+                                                    <Plus size={16} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div className={styles.counterCard}>
+                                            <div className={styles.counterLabel}>Trẻ em</div>
+                                            <div className={styles.counterHint}>Từ 2 - 11 tuổi</div>
+                                            <div className={styles.counterRow}>
+                                                <button
+                                                    type="button"
+                                                    className={styles.counterBtnSm}
+                                                    onClick={() => setChildren((c) => Math.max(0, c - 1))}
+                                                    disabled={children <= 0}
+                                                >
+                                                    <Minus size={16} />
+                                                </button>
+                                                <span className={styles.counterVal}>{children}</span>
+                                                <button
+                                                    type="button"
+                                                    className={styles.counterBtnSm}
+                                                    onClick={() =>
+                                                        setChildren((c) => Math.min(maxParty - adults - infants, c + 1))
+                                                    }
+                                                    disabled={adults + children + infants >= maxParty}
+                                                >
+                                                    <Plus size={16} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div className={styles.counterCard}>
+                                            <div className={styles.counterLabel}>Em bé</div>
+                                            <div className={styles.counterHint}>Dưới 2 tuổi</div>
+                                            <div className={styles.counterRow}>
+                                                <button
+                                                    type="button"
+                                                    className={styles.counterBtnSm}
+                                                    onClick={() => setInfants((n) => Math.max(0, n - 1))}
+                                                    disabled={infants <= 0}
+                                                >
+                                                    <Minus size={16} />
+                                                </button>
+                                                <span className={styles.counterVal}>{infants}</span>
+                                                <button
+                                                    type="button"
+                                                    className={styles.counterBtnSm}
+                                                    onClick={() =>
+                                                        setInfants((n) => Math.min(maxParty - adults - children, n + 1))
+                                                    }
+                                                    disabled={adults + children + infants >= maxParty}
+                                                >
+                                                    <Plus size={16} />
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
+                                    {isLiveBooking ? (
+                                        <p style={{ marginTop: 12, fontSize: 12, color: '#6b7280' }}>
+                                            Tối đa {maxParty} khách cho đợt đã chọn (theo chỗ còn lại).
+                                        </p>
+                                    ) : null}
+                                </div>
+
+                                <div className={styles.formSection}>
+                                    <h2 className={styles.sectionTitle}>
+                                        <FileText className={styles.sectionIcon} />
+                                        Thông tin hành khách
+                                    </h2>
+                                    {adults > 0 && (
+                                        <>
+                                            <div className={styles.passengerHintBox}>{SINGLE_ROOM_HINT}</div>
+                                            <p style={{ fontSize: 13, fontWeight: 600, color: '#111', margin: '0 0 10px' }}>
+                                                Người lớn{' '}
+                                                <span style={{ fontWeight: 400, color: '#6b7280' }}>
+                                                    (sinh trước ngày {ageCutoffLabels.adultBornBefore})
+                                                </span>
+                                            </p>
+                                            {slotList
+                                                .filter((s) => s.kind === 'adult')
+                                                .map((s) => {
+                                                    const d = slotDisplayData(slotData[s.key]);
+                                                    return (
+                                                        <div key={s.key} className={styles.guestInlineCard}>
+                                                            <div className={styles.guestInlineHeader}>
+                                                                <div className={styles.guestInlineBadge}>#{s.idx + 1}</div>
+                                                                <div className={styles.guestInlineSubtitle}>Người lớn</div>
+                                                            </div>
+                                                            <div className={styles.guestFieldGrid}>
+                                                                <div className={`${styles.formGroup} ${styles.guestFieldFull}`}>
+                                                                    <label className={styles.formLabel}>Họ tên (*)</label>
+                                                                    <input
+                                                                        className={`${styles.formInput} ${errors[`slot_${s.key}`] ? styles.inputError : ''}`}
+                                                                        value={d.fullName}
+                                                                        onChange={(e) => patchSlot(s.key, { fullName: e.target.value })}
+                                                                        placeholder="Ví dụ: Nguyễn Văn A"
+                                                                    />
+                                                                </div>
+                                                                <div className={`${styles.formGroup} ${styles.guestFieldFull}`}>
+                                                                    <label className={styles.formLabel}>Ngày sinh (*)</label>
+                                                                    <div className={styles.dobRow}>
+                                                                        <input
+                                                                            className={styles.formInput}
+                                                                            inputMode="numeric"
+                                                                            maxLength={2}
+                                                                            placeholder="dd"
+                                                                            value={d.dobDay}
+                                                                            onChange={(e) =>
+                                                                                patchSlot(s.key, {
+                                                                                    dobDay: e.target.value.replace(/\D/g, '').slice(0, 2),
+                                                                                })
+                                                                            }
+                                                                        />
+                                                                        <input
+                                                                            className={styles.formInput}
+                                                                            inputMode="numeric"
+                                                                            maxLength={2}
+                                                                            placeholder="mm"
+                                                                            value={d.dobMonth}
+                                                                            onChange={(e) =>
+                                                                                patchSlot(s.key, {
+                                                                                    dobMonth: e.target.value.replace(/\D/g, '').slice(0, 2),
+                                                                                })
+                                                                            }
+                                                                        />
+                                                                        <input
+                                                                            className={styles.formInput}
+                                                                            inputMode="numeric"
+                                                                            maxLength={4}
+                                                                            placeholder="yyyy"
+                                                                            value={d.dobYear}
+                                                                            onChange={(e) =>
+                                                                                patchSlot(s.key, {
+                                                                                    dobYear: e.target.value.replace(/\D/g, '').slice(0, 4),
+                                                                                })
+                                                                            }
+                                                                        />
+                                                                    </div>
+                                                                    <div className={styles.dobLabels}>
+                                                                        <span className={styles.dobHint}>dd</span>
+                                                                        <span className={styles.dobHint}>mm</span>
+                                                                        <span className={styles.dobHint}>yyyy</span>
+                                                                    </div>
+                                                                </div>
+                                                                <div className={`${styles.formGroup} ${styles.guestFieldFull}`}>
+                                                                    <span className={styles.formLabel}>Giới tính (*)</span>
+                                                                    <div className={styles.genderRow}>
+                                                                        <label className={styles.genderOpt}>
+                                                                            <input
+                                                                                type="radio"
+                                                                                name={`gender-${s.key}`}
+                                                                                checked={d.gender === 'Nam'}
+                                                                                onChange={() => patchSlot(s.key, { gender: 'Nam' })}
+                                                                            />
+                                                                            Nam
+                                                                        </label>
+                                                                        <label className={styles.genderOpt}>
+                                                                            <input
+                                                                                type="radio"
+                                                                                name={`gender-${s.key}`}
+                                                                                checked={d.gender === 'Nữ'}
+                                                                                onChange={() => patchSlot(s.key, { gender: 'Nữ' })}
+                                                                            />
+                                                                            Nữ
+                                                                        </label>
+                                                                    </div>
+                                                                </div>
+                                                                <div className={styles.formGroup}>
+                                                                    <label className={styles.formLabel}>Số điện thoại</label>
+                                                                    <input
+                                                                        type="tel"
+                                                                        className={styles.formInput}
+                                                                        value={d.phone}
+                                                                        onChange={(e) => patchSlot(s.key, { phone: e.target.value })}
+                                                                        placeholder="Ví dụ: 0901234567 / +84901234567"
+                                                                    />
+                                                                </div>
+                                                                <div className={styles.formGroup}>
+                                                                    <label className={styles.formLabel}>CCCD / CMND (*)</label>
+                                                                    <input
+                                                                        className={styles.formInput}
+                                                                        value={d.idNumber}
+                                                                        onChange={(e) => patchSlot(s.key, { idNumber: e.target.value })}
+                                                                        placeholder="Số giấy tờ"
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                            <div className={styles.singleRoomRow}>
+                                                                <span>Phòng đơn</span>
+                                                                <input
+                                                                    type="checkbox"
+                                                                    checked={!!singleRoom[s.key]}
+                                                                    onChange={(e) =>
+                                                                        setSingleRoom((prev) => ({ ...prev, [s.key]: e.target.checked }))
+                                                                    }
+                                                                />
+                                                            </div>
+                                                            {errors[`slot_${s.key}`] ? (
+                                                                <div className={styles.errorText}>{errors[`slot_${s.key}`]}</div>
+                                                            ) : null}
+                                                        </div>
+                                                    );
+                                                })}
+                                        </>
+                                    )}
+
+                                    {children > 0 ? (
+                                        <p style={{ fontSize: 13, fontWeight: 600, color: '#111', margin: '18px 0 10px' }}>
+                                            Trẻ em{' '}
+                                            <span style={{ fontWeight: 400, color: '#6b7280' }}>
+                                                (2–11 tuổi: sinh sau ngày {ageCutoffLabels.childBornAfter} và đến ngày{' '}
+                                                {ageCutoffLabels.childBornBefore})
+                                            </span>
+                                        </p>
+                                    ) : null}
+                                    {slotList
+                                        .filter((s) => s.kind === 'child')
+                                        .map((s) => {
+                                            const d = slotDisplayData(slotData[s.key]);
+                                            return (
+                                                <div key={s.key} className={styles.guestInlineCard}>
+                                                    <div className={styles.guestInlineHeader}>
+                                                        <div className={styles.guestInlineBadge}>#{s.idx + 1}</div>
+                                                        <div className={styles.guestInlineSubtitle}>Trẻ em</div>
+                                                    </div>
+                                                    <div className={styles.guestFieldGrid}>
+                                                        <div className={`${styles.formGroup} ${styles.guestFieldFull}`}>
+                                                            <label className={styles.formLabel}>Họ tên (*)</label>
+                                                            <input
+                                                                className={`${styles.formInput} ${errors[`slot_${s.key}`] ? styles.inputError : ''}`}
+                                                                value={d.fullName}
+                                                                onChange={(e) => patchSlot(s.key, { fullName: e.target.value })}
+                                                                placeholder="Ví dụ: Nguyễn Văn A"
+                                                            />
+                                                        </div>
+                                                        <div className={`${styles.formGroup} ${styles.guestFieldFull}`}>
+                                                            <label className={styles.formLabel}>Ngày sinh (*)</label>
+                                                            <div className={styles.dobRow}>
+                                                                <input
+                                                                    className={styles.formInput}
+                                                                    inputMode="numeric"
+                                                                    maxLength={2}
+                                                                    placeholder="dd"
+                                                                    value={d.dobDay}
+                                                                    onChange={(e) =>
+                                                                        patchSlot(s.key, {
+                                                                            dobDay: e.target.value.replace(/\D/g, '').slice(0, 2),
+                                                                        })
+                                                                    }
+                                                                />
+                                                                <input
+                                                                    className={styles.formInput}
+                                                                    inputMode="numeric"
+                                                                    maxLength={2}
+                                                                    placeholder="mm"
+                                                                    value={d.dobMonth}
+                                                                    onChange={(e) =>
+                                                                        patchSlot(s.key, {
+                                                                            dobMonth: e.target.value.replace(/\D/g, '').slice(0, 2),
+                                                                        })
+                                                                    }
+                                                                />
+                                                                <input
+                                                                    className={styles.formInput}
+                                                                    inputMode="numeric"
+                                                                    maxLength={4}
+                                                                    placeholder="yyyy"
+                                                                    value={d.dobYear}
+                                                                    onChange={(e) =>
+                                                                        patchSlot(s.key, {
+                                                                            dobYear: e.target.value.replace(/\D/g, '').slice(0, 4),
+                                                                        })
+                                                                    }
+                                                                />
+                                                            </div>
+                                                            <div className={styles.dobLabels}>
+                                                                <span className={styles.dobHint}>dd</span>
+                                                                <span className={styles.dobHint}>mm</span>
+                                                                <span className={styles.dobHint}>yyyy</span>
+                                                            </div>
+                                                        </div>
+                                                        <div className={`${styles.formGroup} ${styles.guestFieldFull}`}>
+                                                            <span className={styles.formLabel}>Giới tính (*)</span>
+                                                            <div className={styles.genderRow}>
+                                                                <label className={styles.genderOpt}>
+                                                                    <input
+                                                                        type="radio"
+                                                                        name={`gender-${s.key}`}
+                                                                        checked={d.gender === 'Nam'}
+                                                                        onChange={() => patchSlot(s.key, { gender: 'Nam' })}
+                                                                    />
+                                                                    Nam
+                                                                </label>
+                                                                <label className={styles.genderOpt}>
+                                                                    <input
+                                                                        type="radio"
+                                                                        name={`gender-${s.key}`}
+                                                                        checked={d.gender === 'Nữ'}
+                                                                        onChange={() => patchSlot(s.key, { gender: 'Nữ' })}
+                                                                    />
+                                                                    Nữ
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                        <div className={styles.formGroup}>
+                                                            <label className={styles.formLabel}>Số điện thoại</label>
+                                                            <input
+                                                                type="tel"
+                                                                className={styles.formInput}
+                                                                value={d.phone}
+                                                                onChange={(e) => patchSlot(s.key, { phone: e.target.value })}
+                                                                placeholder="Ví dụ: 0901234567 / +84901234567"
+                                                            />
+                                                        </div>
+                                                        <div className={styles.formGroup}>
+                                                            <label className={styles.formLabel}>CCCD / CMND (*)</label>
+                                                            <input
+                                                                className={styles.formInput}
+                                                                value={d.idNumber}
+                                                                onChange={(e) => patchSlot(s.key, { idNumber: e.target.value })}
+                                                                placeholder="Số giấy tờ"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    {errors[`slot_${s.key}`] ? (
+                                                        <div className={styles.errorText}>{errors[`slot_${s.key}`]}</div>
+                                                    ) : null}
+                                                </div>
+                                            );
+                                        })}
+
+                                    {infants > 0 ? (
+                                        <>
+                                            <p style={{ fontSize: 13, fontWeight: 600, color: '#111', margin: '18px 0 10px' }}>
+                                                Em bé <span style={{ fontWeight: 400, color: '#6b7280' }}>(Dưới 2 tuổi — tuỳ chọn)</span>
+                                            </p>
+                                            {slotList
+                                                .filter((s) => s.kind === 'infant')
+                                                .map((s) => {
+                                                    const d = slotDisplayData(slotData[s.key]);
+                                                    return (
+                                                        <div key={s.key} className={styles.guestInlineCard}>
+                                                            <div className={styles.guestInlineHeader}>
+                                                                <div className={styles.guestInlineBadge}>#{s.idx + 1}</div>
+                                                                <div className={styles.guestInlineSubtitle}>Em bé</div>
+                                                            </div>
+                                                            <div className={styles.guestFieldGrid}>
+                                                                <div className={`${styles.formGroup} ${styles.guestFieldFull}`}>
+                                                                    <label className={styles.formLabel}>Họ tên</label>
+                                                                    <input
+                                                                        className={styles.formInput}
+                                                                        value={d.fullName}
+                                                                        onChange={(e) => patchSlot(s.key, { fullName: e.target.value })}
+                                                                        placeholder="Tuỳ chọn"
+                                                                    />
+                                                                </div>
+                                                                <div className={`${styles.formGroup} ${styles.guestFieldFull}`}>
+                                                                    <label className={styles.formLabel}>Ngày sinh (tuỳ chọn)</label>
+                                                                    <div className={styles.dobRow}>
+                                                                        <input
+                                                                            className={styles.formInput}
+                                                                            inputMode="numeric"
+                                                                            maxLength={2}
+                                                                            placeholder="dd"
+                                                                            value={d.dobDay}
+                                                                            onChange={(e) =>
+                                                                                patchSlot(s.key, {
+                                                                                    dobDay: e.target.value.replace(/\D/g, '').slice(0, 2),
+                                                                                })
+                                                                            }
+                                                                        />
+                                                                        <input
+                                                                            className={styles.formInput}
+                                                                            inputMode="numeric"
+                                                                            maxLength={2}
+                                                                            placeholder="mm"
+                                                                            value={d.dobMonth}
+                                                                            onChange={(e) =>
+                                                                                patchSlot(s.key, {
+                                                                                    dobMonth: e.target.value.replace(/\D/g, '').slice(0, 2),
+                                                                                })
+                                                                            }
+                                                                        />
+                                                                        <input
+                                                                            className={styles.formInput}
+                                                                            inputMode="numeric"
+                                                                            maxLength={4}
+                                                                            placeholder="yyyy"
+                                                                            value={d.dobYear}
+                                                                            onChange={(e) =>
+                                                                                patchSlot(s.key, {
+                                                                                    dobYear: e.target.value.replace(/\D/g, '').slice(0, 4),
+                                                                                })
+                                                                            }
+                                                                        />
+                                                                    </div>
+                                                                    <div className={styles.dobLabels}>
+                                                                        <span className={styles.dobHint}>dd</span>
+                                                                        <span className={styles.dobHint}>mm</span>
+                                                                        <span className={styles.dobHint}>yyyy</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+                                        </>
+                                    ) : null}
+                                </div>
+
+                                <div className={styles.formSection}>
+                                    <h2 className={styles.sectionTitle}>
+                                        <BadgePercentIcon />
+                                        Mã ưu đãi
+                                    </h2>
+                                    <div className={styles.promoRow}>
+                                        <input
+                                            type="text"
+                                            name="promoInput"
+                                            value={formData.promoInput}
+                                            onChange={handleChange}
+                                            placeholder="Ví dụ: VIETRAVEL100"
+                                            className={styles.formInput}
+                                        />
+                                        <button type="button" className={styles.btnApply} onClick={applyPromo} disabled={promoLoading}>
+                                            {promoLoading ? '...' : 'Áp dụng'}
+                                        </button>
+                                    </div>
+                                    {promoResult?.message ? (
+                                        <p className={styles.promoMsg} style={{ color: promoResult.valid ? '#047857' : '#b91c1c' }}>
+                                            {promoResult.message}
+                                        </p>
+                                    ) : null}
+                                </div>
+
+                                <div className={styles.formSection}>
+                                    <h2 className={styles.sectionTitle}>
+                                        <FileText className={styles.sectionIcon} />
+                                        Ghi chú
+                                    </h2>
+                                    <textarea
+                                        name="note"
+                                        value={formData.note}
+                                        onChange={handleChange}
+                                        placeholder="Vui lòng cho chúng tôi biết nếu Quý khách có ghi chú hoặc yêu cầu đặc biệt. Ví dụ: Bữa ăn chay, đến muộn, ..."
+                                        className={styles.formTextarea}
+                                        rows={4}
+                                    />
                                 </div>
 
                                 <div className={styles.ctaRow}>
-                                    <button className={styles.btnBack} onClick={() => navigate(`/tours/${tourId || 1}`)}>
-                                        <ArrowLeft style={{ width: 16, height: 16, marginRight: 4, display: 'inline' }} />
+                                    <button type="button" className={styles.btnBack} onClick={() => navigate(`/tours/${tourId || 1}`)}>
+                                        <ArrowLeft style={{ width: 16, height: 16 }} />
                                         Quay lại
                                     </button>
-                                    <button className={styles.btnNext} onClick={handleNextStep}>
-                                        Tiếp tục
-                                        <ArrowRight className={styles.btnNextIcon} />
-                                    </button>
                                 </div>
-                            </div>
+                            </>
                         )}
 
                         {step === 2 && (
                             <>
-                                {/* Customer info summary */}
+                                {submitError ? (
+                                    <div
+                                        className={styles.formSection}
+                                        style={{
+                                            padding: '14px 16px',
+                                            background: '#fef2f2',
+                                            color: '#b91c1c',
+                                            borderRadius: 12,
+                                            fontSize: 14,
+                                        }}
+                                    >
+                                        {submitError}
+                                    </div>
+                                ) : null}
                                 <div className={styles.formSection}>
                                     <h2 className={styles.sectionTitle}>
-                                        <ClipboardList className={styles.sectionIcon} />
-                                        Thông Tin Đặt Tour
+                                        <ClipboardListIcon />
+                                        Xác nhận thông tin
                                     </h2>
-                                    <div className={styles.formGrid}>
-                                        <div className={styles.formGroup}>
-                                            <span className={styles.formLabel}>Họ và tên</span>
-                                            <span className={styles.formInput} style={{ background: '#f9fafb', cursor: 'default' }}>
-                                                {formData.fullName}
-                                            </span>
-                                        </div>
-                                        <div className={styles.formGroup}>
-                                            <span className={styles.formLabel}>Email</span>
-                                            <span className={styles.formInput} style={{ background: '#f9fafb', cursor: 'default' }}>
-                                                {formData.email}
-                                            </span>
-                                        </div>
-                                        <div className={styles.formGroup}>
-                                            <span className={styles.formLabel}>Số điện thoại</span>
-                                            <span className={styles.formInput} style={{ background: '#f9fafb', cursor: 'default' }}>
-                                                {formData.phone}
-                                            </span>
-                                        </div>
-                                        <div className={styles.formGroup}>
-                                            <span className={styles.formLabel}>Căn cước công dân</span>
-                                            <span className={styles.formInput} style={{ background: '#f9fafb', cursor: 'default' }}>
-                                                {formData.idCard}
-                                            </span>
-                                        </div>
-                                        <div className={styles.formGroup}>
-                                            <span className={styles.formLabel}>Giới tính</span>
-                                            <span className={styles.formInput} style={{ background: '#f9fafb', cursor: 'default' }}>
-                                                {formData.gender}
-                                            </span>
-                                        </div>
-                                        {formData.note && (
-                                            <div className={styles.formGroup}>
-                                                <span className={styles.formLabel}>Ghi chú</span>
-                                                <span className={styles.formInput} style={{ background: '#f9fafb', cursor: 'default' }}>
-                                                    {formData.note}
-                                                </span>
-                                            </div>
-                                        )}
-                                    </div>
+                                    <p style={{ fontSize: 14, color: '#4b5563', marginTop: 0 }}>
+                                        {formData.fullName} · {formData.phone} · {formData.email}
+                                    </p>
+                                    <p style={{ fontSize: 14, color: '#4b5563' }}>{passengerSummary()}</p>
                                 </div>
 
-                                {/* Payment type */}
-                                <div className={styles.formSection}>
-                                    <h2 className={styles.sectionTitle}>
-                                        <Banknote className={styles.sectionIcon} />
-                                        Loại Thanh Toán
-                                    </h2>
-                                    <div className={styles.paymentTypeGrid}>
-                                        {/* Deposit 30% */}
-                                        <div
-                                            className={`${styles.paymentTypeCard} ${paymentType === 'deposit' ? styles.paymentTypeCardActive : ''}`}
-                                            onClick={() => setPaymentType('deposit')}
-                                        >
-                                            <div className={`${styles.paymentTypeIconWrap} ${paymentType === 'deposit' ? styles.paymentTypeIconWrapActive : ''}`}>
-                                                <BadgePercent className={styles.paymentTypeIconSvg} />
-                                            </div>
-                                            <div className={styles.paymentTypeContent}>
+                                {!useLivePricing ? (
+                                    <div className={styles.formSection}>
+                                        <h2 className={styles.sectionTitle}>Loại thanh toán</h2>
+                                        <div className={styles.paymentTypeGrid}>
+                                            <div
+                                                className={`${styles.paymentTypeCard} ${paymentType === 'deposit' ? styles.paymentTypeCardActive : ''}`}
+                                                onClick={() => setPaymentType('deposit')}
+                                            >
                                                 <div className={styles.paymentTypeName}>Đặt cọc 30%</div>
-                                                <div className={styles.paymentTypeDesc}>Thanh toán 30% để giữ chỗ, phần còn lại thanh toán trước ngày khởi hành</div>
                                                 <div className={styles.paymentTypeAmount}>{Math.round(finalPrice * 0.3).toLocaleString('de-DE')} VND</div>
                                             </div>
-                                            <div className={`${styles.paymentRadio} ${paymentType === 'deposit' ? styles.paymentRadioActive : ''}`}>
-                                                <div className={`${styles.paymentRadioDot} ${paymentType === 'deposit' ? styles.paymentRadioDotActive : ''}`} />
-                                            </div>
-                                        </div>
-                                        {/* Full payment */}
-                                        <div
-                                            className={`${styles.paymentTypeCard} ${paymentType === 'full' ? styles.paymentTypeCardActive : ''}`}
-                                            onClick={() => setPaymentType('full')}
-                                        >
-                                            <div className={`${styles.paymentTypeIconWrap} ${paymentType === 'full' ? styles.paymentTypeIconWrapActive : ''}`}>
-                                                <CreditCard className={styles.paymentTypeIconSvg} />
-                                            </div>
-                                            <div className={styles.paymentTypeContent}>
+                                            <div
+                                                className={`${styles.paymentTypeCard} ${paymentType === 'full' ? styles.paymentTypeCardActive : ''}`}
+                                                onClick={() => setPaymentType('full')}
+                                            >
                                                 <div className={styles.paymentTypeName}>Thanh toán toàn bộ</div>
-                                                <div className={styles.paymentTypeDesc}>Thanh toán 100% giá trị tour ngay lập tức</div>
                                                 <div className={styles.paymentTypeAmount}>{finalPrice.toLocaleString('de-DE')} VND</div>
-                                            </div>
-                                            <div className={`${styles.paymentRadio} ${paymentType === 'full' ? styles.paymentRadioActive : ''}`}>
-                                                <div className={`${styles.paymentRadioDot} ${paymentType === 'full' ? styles.paymentRadioDotActive : ''}`} />
                                             </div>
                                         </div>
                                     </div>
+                                ) : null}
 
-                                </div>
-
-                                {/* Payment method */}
                                 <div className={styles.formSection}>
                                     <h2 className={styles.sectionTitle}>
                                         <CreditCard className={styles.sectionIcon} />
-                                        Phương Thức Thanh Toán
+                                        Phương thức thanh toán
                                     </h2>
                                     <div className={styles.paymentMethods}>
-                                        {PAYMENT_METHODS.map(method => {
+                                        {PAYMENT_METHODS.map((method) => {
                                             const Icon = method.icon;
                                             const isActive = paymentMethod === method.id;
                                             return (
@@ -463,15 +1300,23 @@ const Checkout = () => {
                                             );
                                         })}
                                     </div>
-
-                                    <div className={styles.ctaRow} style={{ marginTop: 24 }}>
-                                        <button className={styles.btnBack} onClick={() => setStep(1)}>
-                                            <ArrowLeft style={{ width: 16, height: 16, marginRight: 4, display: 'inline' }} />
+                                    <div className={styles.ctaRow} style={{ marginTop: 20 }}>
+                                        <button type="button" className={styles.btnBack} onClick={() => setStep(1)}>
+                                            <ArrowLeft style={{ width: 16, height: 16 }} />
                                             Quay lại
                                         </button>
-                                        <button className={styles.btnNext} onClick={handleConfirmBooking}>
+                                        <button
+                                            type="button"
+                                            className={styles.btnNext}
+                                            onClick={handleConfirmBooking}
+                                            disabled={submitting}
+                                        >
                                             <ShieldCheck style={{ width: 18, height: 18 }} />
-                                            {paymentType === 'deposit' ? `Xác Nhận Cọc ${amountDue.toLocaleString('de-DE')} VND` : 'Xác Nhận Đặt Tour'}
+                                            {submitting
+                                                ? 'Đang xử lý...'
+                                                : useLivePricing || paymentType === 'full'
+                                                  ? `Xác nhận & thanh toán ${finalPrice.toLocaleString('de-DE')} VND`
+                                                  : `Xác nhận cọc ${amountDue.toLocaleString('de-DE')} VND`}
                                         </button>
                                     </div>
                                 </div>
@@ -479,21 +1324,38 @@ const Checkout = () => {
                         )}
                     </div>
 
-                    {/* Right Column - Order Summary */}
                     <div className={styles.sideCol}>
                         <div className={styles.summaryCard}>
                             <h3 className={styles.summaryTitle}>
                                 <FileText className={styles.summaryTitleIcon} />
-                                Tóm Tắt Đơn Hàng
+                                Tóm tắt đơn hàng
                             </h3>
-
-                            {typeof tour.image === 'object' || (typeof tour.image === 'string' && !tour.image.startsWith('http')) ? (
-                                <img src={tour.image} alt={tour.title} className={styles.summaryImage} />
-                            ) : (
-                                <img src={tour.image} alt={tour.title} className={styles.summaryImage} />
-                            )}
-
+                            <img src={tour.image} alt="" className={styles.summaryImage} />
                             <div className={styles.summaryTourName}>{tour.title}</div>
+                            <div className={styles.tourCodeLine}>{tourOrderCode}</div>
+
+                            <div className={styles.scheduleBlock}>
+                                <div className={styles.scheduleBlockTitle}>
+                                    <Plane style={{ width: 14, height: 14, display: 'inline', verticalAlign: 'middle', marginRight: 6 }} />
+                                    Lịch khởi hành / di chuyển
+                                </div>
+                                <div className={styles.scheduleLeg}>
+                                    <span className={styles.scheduleLegLabel}>Ngày đi</span>
+                                    <div className={styles.scheduleLegBody}>
+                                        {selectedSession?.startDate ? formatIsoDateViDash(selectedSession.startDate) : date}
+                                        <br />
+                                        <span style={{ color: '#9ca3af', fontSize: 11 }}>
+                                            Giá tour áp dụng theo hệ thống; vé máy bay (nếu có) theo xác nhận riêng từ điều hành.
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className={styles.scheduleLeg}>
+                                    <span className={styles.scheduleLegLabel}>Ngày về</span>
+                                    <div className={styles.scheduleLegBody}>
+                                        {selectedSession?.endDate ? formatIsoDateViDash(selectedSession.endDate) : '—'}
+                                    </div>
+                                </div>
+                            </div>
 
                             <div className={styles.summaryDetails}>
                                 <div className={styles.summaryRow}>
@@ -510,39 +1372,94 @@ const Checkout = () => {
                                 </div>
                             </div>
 
-                            <div className={styles.priceBreakdown}>
-                                {adults > 0 && (
-                                    <div className={styles.priceRow}>
-                                        <span>{adultPrice.toLocaleString('de-DE')} VND × {adults} người lớn</span>
-                                        <span>{adultTotal.toLocaleString('de-DE')} VND</span>
-                                    </div>
-                                )}
-                                {children > 0 && (
-                                    <div className={styles.priceRow}>
-                                        <span>{childPrice.toLocaleString('de-DE')} VND × {children} trẻ em (70%)</span>
-                                        <span>{childTotal.toLocaleString('de-DE')} VND</span>
-                                    </div>
-                                )}
-                                {infants > 0 && (
-                                    <div className={styles.priceRow}>
-                                        <span>Miễn phí × {infants} trẻ sơ sinh</span>
-                                        <span>0 VND</span>
-                                    </div>
-                                )}
-                                {tour.discountPercent > 0 && (
-                                    <div className={styles.priceRow}>
-                                        <span className={styles.discountBadge}>Giảm {tour.discountPercent}%</span>
-                                        <span className={styles.discountBadge}>-{discount.toLocaleString('de-DE')} VND</span>
-                                    </div>
-                                )}
+                            <details className={styles.accordion} defaultOpen>
+                                <summary className={styles.accordionSummary}>Chi tiết chi phí</summary>
+                                <div className={styles.accordionBody}>
+                                    {useLivePricing ? (
+                                        <>
+                                            <div className={styles.priceRow}>
+                                                <span>
+                                                    {adultPrice.toLocaleString('de-DE')} VND × {Math.max(1, totalPassengers)} khách
+                                                </span>
+                                                <span>{subtotalBeforePromo.toLocaleString('de-DE')} VND</span>
+                                            </div>
+                                            {promoDiscount > 0 ? (
+                                                <div className={styles.priceRow}>
+                                                    <span>Giảm (mã ưu đãi)</span>
+                                                    <span>-{promoDiscount.toLocaleString('de-DE')} VND</span>
+                                                </div>
+                                            ) : null}
+                                        </>
+                                    ) : (
+                                        <>
+                                            {adults > 0 ? (
+                                                <div className={styles.priceRow}>
+                                                    <span>
+                                                        {adultPrice.toLocaleString('de-DE')} × {adults} người lớn
+                                                    </span>
+                                                    <span>{adultTotal.toLocaleString('de-DE')} VND</span>
+                                                </div>
+                                            ) : null}
+                                            {children > 0 ? (
+                                                <div className={styles.priceRow}>
+                                                    <span>
+                                                        {childPrice.toLocaleString('de-DE')} × {children} trẻ em
+                                                    </span>
+                                                    <span>{childTotal.toLocaleString('de-DE')} VND</span>
+                                                </div>
+                                            ) : null}
+                                            {infants > 0 ? (
+                                                <div className={styles.priceRow}>
+                                                    <span>Em bé</span>
+                                                    <span>0 VND</span>
+                                                </div>
+                                            ) : null}
+                                            {mockDiscount > 0 ? (
+                                                <div className={styles.priceRow}>
+                                                    <span>Giảm giá demo</span>
+                                                    <span>-{mockDiscount.toLocaleString('de-DE')} VND</span>
+                                                </div>
+                                            ) : null}
+                                        </>
+                                    )}
+                                </div>
+                            </details>
+
+                            <div className={styles.totalRed}>
+                                <span className={styles.totalRedLabel}>Tổng tiền</span>
+                                <span className={styles.totalRedValue}>{finalPrice.toLocaleString('de-DE')}₫</span>
                             </div>
 
-                            <div className={styles.priceRowTotal}>
-                                <span className={styles.priceLabel}>Tổng cộng</span>
-                                <span className={styles.priceValue}>{finalPrice.toLocaleString('de-DE')} VND</span>
-                            </div>
+                            {step === 1 && (
+                                <>
+                                    <div className={styles.termsRow}>
+                                        <input
+                                            type="checkbox"
+                                            checked={agreeTerms}
+                                            onChange={(e) => {
+                                                setAgreeTerms(e.target.checked);
+                                                if (errors.terms) setErrors((prev) => ({ ...prev, terms: '' }));
+                                            }}
+                                        />
+                                        <span>
+                                            Tôi đồng ý với{' '}
+                                            <Link to="/privacy-policy">Chính sách bảo vệ dữ liệu cá nhân</Link> và{' '}
+                                            <Link to="/terms-of-service">Các điều khoản</Link>
+                                        </span>
+                                    </div>
+                                    {errors.terms ? <div className={styles.errorText}>{errors.terms}</div> : null}
+                                    <button
+                                        type="button"
+                                        className={`${styles.sidebarSubmit} ${step1Complete ? styles.sidebarSubmitEnabled : styles.sidebarSubmitDisabled}`}
+                                        onClick={goStep2}
+                                        disabled={!step1Complete}
+                                    >
+                                        {step1Complete ? 'Tiếp tục thanh toán' : 'Chưa nhập đủ thông tin'}
+                                    </button>
+                                </>
+                            )}
 
-                            {step === 2 && paymentType === 'deposit' && (
+                            {step === 2 && paymentType === 'deposit' && !useLivePricing ? (
                                 <div className={styles.depositSummary}>
                                     <div className={styles.depositSummaryRow}>
                                         <span>Cọc 30%</span>
@@ -553,48 +1470,27 @@ const Checkout = () => {
                                         <span>{remainingAmount.toLocaleString('de-DE')} VND</span>
                                     </div>
                                 </div>
-                            )}
-                            {step === 2 && paymentType === 'full' && (
-                                <div className={styles.depositSummary}>
-                                    <div className={styles.depositSummaryRow}>
-                                        <span>Thanh toán</span>
-                                        <span className={styles.depositAmount}>{finalPrice.toLocaleString('de-DE')} VND</span>
-                                    </div>
-                                </div>
-                            )}
+                            ) : null}
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Success Modal */}
-            {showSuccess && (
-                <div className={styles.successOverlay}>
-                    <div className={styles.successCard}>
-                        <div className={styles.successIconCircle}>
-                            <CheckCircle className={styles.successIconSvg} />
-                        </div>
-                        <h2 className={styles.successTitle}>
-                            {paymentType === 'deposit' ? 'Đặt Cọc Thành Công!' : 'Đặt Tour Thành Công!'}
-                        </h2>
-                        <p className={styles.successText}>
-                            Cảm ơn bạn đã đặt tour <strong>{tour.title}</strong>.<br />
-                            {paymentType === 'deposit' && (
-                                <>
-                                    Số tiền cọc: <strong>{amountDue.toLocaleString('de-DE')} VND</strong>.<br />
-                                    Số tiền còn lại cần thanh toán: <strong>{remainingAmount.toLocaleString('de-DE')} VND</strong>.<br />
-                                </>
-                            )}
-                            Chúng tôi sẽ gửi xác nhận qua email <strong>{formData.email}</strong>.
-                        </p>
-                        <button className={styles.successBtn} onClick={() => navigate('/my-journey')}>
-                            Xem Chỗ Đã Đặt
-                        </button>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };
+
+function BadgePercentIcon() {
+    return (
+        <svg className={styles.sectionIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M9 9h.01M15 15h.01M16 8l-8 8" />
+            <circle cx="12" cy="12" r="10" />
+        </svg>
+    );
+}
+
+function ClipboardListIcon() {
+    return <FileText className={styles.sectionIcon} />;
+}
 
 export default Checkout;
