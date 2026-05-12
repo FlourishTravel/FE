@@ -205,6 +205,11 @@
     background: #fef2f2;
 }
 
+.statusDraft {
+    color: #6b7280;
+    background: #f3f4f6;
+}
+
 /* Actions */
 .actions {
     display: flex;

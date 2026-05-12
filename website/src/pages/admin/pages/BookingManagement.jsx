@@ -1,147 +1,342 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import StatCard from '../components/StatCard';
 import DataTable from '../components/DataTable';
+import BookingDetailModal from '../components/BookingDetailModal';
+import {
+    getAdminBookingStats,
+    listAdminBookings,
+} from '../../../api/adminBookings';
 import styles from './BookingManagement.module.css';
 
-const MOCK_BOOKINGS = [
-    { id: 1, bookingId: 'BK-2401', customer: 'Nguyễn Văn An', email: 'an.nguyen@email.com', tour: 'Bangkok-Pattaya', tourCode: 'TH-BKKPAT-01', date: '28/04/2026', departure: '15/05/2026', amount: '₫12.500.000', paid: '₫12.500.000', status: 'confirmed', payType: 'full', passengers: 2 },
-    { id: 2, bookingId: 'BK-2402', customer: 'Trần Thị Bình', email: 'binh.tran@email.com', tour: 'Đà Nẵng-Hội An', tourCode: 'VN-DANHA-05', date: '28/04/2026', departure: '20/05/2026', amount: '₫8.200.000', paid: '₫2.460.000', status: 'pending', payType: 'deposit', passengers: 1 },
-    { id: 3, bookingId: 'BK-2403', customer: 'Lê Minh Châu', email: 'chau.le@email.com', tour: 'Sapa Misty Peaks', tourCode: 'VN-SAPA-03', date: '27/04/2026', departure: '18/05/2026', amount: '₫15.800.000', paid: '₫15.800.000', status: 'confirmed', payType: 'full', passengers: 3 },
-    { id: 4, bookingId: 'BK-2404', customer: 'Phạm Đức Duy', email: 'duy.pham@email.com', tour: 'Bali Discovery', tourCode: 'ID-BALI-09', date: '27/04/2026', departure: '10/05/2026', amount: '₫22.000.000', paid: '₫0', status: 'cancelled', payType: 'refunded', passengers: 2 },
-    { id: 5, bookingId: 'BK-2405', customer: 'Hoàng Thị Em', email: 'em.hoang@email.com', tour: 'Tokyo Experience', tourCode: 'JP-TOK-15', date: '26/04/2026', departure: '25/05/2026', amount: '₫28.500.000', paid: '₫8.550.000', status: 'confirmed', payType: 'deposit', passengers: 2 },
-    { id: 6, bookingId: 'BK-2406', customer: 'Vũ Quang Huy', email: 'huy.vu@email.com', tour: 'Norway Aurora', tourCode: 'NO-AUR-02', date: '25/04/2026', departure: '15/12/2026', amount: '₫45.000.000', paid: '₫13.500.000', status: 'pending', payType: 'deposit', passengers: 2 },
-    { id: 7, bookingId: 'BK-2407', customer: 'Đặng Thu Hương', email: 'huong.dang@email.com', tour: 'Costa Rica Trek', tourCode: 'CR-TREK-12', date: '24/04/2026', departure: '01/06/2026', amount: '₫35.000.000', paid: '₫35.000.000', status: 'confirmed', payType: 'full', passengers: 1 },
-    { id: 8, bookingId: 'BK-2408', customer: 'Bùi Văn Khoa', email: 'khoa.bui@email.com', tour: 'Swiss Alps Grandeur', tourCode: 'CH-ALPS-07', date: '23/04/2026', departure: '10/07/2026', amount: '₫52.000.000', paid: '₫15.600.000', status: 'pending', payType: 'deposit', passengers: 2 },
-    { id: 9, bookingId: 'BK-2409', customer: 'Ngô Thị Lan', email: 'lan.ngo@email.com', tour: 'Phú Quốc Paradise', tourCode: 'VN-PQ-11', date: '22/04/2026', departure: '05/05/2026', amount: '₫9.800.000', paid: '₫0', status: 'cancel_request', payType: 'pending_refund', passengers: 4 },
-    { id: 10, bookingId: 'BK-2410', customer: 'Trịnh Minh Nam', email: 'nam.trinh@email.com', tour: 'Maldives Luxury', tourCode: 'MV-LUX-04', date: '21/04/2026', departure: '20/06/2026', amount: '₫65.000.000', paid: '₫0', status: 'cancel_request', payType: 'pending_refund', passengers: 2 },
-];
-
 const STATUS_CONFIG = {
-    confirmed: { label: 'Xác nhận', className: 'statusConfirmed' },
-    pending: { label: 'Chờ xử lý', className: 'statusPending' },
-    cancelled: { label: 'Đã hủy', className: 'statusCancelled' },
-    cancel_request: { label: 'Yêu cầu hủy', className: 'statusCancelReq' },
+    pending: { label: 'Chờ thanh toán', className: 'statusPending' },
+    paid: { label: 'Đã thanh toán', className: 'statusPaid' },
+    confirmed: { label: 'Đã xác nhận', className: 'statusConfirmed' },
+    completed: { label: 'Đã hoàn thành', className: 'statusCompleted' },
+    cancelled: { label: 'Đã huỷ', className: 'statusCancelled' },
 };
 
 const PAY_CONFIG = {
-    full: { label: 'Đầy đủ', className: 'payFull' },
-    deposit: { label: 'Đặt cọc 30%', className: 'payDeposit' },
+    paid: { label: 'Đầy đủ', className: 'payFull' },
+    partial: { label: 'Đã cọc', className: 'payDeposit' },
+    unpaid: { label: 'Chưa thanh toán', className: 'payUnpaid' },
     refunded: { label: 'Đã hoàn tiền', className: 'payRefunded' },
-    pending_refund: { label: 'Chờ hoàn tiền', className: 'payPendingRefund' },
+    refund_pending: { label: 'Chờ hoàn tiền', className: 'payPendingRefund' },
+};
+
+const PLACEHOLDER_IMG =
+    'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=120&q=80';
+
+const FILTER_TABS = [
+    { key: 'all', label: 'Tất cả' },
+    { key: 'pending', label: 'Chờ thanh toán' },
+    { key: 'paid', label: 'Đã thanh toán' },
+    { key: 'confirmed', label: 'Đã xác nhận' },
+    { key: 'refund_pending', label: 'Yêu cầu hoàn tiền' },
+    { key: 'completed', label: 'Đã hoàn thành' },
+    { key: 'cancelled', label: 'Đã huỷ' },
+];
+
+const formatVnd = (value) => {
+    if (value === null || value === undefined || value === '') return '—';
+    const num = Number(value);
+    if (Number.isNaN(num)) return '—';
+    return new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND',
+        maximumFractionDigits: 0,
+    }).format(num);
+};
+
+const formatVndCompact = (value) => {
+    if (value === null || value === undefined || value === '') return '0';
+    const num = Number(value);
+    if (Number.isNaN(num)) return '0';
+    if (num >= 1_000_000_000) return `${(num / 1_000_000_000).toFixed(1)}B`;
+    if (num >= 1_000_000) return `${(num / 1_000_000).toFixed(1)}M`;
+    if (num >= 1_000) return `${(num / 1_000).toFixed(0)}K`;
+    return String(num);
+};
+
+const formatDate = (value) => {
+    if (!value) return '—';
+    try {
+        return new Date(value).toLocaleDateString('vi-VN');
+    } catch {
+        return '—';
+    }
 };
 
 const BookingManagement = () => {
+    const [bookings, setBookings] = useState([]);
+    const [stats, setStats] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [errorMsg, setErrorMsg] = useState('');
+    const [successMsg, setSuccessMsg] = useState('');
+
     const [filterStatus, setFilterStatus] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
 
-    const filteredBookings = MOCK_BOOKINGS.filter(b => {
-        if (filterStatus !== 'all' && b.status !== filterStatus) return false;
-        if (searchQuery) {
-            const q = searchQuery.toLowerCase();
-            return b.bookingId.toLowerCase().includes(q) || b.customer.toLowerCase().includes(q) || b.tour.toLowerCase().includes(q);
-        }
-        return true;
-    });
+    const [selectedBookingId, setSelectedBookingId] = useState(null);
 
-    const columns = [
+    const fetchBookings = useCallback(async () => {
+        setLoading(true);
+        setErrorMsg('');
+        try {
+            const data = await listAdminBookings({ size: 100 });
+            setBookings(data.content);
+        } catch (err) {
+            setErrorMsg(
+                err?.message ||
+                'Không tải được danh sách booking. Cần đăng nhập với quyền admin để xem dữ liệu thật.'
+            );
+            setBookings([]);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    const fetchStats = useCallback(async () => {
+        try {
+            const data = await getAdminBookingStats();
+            setStats(data);
+        } catch {
+            setStats(null);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchBookings();
+        fetchStats();
+    }, [fetchBookings, fetchStats]);
+
+    useEffect(() => {
+        if (!successMsg) return;
+        const t = setTimeout(() => setSuccessMsg(''), 2500);
+        return () => clearTimeout(t);
+    }, [successMsg]);
+
+    const filteredBookings = useMemo(() => {
+        const q = searchQuery.trim().toLowerCase();
+        return bookings.filter((b) => {
+            if (filterStatus !== 'all') {
+                if (filterStatus === 'refund_pending') {
+                    if (!b.hasRefundPending) return false;
+                } else if (b.status !== filterStatus) {
+                    return false;
+                }
+            }
+            if (!q) return true;
+            return (
+                (b.bookingCode || '').toLowerCase().includes(q) ||
+                (b.customer?.fullName || '').toLowerCase().includes(q) ||
+                (b.customer?.email || '').toLowerCase().includes(q) ||
+                (b.tour?.title || '').toLowerCase().includes(q) ||
+                (b.tour?.tourCode || '').toLowerCase().includes(q)
+            );
+        });
+    }, [bookings, filterStatus, searchQuery]);
+
+    const tabCounts = useMemo(() => {
+        const counts = { all: bookings.length, refund_pending: 0 };
+        for (const b of bookings) {
+            counts[b.status] = (counts[b.status] || 0) + 1;
+            if (b.hasRefundPending) counts.refund_pending += 1;
+        }
+        return counts;
+    }, [bookings]);
+
+    const handleRefresh = () => {
+        fetchBookings();
+        fetchStats();
+    };
+
+    const handleBookingUpdated = (updated) => {
+        setBookings((prev) => prev.map((b) => (b.id === updated.id ? { ...b, ...updated } : b)));
+        fetchStats();
+    };
+
+    const columns = useMemo(() => [
         {
-            key: 'bookingId',
+            key: 'bookingCode',
             label: 'Mã Booking',
-            render: (val) => <span className={styles.bookingIdCell}>{val}</span>
+            render: (val) => <span className={styles.bookingIdCell}>{val}</span>,
         },
         {
             key: 'customer',
             label: 'Khách hàng',
             render: (_, row) => (
                 <div>
-                    <div className={styles.customerName}>{row.customer}</div>
-                    <div className={styles.customerEmail}>{row.email}</div>
+                    <div className={styles.customerName}>{row.customer?.fullName || '—'}</div>
+                    <div className={styles.customerEmail}>{row.customer?.email || '—'}</div>
                 </div>
-            )
+            ),
         },
         {
             key: 'tour',
             label: 'Tour',
             render: (_, row) => (
-                <div>
-                    <div className={styles.tourName}>{row.tour}</div>
-                    <div className={styles.tourCode}>{row.tourCode}</div>
+                <div className={styles.tourCell}>
+                    <img
+                        src={row.tour?.thumbnailUrl || PLACEHOLDER_IMG}
+                        alt=""
+                        className={styles.tourThumb}
+                        onError={(e) => { e.currentTarget.src = PLACEHOLDER_IMG; }}
+                    />
+                    <div>
+                        <div className={styles.tourName}>{row.tour?.title || '—'}</div>
+                        <div className={styles.tourCode}>
+                            {row.tour?.tourCode || '—'}
+                            {row.session?.startDate && (
+                                <span className={styles.dot}> • </span>
+                            )}
+                            {row.session?.startDate && (
+                                <span>KH {formatDate(row.session.startDate)}</span>
+                            )}
+                        </div>
+                    </div>
                 </div>
-            )
+            ),
         },
-        { key: 'passengers', label: 'Khách', render: (val) => `${val} người` },
-        { key: 'date', label: 'Ngày đặt', sortable: true },
-        { key: 'amount', label: 'Tổng tiền', sortable: true },
         {
-            key: 'payType',
+            key: 'guestCount',
+            label: 'Khách',
+            render: (val) => `${val || 0} người`,
+        },
+        {
+            key: 'createdAt',
+            label: 'Ngày đặt',
+            sortable: true,
+            render: (val) => formatDate(val),
+        },
+        {
+            key: 'totalAmount',
+            label: 'Tổng tiền',
+            sortable: true,
+            render: (val, row) => (
+                <div>
+                    <div className={styles.amountTotal}>{formatVnd(val)}</div>
+                    {Number(row.balanceAmount || 0) > 0 && (
+                        <div className={styles.amountBalance}>Còn {formatVnd(row.balanceAmount)}</div>
+                    )}
+                </div>
+            ),
+        },
+        {
+            key: 'paymentClass',
             label: 'Thanh toán',
-            render: (val) => (
-                <span className={`${styles.payBadge} ${styles[PAY_CONFIG[val]?.className]}`}>
-                    {PAY_CONFIG[val]?.label}
-                </span>
-            )
+            render: (val) => {
+                const cfg = PAY_CONFIG[val] || PAY_CONFIG.unpaid;
+                return (
+                    <span className={`${styles.payBadge} ${styles[cfg.className]}`}>
+                        {cfg.label}
+                    </span>
+                );
+            },
         },
         {
             key: 'status',
             label: 'Trạng thái',
-            render: (val) => (
-                <span className={`${styles.statusBadge} ${styles[STATUS_CONFIG[val]?.className]}`}>
-                    {STATUS_CONFIG[val]?.label}
-                </span>
-            )
+            render: (val, row) => {
+                const cfg = STATUS_CONFIG[val] || STATUS_CONFIG.pending;
+                return (
+                    <div className={styles.statusCell}>
+                        <span className={`${styles.statusBadge} ${styles[cfg.className]}`}>
+                            {cfg.label}
+                        </span>
+                        {row.hasRefundPending && (
+                            <span className={`${styles.statusBadge} ${styles.statusRefundReq}`}>
+                                YC hoàn tiền
+                            </span>
+                        )}
+                    </div>
+                );
+            },
         },
         {
             key: 'actions',
             label: '',
-            render: () => (
+            render: (_, row) => (
                 <div className={styles.actions}>
-                    <button className={styles.actionBtn} title="Xem chi tiết">
+                    <button
+                        className={styles.actionBtn}
+                        title="Xem chi tiết & xử lý"
+                        onClick={() => setSelectedBookingId(row.id)}
+                    >
                         <span className="material-icons-round" style={{ fontSize: '18px' }}>visibility</span>
                     </button>
-                    <button className={styles.actionBtn} title="Chỉnh sửa">
-                        <span className="material-icons-round" style={{ fontSize: '18px' }}>edit</span>
-                    </button>
                 </div>
-            )
+            ),
         },
-    ];
+    ], []);
 
     return (
         <div className={styles.page}>
             <div className={styles.pageHeader}>
                 <div>
                     <h1 className={styles.pageTitle}>Quản Lý Đặt Chỗ</h1>
-                    <p className={styles.pageSubtitle}>Theo dõi và quản lý tất cả các booking của Flourish Travel</p>
+                    <p className={styles.pageSubtitle}>
+                        Theo dõi booking, xử lý thanh toán & hoàn tiền theo nghiệp vụ chuẩn Flourish Travel.
+                    </p>
                 </div>
-                <button className={styles.addBtn}>
-                    <span className="material-icons-round" style={{ fontSize: '18px' }}>add</span>
-                    Tạo Booking Mới
-                </button>
+                <div className={styles.headerActions}>
+                    <button className={styles.refreshBtn} onClick={handleRefresh} disabled={loading} title="Tải lại">
+                        <span className="material-icons-round" style={{ fontSize: 18 }}>refresh</span>
+                        Tải lại
+                    </button>
+                </div>
             </div>
 
+            {errorMsg && (
+                <div className={`${styles.banner} ${styles.bannerError}`}>
+                    <span className="material-icons-round">error_outline</span>
+                    <span>{errorMsg}</span>
+                </div>
+            )}
+            {successMsg && (
+                <div className={`${styles.banner} ${styles.bannerSuccess}`}>
+                    <span className="material-icons-round">check_circle</span>
+                    <span>{successMsg}</span>
+                </div>
+            )}
+
             <div className={styles.statsGrid}>
-                <StatCard icon="confirmation_number" label="Tổng Đặt Chỗ" value="156" trend="up" trendValue="+12" color="green" />
-                <StatCard icon="payments" label="Doanh Thu Tháng" value="₫890.5M" trend="up" trendValue="+18%" color="blue" />
-                <StatCard icon="account_balance" label="Cọc Chưa Thanh Toán" value="₫245M" color="orange" />
-                <StatCard icon="cancel" label="Yêu Cầu Hủy" value="3" trend="down" trendValue="-2" color="red" />
+                <StatCard
+                    icon="confirmation_number"
+                    label="Booking tháng này"
+                    value={stats?.totalBookings ?? bookings.length}
+                    color="green"
+                />
+                <StatCard
+                    icon="payments"
+                    label="Doanh thu tháng"
+                    value={`₫${formatVndCompact(stats?.monthlyRevenue)}`}
+                    color="blue"
+                />
+                <StatCard
+                    icon="account_balance"
+                    label="Công nợ phải thu"
+                    value={`₫${formatVndCompact(stats?.pendingDeposit)}`}
+                    color="orange"
+                />
+                <StatCard
+                    icon="cancel"
+                    label="Yêu cầu hoàn tiền"
+                    value={stats?.pendingRefundRequests ?? tabCounts.refund_pending}
+                    color="red"
+                />
             </div>
 
             <div className={styles.filterBar}>
                 <div className={styles.filterTabs}>
-                    {[
-                        { key: 'all', label: 'Tất cả', count: MOCK_BOOKINGS.length },
-                        { key: 'confirmed', label: 'Xác nhận', count: MOCK_BOOKINGS.filter(b => b.status === 'confirmed').length },
-                        { key: 'pending', label: 'Chờ xử lý', count: MOCK_BOOKINGS.filter(b => b.status === 'pending').length },
-                        { key: 'cancel_request', label: 'Yêu cầu hủy', count: MOCK_BOOKINGS.filter(b => b.status === 'cancel_request').length },
-                        { key: 'cancelled', label: 'Đã hủy', count: MOCK_BOOKINGS.filter(b => b.status === 'cancelled').length },
-                    ].map(tab => (
+                    {FILTER_TABS.map((tab) => (
                         <button
                             key={tab.key}
                             className={`${styles.filterTab} ${filterStatus === tab.key ? styles.filterTabActive : ''}`}
                             onClick={() => setFilterStatus(tab.key)}
                         >
                             {tab.label}
-                            <span className={styles.tabCount}>{tab.count}</span>
+                            <span className={styles.tabCount}>{tabCounts[tab.key] || 0}</span>
                         </button>
                     ))}
                 </div>
@@ -149,7 +344,7 @@ const BookingManagement = () => {
                     <span className="material-icons-round" style={{ fontSize: '18px', color: '#9ca3af' }}>search</span>
                     <input
                         type="text"
-                        placeholder="Tìm booking, khách hàng..."
+                        placeholder="Mã booking / khách / tour..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className={styles.filterInput}
@@ -157,11 +352,25 @@ const BookingManagement = () => {
                 </div>
             </div>
 
-            <DataTable
-                columns={columns}
-                data={filteredBookings}
-                selectable={false}
-                totalLabel="booking"
+            {loading && bookings.length === 0 ? (
+                <div className={styles.loadingNote}>Đang tải dữ liệu booking...</div>
+            ) : (
+                <DataTable
+                    columns={columns}
+                    data={filteredBookings}
+                    selectable={false}
+                    totalLabel="booking"
+                    emptyMessage="Không có booking nào khớp bộ lọc."
+                />
+            )}
+
+            <BookingDetailModal
+                bookingId={selectedBookingId}
+                onClose={() => setSelectedBookingId(null)}
+                onUpdated={(updated) => {
+                    handleBookingUpdated(updated);
+                    setSuccessMsg('Đã cập nhật booking thành công.');
+                }}
             />
         </div>
     );

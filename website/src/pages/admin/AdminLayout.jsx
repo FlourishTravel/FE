@@ -6,6 +6,7 @@ import styles from './AdminLayout.module.css';
 const NAV_ITEMS = [
     { path: '/admin', icon: 'dashboard', label: 'Dashboard', end: true },
     { path: '/admin/tours', icon: 'explore', label: 'Quản Lý Tour' },
+    { path: '/admin/categories', icon: 'category', label: 'Danh Mục' },
     { path: '/admin/dispatch', icon: 'calendar_month', label: 'Điều Hành Tour' },
     { path: '/admin/bookings', icon: 'book_online', label: 'Quản Lý Đặt Chỗ' },
     { path: '/admin/customers', icon: 'group', label: 'Khách Hàng' },

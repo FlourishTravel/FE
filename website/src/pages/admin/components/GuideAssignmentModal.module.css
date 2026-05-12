@@ -17,11 +17,12 @@
 
 .modalContent {
     background-color: white;
-    width: 90%;
-    max-width: 500px;
+    width: 92%;
+    max-width: 620px;
+    max-height: 92vh;
+    overflow-y: auto;
     border-radius: 12px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
     animation: slideUp 0.3s ease;
 }
 
@@ -88,15 +89,40 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    background-color: #fef2f2;
     padding: 12px;
     border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.currentGuideOk {
+    background-color: #ecfdf5;
+    border: 1px solid #a7f3d0;
+}
+
+.currentGuideOk .currentGuideIcon {
+    color: #10b981;
+}
+
+.currentGuideOk .currentGuideText p {
+    color: #065f46;
+}
+
+.currentGuideWarn {
+    background-color: #fef2f2;
     border: 1px solid #fecaca;
-    margin-bottom: 24px;
+}
+
+.currentGuideWarn .currentGuideIcon {
+    color: #ef4444;
+}
+
+.currentGuideWarn .currentGuideText p {
+    color: #991b1b;
 }
 
 .currentGuideIcon {
-    color: #ef4444;
+    display: flex;
+    align-items: center;
 }
 
 .currentGuideText {
@@ -104,13 +130,231 @@
 }
 
 .currentGuideText p {
-    margin: 0;
+    margin: 2px 0;
     font-size: 0.9rem;
-    color: #991b1b;
 }
 
 .currentGuideText strong {
     font-weight: 600;
+}
+
+.muted {
+    color: #6b7280 !important;
+    font-size: 0.82rem !important;
+}
+
+.tourMeta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 6px;
+    color: #6b7280;
+    font-size: 0.85rem;
+}
+
+.tourMeta .divider {
+    opacity: 0.5;
+}
+
+.searchRow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.searchInput {
+    flex: 1;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    outline: none;
+}
+
+.searchInput:focus {
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.checkboxLabel {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: #6b7280;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.guideList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+    max-height: 280px;
+    overflow-y: auto;
+    border: 1px solid #f3f4f6;
+    border-radius: 8px;
+    padding: 8px;
+    background: #fafafa;
+}
+
+.guideRow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.guideRow:hover {
+    border-color: #10b981;
+    background: #f0fdf4;
+}
+
+.guideRowSelected {
+    border-color: #10b981 !important;
+    background: #ecfdf5 !important;
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.15);
+}
+
+.guideRowBusy {
+    opacity: 0.55;
+    cursor: not-allowed !important;
+}
+
+.guideRowBusy:hover {
+    border-color: #e5e7eb;
+    background: white;
+}
+
+.guideAvatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #e0f2fe;
+    color: #0369a1;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.guideAvatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.guideInfo {
+    flex: 1;
+    min-width: 0;
+}
+
+.guideName {
+    font-weight: 600;
+    color: #111827;
+    font-size: 0.95rem;
+}
+
+.guideMeta {
+    font-size: 0.8rem;
+    color: #6b7280;
+    margin-top: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.guideTags {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+}
+
+.workloadChip {
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 999px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.workloadLight {
+    background: #ecfdf5;
+    color: #047857;
+}
+
+.workloadBalanced {
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
+.workloadHeavy {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.busyChip {
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 999px;
+    background: #fee2e2;
+    color: #b91c1c;
+    font-weight: 600;
+}
+
+.noteInput {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: #111827;
+    resize: vertical;
+    outline: none;
+    font-family: inherit;
+}
+
+.noteInput:focus {
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.notifyToggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.88rem;
+    color: #374151;
+    cursor: pointer;
+    user-select: none;
+    margin-top: 6px;
+}
+
+.errorBanner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 14px;
+    padding: 10px 12px;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+    border-radius: 8px;
+    font-size: 0.85rem;
+}
+
+.submitBtn:disabled {
+    background: #d1d5db !important;
+    cursor: not-allowed;
 }
 
 .formGroup {

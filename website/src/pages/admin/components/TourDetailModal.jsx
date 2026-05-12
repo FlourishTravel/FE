@@ -1,0 +1,445 @@
+import React, { useEffect, useMemo, useState } from 'react';
+import { getAdminTourDetail } from '../../../api/tours';
+import styles from './TourDetailModal.module.css';
+
+const STATUS_LABELS = {
+    draft: { label: 'Nháp', cls: 'badgeDraft' },
+    active: { label: 'Đang hoạt động', cls: 'badgeActive' },
+    upcoming: { label: 'Sắp khởi hành', cls: 'badgeUpcoming' },
+    full: { label: 'Đã hết chỗ', cls: 'badgeFull' },
+};
+
+const SESSION_STATUS_LABELS = {
+    scheduled: { label: 'Đã lên lịch', cls: 'badgeActive' },
+    in_progress: { label: 'Đang chạy', cls: 'badgeActive' },
+    completed: { label: 'Hoàn tất', cls: 'badgeDraft' },
+    cancelled: { label: 'Đã huỷ', cls: 'badgeFull' },
+};
+
+const PLACEHOLDER_IMG =
+    'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80';
+
+const TABS = [
+    { key: 'overview', label: 'Tổng quan', icon: 'info' },
+    { key: 'itinerary', label: 'Lịch trình', icon: 'event_note' },
+    { key: 'locations', label: 'Địa điểm', icon: 'place' },
+    { key: 'sessions', label: 'Lịch khởi hành', icon: 'calendar_month' },
+    { key: 'media', label: 'Ảnh & Video', icon: 'collections' },
+];
+
+const formatVnd = (value) => {
+    if (value === null || value === undefined || value === '') return '—';
+    const num = Number(value);
+    if (Number.isNaN(num)) return '—';
+    return new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND',
+        maximumFractionDigits: 0,
+    }).format(num);
+};
+
+const formatDate = (value) => {
+    if (!value) return '—';
+    try {
+        return new Date(value).toLocaleDateString('vi-VN');
+    } catch {
+        return '—';
+    }
+};
+
+const formatDuration = (seconds) => {
+    if (!seconds || seconds <= 0) return '—';
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${String(s).padStart(2, '0')}`;
+};
+
+const TourDetailModal = ({ isOpen, tourId, onClose, onEdit }) => {
+    const [tab, setTab] = useState('overview');
+    const [detail, setDetail] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [errorMsg, setErrorMsg] = useState('');
+
+    useEffect(() => {
+        if (!isOpen || !tourId) return;
+        setTab('overview');
+        setLoading(true);
+        setErrorMsg('');
+        setDetail(null);
+        getAdminTourDetail(tourId)
+            .then((data) => setDetail(data || null))
+            .catch((err) => setErrorMsg(err?.message || 'Không tải được chi tiết tour'))
+            .finally(() => setLoading(false));
+    }, [isOpen, tourId]);
+
+    const heroImage = useMemo(() => {
+        if (!detail?.images?.length) return PLACEHOLDER_IMG;
+        return detail.images[0]?.imageUrl || PLACEHOLDER_IMG;
+    }, [detail]);
+
+    if (!isOpen) return null;
+
+    const renderStatusBadge = (status, dict = STATUS_LABELS) => {
+        const cfg = dict[status] || dict.draft || { label: status || '—', cls: 'badgeDraft' };
+        return <span className={`${styles.badge} ${styles[cfg.cls]}`}>{cfg.label}</span>;
+    };
+
+    return (
+        <div className={styles.overlay} onClick={onClose}>
+            <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+                {/* Header */}
+                <div className={styles.header}>
+                    <div className={styles.headerHero}>
+                        <img
+                            src={heroImage}
+                            alt={detail?.title || 'Tour'}
+                            className={styles.heroImg}
+                            onError={(e) => {
+                                e.currentTarget.src = PLACEHOLDER_IMG;
+                            }}
+                        />
+                        <div className={styles.heroOverlay} />
+                        <div className={styles.heroContent}>
+                            <div className={styles.heroMeta}>
+                                {detail?.category && (
+                                    <span className={styles.categoryChip}>
+                                        <span className="material-icons-round" style={{ fontSize: 14 }}>
+                                            category
+                                        </span>
+                                        {detail.category.name}
+                                        {detail.category.archived && (
+                                            <span className={styles.archivedTag}>(lưu trữ)</span>
+                                        )}
+                                    </span>
+                                )}
+                                {detail?.status && renderStatusBadge(detail.status)}
+                            </div>
+                            <h2 className={styles.heroTitle}>
+                                {loading ? 'Đang tải...' : detail?.title || '—'}
+                            </h2>
+                            <div className={styles.heroSlug}>/{detail?.slug || '—'}</div>
+                        </div>
+                    </div>
+                    <button className={styles.closeBtn} onClick={onClose} title="Đóng" type="button">
+                        <span className="material-icons-round">close</span>
+                    </button>
+                </div>
+
+                {/* Tabs */}
+                <div className={styles.tabs}>
+                    {TABS.map((t) => (
+                        <button
+                            key={t.key}
+                            className={`${styles.tab} ${tab === t.key ? styles.tabActive : ''}`}
+                            onClick={() => setTab(t.key)}
+                        >
+                            <span className="material-icons-round" style={{ fontSize: 16 }}>
+                                {t.icon}
+                            </span>
+                            {t.label}
+                        </button>
+                    ))}
+                </div>
+
+                {/* Body */}
+                <div className={styles.body}>
+                    {errorMsg && (
+                        <div className={styles.errorBox}>
+                            <span className="material-icons-round" style={{ fontSize: 18 }}>
+                                error_outline
+                            </span>
+                            {errorMsg}
+                        </div>
+                    )}
+
+                    {loading && !errorMsg && (
+                        <div className={styles.loading}>
+                            <span className="material-icons-round" style={{ fontSize: 28 }}>
+                                hourglass_top
+                            </span>
+                            Đang tải dữ liệu...
+                        </div>
+                    )}
+
+                    {!loading && detail && tab === 'overview' && (
+                        <div className={styles.section}>
+                            <div className={styles.grid2}>
+                                <InfoBlock icon="payments" label="Giá cơ bản" value={formatVnd(detail.basePrice)} />
+                                <InfoBlock
+                                    icon="schedule"
+                                    label="Thời lượng"
+                                    value={
+                                        detail.durationDays
+                                            ? `${detail.durationDays}N${detail.durationNights ?? ''}Đ`
+                                            : '—'
+                                    }
+                                />
+                                <InfoBlock
+                                    icon="event"
+                                    label="Số lịch khởi hành"
+                                    value={String(detail.sessions?.length ?? 0)}
+                                />
+                                <InfoBlock
+                                    icon="place"
+                                    label="Số địa điểm"
+                                    value={String(detail.locations?.length ?? 0)}
+                                />
+                                <InfoBlock icon="event_available" label="Tạo lúc" value={formatDate(detail.createdAt)} />
+                                <InfoBlock icon="update" label="Cập nhật" value={formatDate(detail.updatedAt)} />
+                            </div>
+
+                            <h3 className={styles.sectionTitle}>Mô tả</h3>
+                            <div className={styles.descriptionBox}>
+                                {detail.description || <em className={styles.muted}>Chưa có mô tả.</em>}
+                            </div>
+                        </div>
+                    )}
+
+                    {!loading && detail && tab === 'itinerary' && (
+                        <div className={styles.section}>
+                            {detail.itineraries?.length ? (
+                                <div className={styles.timeline}>
+                                    {detail.itineraries.map((it) => (
+                                        <div key={it.id} className={styles.timelineItem}>
+                                            <div className={styles.timelineMarker}>
+                                                <span>{it.dayNumber}</span>
+                                            </div>
+                                            <div className={styles.timelineBody}>
+                                                <div className={styles.timelineTitle}>{it.title}</div>
+                                                {it.description && (
+                                                    <p className={styles.timelineDesc}>{it.description}</p>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <EmptyHint icon="event_note" text="Chưa có lịch trình chi tiết cho tour này." />
+                            )}
+                        </div>
+                    )}
+
+                    {!loading && detail && tab === 'locations' && (
+                        <div className={styles.section}>
+                            {detail.locations?.length ? (
+                                <div className={styles.locationList}>
+                                    {detail.locations.map((loc) => (
+                                        <div key={loc.id} className={styles.locationItem}>
+                                            <div className={styles.locationIdx}>{loc.visitOrder}</div>
+                                            <div className={styles.locationInfo}>
+                                                <div className={styles.locationName}>{loc.locationName}</div>
+                                                <div className={styles.locationMeta}>
+                                                    Ngày {loc.dayNumber ?? '?'} •{' '}
+                                                    {loc.latitude != null && loc.longitude != null
+                                                        ? `${Number(loc.latitude).toFixed(4)}, ${Number(loc.longitude).toFixed(4)}`
+                                                        : 'Chưa có toạ độ'}
+                                                </div>
+                                            </div>
+                                            {loc.latitude != null && loc.longitude != null && (
+                                                <a
+                                                    className={styles.mapLink}
+                                                    href={`https://www.google.com/maps?q=${loc.latitude},${loc.longitude}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    title="Mở Google Maps"
+                                                >
+                                                    <span className="material-icons-round" style={{ fontSize: 18 }}>
+                                                        open_in_new
+                                                    </span>
+                                                </a>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <EmptyHint icon="place" text="Chưa có địa điểm nào." />
+                            )}
+                        </div>
+                    )}
+
+                    {!loading && detail && tab === 'sessions' && (
+                        <div className={styles.section}>
+                            {detail.sessions?.length ? (
+                                <table className={styles.sessionTable}>
+                                    <thead>
+                                        <tr>
+                                            <th>Khởi hành</th>
+                                            <th>Kết thúc</th>
+                                            <th>Slot</th>
+                                            <th>HDV</th>
+                                            <th>Trạng thái</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {detail.sessions.map((s) => {
+                                            const total = s.maxParticipants ?? 0;
+                                            const current = s.currentParticipants ?? 0;
+                                            const pct = total > 0 ? Math.min(100, (current / total) * 100) : 0;
+                                            return (
+                                                <tr key={s.id}>
+                                                    <td>{formatDate(s.startDate)}</td>
+                                                    <td>{formatDate(s.endDate)}</td>
+                                                    <td>
+                                                        <div className={styles.spotsCell}>
+                                                            <div className={styles.spotsBar}>
+                                                                <div
+                                                                    className={styles.spotsFill}
+                                                                    style={{ width: `${pct}%` }}
+                                                                />
+                                                            </div>
+                                                            <span>
+                                                                {current}/{total}
+                                                            </span>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        {s.tourGuide ? (
+                                                            <div className={styles.guideCell}>
+                                                                {s.tourGuide.avatarUrl ? (
+                                                                    <img
+                                                                        src={s.tourGuide.avatarUrl}
+                                                                        alt={s.tourGuide.fullName}
+                                                                        className={styles.guideAvatar}
+                                                                    />
+                                                                ) : (
+                                                                    <div className={styles.guideAvatarPh}>
+                                                                        <span className="material-icons-round" style={{ fontSize: 14 }}>
+                                                                            person
+                                                                        </span>
+                                                                    </div>
+                                                                )}
+                                                                <span>{s.tourGuide.fullName}</span>
+                                                            </div>
+                                                        ) : (
+                                                            <span className={styles.muted}>Chưa gán</span>
+                                                        )}
+                                                    </td>
+                                                    <td>{renderStatusBadge(s.status, SESSION_STATUS_LABELS)}</td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            ) : (
+                                <EmptyHint
+                                    icon="calendar_month"
+                                    text="Chưa có lịch khởi hành. Tour đang ở trạng thái Nháp."
+                                />
+                            )}
+                        </div>
+                    )}
+
+                    {!loading && detail && tab === 'media' && (
+                        <div className={styles.section}>
+                            <h3 className={styles.sectionTitle}>
+                                Ảnh ({detail.images?.length ?? 0})
+                            </h3>
+                            {detail.images?.length ? (
+                                <div className={styles.imageGrid}>
+                                    {detail.images.map((img) => (
+                                        <div key={img.id} className={styles.imageCard}>
+                                            <img
+                                                src={img.imageUrl}
+                                                alt={img.caption || ''}
+                                                onError={(e) => {
+                                                    e.currentTarget.src = PLACEHOLDER_IMG;
+                                                }}
+                                            />
+                                            {img.caption && (
+                                                <div className={styles.imageCaption}>{img.caption}</div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <EmptyHint icon="image" text="Chưa có ảnh." />
+                            )}
+
+                            <h3 className={styles.sectionTitle} style={{ marginTop: 20 }}>
+                                Video ({detail.videos?.length ?? 0})
+                            </h3>
+                            {detail.videos?.length ? (
+                                <div className={styles.videoList}>
+                                    {detail.videos.map((v) => (
+                                        <a
+                                            key={v.id}
+                                            href={v.videoUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className={styles.videoCard}
+                                        >
+                                            <img
+                                                src={v.thumbnailUrl || PLACEHOLDER_IMG}
+                                                alt={v.title || 'Video'}
+                                                onError={(e) => {
+                                                    e.currentTarget.src = PLACEHOLDER_IMG;
+                                                }}
+                                            />
+                                            <div className={styles.videoOverlay}>
+                                                <span className="material-icons-round" style={{ fontSize: 32 }}>
+                                                    play_circle
+                                                </span>
+                                            </div>
+                                            <div className={styles.videoMeta}>
+                                                <div className={styles.videoTitle}>{v.title || 'Video'}</div>
+                                                <div className={styles.videoDur}>
+                                                    {formatDuration(v.durationSeconds)}
+                                                </div>
+                                            </div>
+                                        </a>
+                                    ))}
+                                </div>
+                            ) : (
+                                <EmptyHint icon="videocam" text="Chưa có video." />
+                            )}
+                        </div>
+                    )}
+                </div>
+
+                {/* Footer */}
+                <div className={styles.footer}>
+                    <button className={styles.btnGhost} onClick={onClose} type="button">
+                        Đóng
+                    </button>
+                    {detail?.id && (
+                        <button
+                            className={styles.btnPrimary}
+                            onClick={() => onEdit && onEdit(detail)}
+                            type="button"
+                        >
+                            <span className="material-icons-round" style={{ fontSize: 18 }}>
+                                edit
+                            </span>
+                            Chỉnh sửa & lịch trình
+                        </button>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const InfoBlock = ({ icon, label, value }) => (
+    <div className={styles.infoBlock}>
+        <div className={styles.infoIcon}>
+            <span className="material-icons-round" style={{ fontSize: 18 }}>
+                {icon}
+            </span>
+        </div>
+        <div>
+            <div className={styles.infoLabel}>{label}</div>
+            <div className={styles.infoValue}>{value}</div>
+        </div>
+    </div>
+);
+
+const EmptyHint = ({ icon, text }) => (
+    <div className={styles.empty}>
+        <span className="material-icons-round" style={{ fontSize: 28 }}>
+            {icon}
+        </span>
+        <span>{text}</span>
+    </div>
+);
+
+export default TourDetailModal;

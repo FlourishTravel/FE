@@ -69,6 +69,75 @@
     background-color: #059669;
 }
 
+.saveBtn:disabled,
+.refreshBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.refreshBtn {
+    background-color: white;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.refreshBtn:hover:not(:disabled) {
+    border-color: #10b981;
+    color: #10b981;
+}
+
+.dirtyTag {
+    color: #b45309;
+    font-weight: 600;
+    margin-left: 8px;
+}
+
+.banner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+    border: 1px solid transparent;
+    margin-bottom: 16px;
+}
+
+.bannerError {
+    background: #fef2f2;
+    color: #b91c1c;
+    border-color: #fecaca;
+}
+
+.bannerSuccess {
+    background: #ecfdf5;
+    color: #047857;
+    border-color: #a7f3d0;
+}
+
+.bannerClose {
+    margin-left: auto;
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.7;
+}
+
 .builderLayout {
     display: grid;
     grid-template-columns: 2fr 1fr;
@@ -102,12 +171,33 @@
     color: #6b7280;
     white-space: nowrap;
     transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.dayTabCount {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 18px;
+    padding: 0 6px;
+    border-radius: 9px;
+    background: rgba(107, 114, 128, 0.12);
+    color: inherit;
+    font-size: 11px;
+    font-weight: 600;
 }
 
 .dayTabActive {
     color: #10b981;
     border-bottom-color: #10b981;
     background-color: white;
+}
+
+.dayTabActive .dayTabCount {
+    background: rgba(16, 185, 129, 0.18);
 }
 
 .addDayBtn {
@@ -131,7 +221,29 @@
 }
 
 .dayHeader {
-    margin-bottom: 20px;
+    margin-bottom: 16px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.deleteDayBtn {
+    background: white;
+    border: 1px solid #fecaca;
+    color: #b91c1c;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.deleteDayBtn:hover {
+    background: #fef2f2;
 }
 
 .dayHeader input {
@@ -386,4 +498,367 @@
     font-weight: 600;
     color: #111827;
     margin: 0 0 8px 0;
+}
+
+.statIconWarn {
+    background-color: #fffbeb !important;
+    color: #b45309 !important;
+}
+
+/* === DAY META (summary, cover, transport, accommodation) === */
+.metaGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.formField {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 14px;
+}
+
+.formField label {
+    font-size: 12px;
+    color: #4b5563;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.formField input,
+.formField textarea,
+.formField select {
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 9px 12px;
+    font-size: 14px;
+    color: #111827;
+    font-family: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.formField input:focus,
+.formField textarea:focus,
+.formField select:focus {
+    outline: none;
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12);
+}
+
+.formField textarea {
+    resize: vertical;
+}
+
+/* Meals chips */
+.mealRow {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.mealChip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 999px;
+    color: #4b5563;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.mealChip:hover {
+    border-color: #10b981;
+    color: #10b981;
+}
+
+.mealChipActive {
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    border-color: #10b981 !important;
+    color: #047857 !important;
+}
+
+/* Section divider */
+.sectionDivider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 18px 0 14px;
+    color: #6b7280;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.sectionDivider::before,
+.sectionDivider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #e5e7eb, transparent);
+}
+
+/* Activity card enriched */
+.activityActions {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    z-index: 2;
+}
+
+.activityItem:hover .activityActions {
+    opacity: 1;
+}
+
+.iconBtn {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+    background: white;
+    color: #6b7280;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.iconBtn:hover:not(:disabled) {
+    border-color: #10b981;
+    color: #10b981;
+}
+
+.iconBtn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.iconBtnDanger:hover {
+    border-color: #fecaca !important;
+    color: #b91c1c !important;
+    background: #fef2f2;
+}
+
+.activityDot {
+    position: absolute;
+    left: -37px;
+    top: 14px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2ecc71, #10b981);
+    border: 3px solid white;
+    box-shadow: 0 0 0 1px #e5e7eb, 0 4px 8px rgba(16, 185, 129, 0.3);
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.actGridTop {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.timeGroup {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 4px 8px;
+}
+
+.timeGroup input[type="time"] {
+    border: none;
+    background: transparent;
+    font-size: 13px;
+    color: #111827;
+    padding: 4px;
+    font-family: inherit;
+}
+
+.timeGroup input[type="time"]:focus {
+    outline: none;
+}
+
+.timeSep {
+    color: #9ca3af;
+    font-size: 13px;
+}
+
+.durTag {
+    background: #ecfdf5;
+    color: #047857;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-left: 4px;
+}
+
+.typeSelect {
+    padding: 6px 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: white;
+    font-size: 13px;
+    color: #374151;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.typeSelect:focus {
+    outline: none;
+    border-color: #10b981;
+}
+
+.actTitle {
+    width: 100%;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 9px 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 10px;
+    font-family: inherit;
+}
+
+.actTitle:focus {
+    outline: none;
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12);
+}
+
+.actGridGeo {
+    display: grid;
+    grid-template-columns: 2fr 2fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.geoInput {
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 12px;
+    font-family: 'Inter', sans-serif;
+    color: #374151;
+}
+
+.geoInput:focus {
+    outline: none;
+    border-color: #10b981;
+}
+
+.actGridMedia {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.actGridMedia input {
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 13px;
+    font-family: inherit;
+}
+
+.actGridMedia input:focus {
+    outline: none;
+    border-color: #10b981;
+}
+
+.costGroup {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.costGroup input {
+    flex: 1;
+    min-width: 0;
+}
+
+.includedToggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: #4b5563;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.includedToggle input {
+    accent-color: #10b981;
+}
+
+/* Tags row */
+.tagsRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 10px;
+}
+
+.tagChip {
+    padding: 3px 8px;
+    border-radius: 999px;
+    border: 1px solid #e5e7eb;
+    background: white;
+    color: #6b7280;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+
+.tagChip:hover {
+    border-color: #10b981;
+    color: #10b981;
+}
+
+.tagChipActive {
+    background: #ecfdf5 !important;
+    border-color: #10b981 !important;
+    color: #047857 !important;
+    font-weight: 600;
+}
+
+@media (max-width: 1024px) {
+    .builderLayout {
+        grid-template-columns: 1fr;
+    }
+    .metaGrid {
+        grid-template-columns: 1fr;
+    }
+    .actGridGeo {
+        grid-template-columns: 1fr 1fr;
+    }
+    .actGridMedia {
+        grid-template-columns: 1fr;
+    }
 }

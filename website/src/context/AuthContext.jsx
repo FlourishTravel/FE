@@ -1,24 +1,37 @@
 import React, { createContext, useContext, useState } from 'react';
+import {
+    loginApi,
+    registerApi,
+    logoutApi,
+    saveAuthTokens,
+    clearAuthTokens,
+    getRefreshToken,
+} from '../api/auth';
 
 const STORAGE_KEY = 'flourish_user';
 
-// Data cứng: tài khoản mẫu để đăng nhập
-export const MOCK_CREDENTIALS = {
-    email: 'demo@flourish.com',
-    password: 'flourish123',
+/**
+ * Role mapping giữa Backend và Frontend.
+ *  - Backend (RoleSeeder): ADMIN | TOUR_GUIDE | TRAVELER
+ *  - Frontend (ProtectedRoute, UI):     admin | guide      | user
+ */
+const ROLE_MAP_BE_TO_FE = {
+    ADMIN: 'admin',
+    TOUR_GUIDE: 'guide',
+    TRAVELER: 'user',
 };
 
-// Admin credentials
-export const ADMIN_CREDENTIALS = {
-    email: 'admin@flourish.com',
-    password: 'admin123',
+const normalizeRole = (role) => {
+    if (!role) return 'user';
+    return ROLE_MAP_BE_TO_FE[role] || role.toLowerCase();
 };
 
-// Guide credentials
-export const GUIDE_CREDENTIALS = {
-    email: 'guide@flourish.com',
-    password: 'guide123',
-};
+// =========================
+// MOCK fallback (chỉ dùng khi BE chưa chạy – tiện cho dev)
+// =========================
+export const MOCK_CREDENTIALS = { email: 'demo@flourish.com', password: 'flourish123' };
+export const ADMIN_CREDENTIALS = { email: 'admin@flourish.com', password: 'admin123' };
+export const GUIDE_CREDENTIALS = { email: 'guide@flourish.com', password: 'guide123' };
 
 export const MOCK_USER = {
     id: 1,
@@ -73,54 +86,117 @@ export const useAuth = () => {
     return ctx;
 };
 
+/** Chuẩn hoá user trả về từ BE để FE dùng đồng nhất. */
+const mapBackendUser = (beUser) => {
+    if (!beUser) return null;
+    return {
+        id: beUser.id,
+        email: beUser.email,
+        name: beUser.fullName || beUser.name || beUser.email,
+        avatar: beUser.avatarUrl || beUser.avatar || null,
+        role: normalizeRole(beUser.role),
+        rawRole: beUser.role,
+    };
+};
+
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(getStoredUser);
+    const [loading, setLoading] = useState(false);
 
-    const login = (userData) => {
+    const persistUser = (userData) => {
         setUser(userData);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
+        if (userData) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
+        } else {
+            localStorage.removeItem(STORAGE_KEY);
+        }
     };
 
-    const logout = () => {
-        setUser(null);
-        localStorage.removeItem(STORAGE_KEY);
+    /** Đăng nhập qua API thật. Trả về user (đã map role) hoặc throw Error. */
+    const loginWithApi = async (email, password) => {
+        setLoading(true);
+        try {
+            const data = await loginApi(email.trim(), password);
+            if (!data) throw new Error('Không nhận được dữ liệu đăng nhập');
+            saveAuthTokens({
+                accessToken: data.accessToken,
+                refreshToken: data.refreshToken,
+            });
+            const mapped = mapBackendUser(data.user);
+            persistUser(mapped);
+            return mapped;
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    /** Đăng ký qua API thật. Sau khi đăng ký BE đã trả tokens nên tự động đăng nhập luôn. */
+    const registerWithApi = async ({ email, password, fullName, phone }) => {
+        setLoading(true);
+        try {
+            const data = await registerApi({ email: email.trim(), password, fullName, phone });
+            if (!data) throw new Error('Không nhận được dữ liệu đăng ký');
+            saveAuthTokens({
+                accessToken: data.accessToken,
+                refreshToken: data.refreshToken,
+            });
+            const mapped = mapBackendUser(data.user);
+            persistUser(mapped);
+            return mapped;
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    /** Đăng nhập bằng dữ liệu mock (legacy, vẫn giữ để Login.jsx fallback khi BE chưa chạy). */
+    const login = (userData) => {
+        persistUser(userData);
+    };
+
+    const logout = async () => {
+        const refreshToken = getRefreshToken();
+        await logoutApi(refreshToken);
+        clearAuthTokens();
+        persistUser(null);
     };
 
     const updateUser = (updatedData) => {
         const newUser = { ...user, ...updatedData };
-        setUser(newUser);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(newUser));
+        persistUser(newUser);
     };
 
-    const checkCredentials = (email, password) => {
-        return (
-            email.toLowerCase().trim() === MOCK_CREDENTIALS.email &&
-            password === MOCK_CREDENTIALS.password
-        );
-    };
+    // ===== Legacy mock helpers (giữ lại để Login.jsx tương thích ngược) =====
+    const checkCredentials = (email, password) =>
+        email.toLowerCase().trim() === MOCK_CREDENTIALS.email &&
+        password === MOCK_CREDENTIALS.password;
 
-    const checkAdminCredentials = (email, password) => {
-        return (
-            email.toLowerCase().trim() === ADMIN_CREDENTIALS.email &&
-            password === ADMIN_CREDENTIALS.password
-        );
-    };
+    const checkAdminCredentials = (email, password) =>
+        email.toLowerCase().trim() === ADMIN_CREDENTIALS.email &&
+        password === ADMIN_CREDENTIALS.password;
 
-    const checkGuideCredentials = (email, password) => {
-        return (
-            email.toLowerCase().trim() === GUIDE_CREDENTIALS.email &&
-            password === GUIDE_CREDENTIALS.password
-        );
-    };
+    const checkGuideCredentials = (email, password) =>
+        email.toLowerCase().trim() === GUIDE_CREDENTIALS.email &&
+        password === GUIDE_CREDENTIALS.password;
 
     const isAdmin = user?.role === 'admin';
     const isGuide = user?.role === 'guide';
 
-    const value = { 
-        user, login, logout, updateUser, 
-        checkCredentials, checkAdminCredentials, checkGuideCredentials,
-        isAdmin, isGuide, 
-        MOCK_USER, MOCK_ADMIN, MOCK_GUIDE 
+    const value = {
+        user,
+        loading,
+        login,
+        loginWithApi,
+        registerWithApi,
+        logout,
+        updateUser,
+        checkCredentials,
+        checkAdminCredentials,
+        checkGuideCredentials,
+        isAdmin,
+        isGuide,
+        MOCK_USER,
+        MOCK_ADMIN,
+        MOCK_GUIDE,
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

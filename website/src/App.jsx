@@ -38,6 +38,7 @@ import AdminLayout from './pages/admin/AdminLayout';
 import ProtectedAdminRoute from './pages/admin/components/ProtectedAdminRoute';
 import Dashboard from './pages/admin/pages/Dashboard';
 import TourManagement from './pages/admin/pages/TourManagement';
+import CategoryManagement from './pages/admin/pages/CategoryManagement';
 import TourItineraryBuilder from './pages/admin/pages/TourItineraryBuilder';
 import TourDispatch from './pages/admin/pages/TourDispatch';
 import BookingManagement from './pages/admin/pages/BookingManagement';
@@ -102,6 +103,7 @@ function App() {
         <Route path="/admin" element={<ProtectedAdminRoute><AdminLayout /></ProtectedAdminRoute>}>
           <Route index element={<Dashboard />} />
           <Route path="tours" element={<TourManagement />} />
+          <Route path="categories" element={<CategoryManagement />} />
           <Route path="tours/itinerary/:tourId" element={<TourItineraryBuilder />} />
           <Route path="dispatch" element={<TourDispatch />} />
           <Route path="bookings" element={<BookingManagement />} />

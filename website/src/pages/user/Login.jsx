@@ -10,23 +10,68 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
+    const [submitting, setSubmitting] = useState(false);
     const navigate = useNavigate();
-    const { login, checkCredentials, MOCK_USER, checkAdminCredentials, MOCK_ADMIN, checkGuideCredentials, MOCK_GUIDE } = useAuth();
+    const {
+        login,
+        loginWithApi,
+        checkCredentials,
+        MOCK_USER,
+        checkAdminCredentials,
+        MOCK_ADMIN,
+        checkGuideCredentials,
+        MOCK_GUIDE,
+    } = useAuth();
 
-    const handleSubmit = (e) => {
+    // Điều hướng sau khi đăng nhập theo role (đã được AuthContext chuẩn hoá: admin/guide/user)
+    const redirectByRole = (role) => {
+        if (role === 'admin') navigate('/admin');
+        else if (role === 'guide') navigate('/guide');
+        else navigate('/profile');
+    };
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
-        if (checkAdminCredentials(email, password)) {
-            login(MOCK_ADMIN);
-            navigate('/admin');
-        } else if (checkGuideCredentials(email, password)) {
-            login(MOCK_GUIDE);
-            navigate('/guide');
-        } else if (checkCredentials(email, password)) {
-            login(MOCK_USER);
-            navigate('/profile');
-        } else {
-            setError('Email hoặc mật khẩu không đúng. Thử:\nUser: demo@flourish.com / flourish123\nAdmin: admin@flourish.com / admin123\nGuide: guide@flourish.com / guide123');
+        setSubmitting(true);
+
+        try {
+            // 1) Ưu tiên gọi BE thật (POST /api/auth/login)
+            const apiUser = await loginWithApi(email, password);
+            redirectByRole(apiUser?.role);
+            return;
+        } catch (err) {
+            // 2) Fallback sang mock CHỈ khi BE không kết nối được (network error / 5xx),
+            //    giúp dev demo UI khi backend đang tắt.
+            const isNetworkError = !err?.status || err.status >= 500;
+            if (isNetworkError) {
+                if (checkAdminCredentials(email, password)) {
+                    login(MOCK_ADMIN);
+                    navigate('/admin');
+                    return;
+                }
+                if (checkGuideCredentials(email, password)) {
+                    login(MOCK_GUIDE);
+                    navigate('/guide');
+                    return;
+                }
+                if (checkCredentials(email, password)) {
+                    login(MOCK_USER);
+                    navigate('/profile');
+                    return;
+                }
+                setError(
+                    'Không kết nối được máy chủ. Tài khoản demo offline:\n' +
+                    'User: demo@flourish.com / flourish123\n' +
+                    'Admin: admin@flourish.com / admin123\n' +
+                    'Guide: guide@flourish.com / guide123'
+                );
+            } else {
+                // BE trả lỗi (401/400) -> hiển thị message từ server
+                setError(err?.message || 'Email hoặc mật khẩu không đúng.');
+            }
+        } finally {
+            setSubmitting(false);
         }
     };
 
@@ -104,8 +149,8 @@ const Login = () => {
                     {error && <p className={styles.errorMsg}>{error}</p>}
 
                     {/* Sign In Button */}
-                    <button type="submit" className={styles.signInBtn}>
-                        Sign In <ArrowRight className={styles.arrowIcon} />
+                    <button type="submit" className={styles.signInBtn} disabled={submitting}>
+                        {submitting ? 'Đang đăng nhập...' : 'Sign In'} <ArrowRight className={styles.arrowIcon} />
                     </button>
                 </form>
 

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, User, Phone, CheckCircle, Ticket, ArrowLeft } from 'lucide-react';
 import styles from './Register.module.css';
 import logo from '../../assets/LogoFlourish\'.jpg';
+import { useAuth } from '../../context/AuthContext';
 
 const Register = () => {
     const [formData, setFormData] = useState({
@@ -16,7 +17,10 @@ const Register = () => {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [agreeTerms, setAgreeTerms] = useState(false);
     const [errors, setErrors] = useState({});
+    const [submitError, setSubmitError] = useState('');
+    const [submitting, setSubmitting] = useState(false);
     const navigate = useNavigate();
+    const { registerWithApi } = useAuth();
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -43,9 +47,45 @@ const Register = () => {
         setFormData({ ...formData, [name]: value });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Register:', formData);
+        setSubmitError('');
+
+        // Client-side validations cuối cùng trước khi gửi
+        if (Object.keys(errors).length > 0) {
+            setSubmitError('Vui lòng sửa các lỗi nhập liệu phía trên.');
+            return;
+        }
+        if (formData.password.length < 6) {
+            setSubmitError('Mật khẩu tối thiểu 6 ký tự.');
+            return;
+        }
+        if (formData.password !== formData.confirmPassword) {
+            setSubmitError('Mật khẩu xác nhận không khớp.');
+            return;
+        }
+        if (!agreeTerms) {
+            setSubmitError('Bạn cần đồng ý với Điều khoản dịch vụ và Chính sách bảo mật.');
+            return;
+        }
+
+        setSubmitting(true);
+        try {
+            const newUser = await registerWithApi({
+                email: formData.email,
+                password: formData.password,
+                fullName: formData.fullName,
+                phone: formData.phone,
+            });
+            // Sau khi BE trả token, auto đăng nhập -> điều hướng theo role
+            if (newUser?.role === 'admin') navigate('/admin');
+            else if (newUser?.role === 'guide') navigate('/guide');
+            else navigate('/profile');
+        } catch (err) {
+            setSubmitError(err?.message || 'Đăng ký thất bại. Vui lòng thử lại.');
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     const scrollToTop = () => {
@@ -198,9 +238,15 @@ const Register = () => {
                         </label>
                     </div>
 
+                    {submitError && (
+                        <span className={styles.errorText} style={{ display: 'block', whiteSpace: 'pre-line' }}>
+                            {submitError}
+                        </span>
+                    )}
+
                     {/* Sign Up Button */}
-                    <button type="submit" className={styles.signUpBtn}>
-                        Đăng Ký <CheckCircle className={styles.checkIcon} />
+                    <button type="submit" className={styles.signUpBtn} disabled={submitting}>
+                        {submitting ? 'Đang đăng ký...' : 'Đăng Ký'} <CheckCircle className={styles.checkIcon} />
                     </button>
                 </form>
 
