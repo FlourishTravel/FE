@@ -5,6 +5,8 @@ token.json
 
 # Temporary/intermediate files
 .tmp/
+.commit-msg.tmp
+*.commit-msg.tmp
 *.pyc
 __pycache__/
 
