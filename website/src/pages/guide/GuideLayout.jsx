@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import styles from './GuideLayout.module.css';
+import logoImg from '../../assets/LogoFlourish\'.jpg';
 
 const NAV_ITEMS = [
     { path: '/guide', icon: 'dashboard', label: 'Bảng điều khiển', end: true },
@@ -26,8 +27,8 @@ const GuideLayout = () => {
             <aside className={`${styles.sidebar} ${sidebarCollapsed ? styles.collapsed : ''}`}>
                 <div className={styles.sidebarHeader}>
                     <div className={styles.logoArea}>
-                        <div className={styles.logoIcon}>
-                            <span className="material-icons-round">spa</span>
+                        <div className={styles.logoIconContainer}>
+                            <img src={logoImg} alt="Flourish HDV Logo" className={styles.guideLogoImage} />
                         </div>
                         {!sidebarCollapsed && (
                             <div className={styles.logoText}>
@@ -36,6 +37,14 @@ const GuideLayout = () => {
                             </div>
                         )}
                     </div>
+                    <button
+                        className={styles.collapseBtn}
+                        onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                    >
+                        <span className="material-icons-round">
+                            {sidebarCollapsed ? 'chevron_right' : 'chevron_left'}
+                        </span>
+                    </button>
                 </div>
 
                 <nav className={styles.nav}>
