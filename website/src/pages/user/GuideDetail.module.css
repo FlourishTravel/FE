@@ -1,0 +1,457 @@
+@import "tailwindcss";
+@reference "../../index.css";
+
+/* ===== PAGE ===== */
+.pageContainer {
+    @apply min-h-screen bg-gray-50;
+}
+
+/* ===== COVER ===== */
+.coverSection {
+    @apply relative h-64 md:h-80;
+    overflow: hidden;
+}
+
+.coverImage {
+    @apply w-full h-full object-cover;
+}
+
+.coverOverlay {
+    @apply absolute inset-0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.5) 100%);
+}
+
+.backBtn {
+    @apply absolute top-24 left-6 flex items-center gap-1.5 text-sm font-medium text-white px-4 py-2 rounded-full cursor-pointer;
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: background 0.2s;
+}
+
+.backBtn:hover {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.backIcon {
+    @apply w-4 h-4;
+}
+
+/* ===== CONTAINER ===== */
+.container {
+    @apply container-custom px-4 sm:px-6 pb-16;
+    margin-top: -60px;
+    position: relative;
+    z-index: 10;
+}
+
+/* ===== PROFILE HEADER ===== */
+.profileHeader {
+    @apply flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 p-6 bg-white rounded-2xl;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+.profileLeft {
+    @apply flex items-center gap-5;
+}
+
+.avatarSection {
+    @apply relative flex-shrink-0;
+}
+
+.avatar {
+    @apply w-24 h-24 md:w-28 md:h-28 rounded-full object-cover;
+    border: 4px solid white;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.verifiedBadge {
+    @apply absolute bottom-1 right-1 w-7 h-7 flex items-center justify-center text-xs text-white font-bold rounded-full;
+    background: var(--color-primary-500);
+    border: 3px solid white;
+}
+
+.profileInfo {
+    @apply flex flex-col;
+}
+
+.profileName {
+    @apply text-2xl md:text-3xl font-serif font-bold text-gray-900;
+}
+
+.profileRole {
+    @apply text-sm font-medium mb-2;
+    color: var(--color-primary-600);
+}
+
+.profileMeta {
+    @apply flex flex-wrap gap-3;
+}
+
+.metaItem {
+    @apply flex items-center gap-1.5 text-sm text-gray-500;
+}
+
+.metaIcon {
+    @apply w-3.5 h-3.5;
+    color: var(--color-primary-500);
+}
+
+/* Profile Actions */
+.profileActions {
+    @apply flex gap-3;
+}
+
+.saveBtn {
+    @apply flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium cursor-pointer transition-all;
+    background: white;
+    border: 1.5px solid #e5e7eb;
+    color: #374151;
+}
+
+.saveBtn:hover {
+    border-color: #f87171;
+    color: #ef4444;
+}
+
+.saveBtnActive {
+    background: #fef2f2 !important;
+    border-color: #f87171 !important;
+    color: #ef4444 !important;
+}
+
+.saveBtnIcon {
+    @apply w-4 h-4;
+}
+
+.saveBtnActive .saveBtnIcon {
+    fill: currentColor;
+}
+
+.contactBtn {
+    @apply flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium text-white cursor-pointer transition-all;
+    background: var(--color-primary-500);
+    border: none;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+}
+
+.contactBtn:hover {
+    background: var(--color-primary-600);
+    transform: translateY(-1px);
+}
+
+.contactBtnIcon {
+    @apply w-4 h-4;
+}
+
+/* ===== STATS GRID ===== */
+.statsGrid {
+    @apply grid grid-cols-2 md:grid-cols-4 gap-4 mb-8;
+}
+
+.statCard {
+    @apply bg-white rounded-xl p-5 text-center;
+    border: 1px solid #f0f0f0;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+}
+
+.statValue {
+    @apply text-2xl font-bold text-gray-900 flex items-center justify-center gap-1.5 mb-1;
+}
+
+.statIconStar {
+    @apply w-5 h-5;
+    color: #f59e0b;
+    fill: #f59e0b;
+}
+
+.statLabel {
+    @apply text-sm text-gray-500;
+}
+
+/* ===== CONTENT GRID ===== */
+.contentGrid {
+    @apply grid grid-cols-1 lg:grid-cols-3 gap-8;
+}
+
+.leftCol {
+    @apply lg:col-span-2;
+}
+
+.rightCol {
+    @apply lg:col-span-1;
+}
+
+/* ===== SECTIONS ===== */
+.section {
+    @apply bg-white rounded-2xl p-6 mb-6;
+    border: 1px solid #f0f0f0;
+}
+
+.sectionHeader {
+    @apply flex items-center justify-between mb-4;
+}
+
+.sectionTitle {
+    @apply text-xl font-serif font-bold text-gray-900 mb-4;
+}
+
+.sectionHeader .sectionTitle {
+    @apply mb-0;
+}
+
+.sectionBadge {
+    @apply inline-flex items-center gap-1.5 text-sm font-bold px-3 py-1.5 rounded-full;
+    background: #fffbeb;
+    color: #b45309;
+}
+
+.sectionBadgeIcon {
+    @apply w-4 h-4;
+    fill: #f59e0b;
+    color: #f59e0b;
+}
+
+.bioText {
+    @apply text-gray-600 text-sm mb-3;
+    line-height: 1.7;
+}
+
+/* Tag Groups */
+.tagGroup {
+    @apply mb-4;
+}
+
+.tagGroup:last-child {
+    @apply mb-0;
+}
+
+.tagGroupTitle {
+    @apply text-sm font-semibold text-gray-700 mb-2;
+}
+
+.tagRow {
+    @apply flex flex-wrap gap-2;
+}
+
+.specialtyTag {
+    @apply text-xs font-medium px-3 py-1.5 rounded-full;
+    background: var(--color-primary-50);
+    color: var(--color-primary-700);
+}
+
+.langTag {
+    @apply inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full;
+    background: #f0f9ff;
+    color: #0369a1;
+}
+
+.langIcon {
+    @apply w-3 h-3;
+}
+
+.awardBadge {
+    @apply inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full;
+    background: #fffbeb;
+    color: #b45309;
+    border: 1px solid #fde68a;
+}
+
+.awardIcon {
+    @apply w-3 h-3;
+}
+
+/* ===== REVIEWS ===== */
+.reviewList {
+    @apply space-y-4;
+}
+
+.reviewCard {
+    @apply p-4 rounded-xl;
+    background: #fafafa;
+    border: 1px solid #f0f0f0;
+}
+
+.reviewHeader {
+    @apply flex items-center gap-3 mb-3;
+}
+
+.reviewAvatar {
+    @apply w-10 h-10 rounded-full object-cover flex-shrink-0;
+}
+
+.reviewInfo {
+    @apply flex-1;
+}
+
+.reviewName {
+    @apply block text-sm font-semibold text-gray-900;
+}
+
+.reviewDate {
+    @apply text-xs text-gray-500;
+}
+
+.reviewStars {
+    @apply flex gap-0.5;
+}
+
+.reviewStar {
+    @apply w-3.5 h-3.5;
+}
+
+.starFilled {
+    color: #f59e0b;
+    fill: #f59e0b;
+}
+
+.starEmpty {
+    color: #d1d5db;
+}
+
+.reviewComment {
+    @apply text-sm text-gray-600;
+    line-height: 1.6;
+}
+
+/* ===== STICKY CARD ===== */
+.stickyCard {
+    @apply bg-white rounded-2xl p-6 sticky top-24;
+    border: 1px solid #f0f0f0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.stickyCardTitle {
+    @apply text-lg font-serif font-bold text-gray-900 mb-4;
+}
+
+/* Tour Card */
+.tourCardLink {
+    @apply block no-underline mb-4;
+    color: inherit;
+}
+
+.tourCard {
+    @apply rounded-xl overflow-hidden;
+    border: 1px solid #f0f0f0;
+    transition: box-shadow 0.2s;
+}
+
+.tourCardLink:hover .tourCard {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.tourCardImage {
+    @apply w-full h-36 object-cover;
+}
+
+.tourCardContent {
+    @apply p-4;
+}
+
+.tourCardTitle {
+    @apply text-base font-bold text-gray-900 mb-2;
+}
+
+.tourCardMeta {
+    @apply flex gap-4 mb-2;
+}
+
+.tourCardMeta span {
+    @apply flex items-center gap-1 text-xs text-gray-500;
+}
+
+.tourMetaIcon {
+    @apply w-3.5 h-3.5;
+    color: var(--color-primary-500);
+}
+
+.tourCardPrice {
+    @apply flex items-baseline gap-1.5 mb-2;
+}
+
+.tourPriceLabel {
+    @apply text-xs text-gray-500;
+}
+
+.tourPriceValue {
+    @apply text-lg font-bold;
+    color: var(--color-primary-600);
+}
+
+.tourNextDate {
+    @apply flex items-center gap-1.5 text-xs text-gray-500 pt-2;
+    border-top: 1px solid #f0f0f0;
+}
+
+/* Response Info */
+.responseInfo {
+    @apply space-y-3 mb-5 pt-4;
+    border-top: 1px solid #f0f0f0;
+}
+
+.responseItem {
+    @apply flex items-center gap-3;
+}
+
+.responseIcon {
+    @apply w-5 h-5;
+    color: var(--color-primary-500);
+}
+
+.responseLabel {
+    @apply text-xs text-gray-500;
+}
+
+.responseValue {
+    @apply text-sm font-semibold text-gray-900;
+}
+
+/* Book Button */
+.bookWithGuideBtn {
+    @apply w-full py-3 rounded-full text-sm font-semibold text-white cursor-pointer transition-all;
+    background: var(--color-primary-500);
+    border: none;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+}
+
+.bookWithGuideBtn:hover {
+    background: var(--color-primary-600);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .coverSection {
+        @apply h-48;
+    }
+
+    .profileHeader {
+        @apply flex-col items-start;
+    }
+
+    .profileLeft {
+        @apply flex-col items-start;
+    }
+
+    .avatar {
+        @apply w-20 h-20;
+    }
+
+    .profileName {
+        @apply text-xl;
+    }
+
+    .profileActions {
+        @apply w-full;
+    }
+
+    .saveBtn, .contactBtn {
+        @apply flex-1 justify-center;
+    }
+
+    .statsGrid {
+        @apply grid-cols-2;
+    }
+}

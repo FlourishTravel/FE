@@ -79,7 +79,7 @@ const Register = () => {
             });
             // Sau khi BE trả token, auto đăng nhập -> điều hướng theo role
             if (newUser?.role === 'admin') navigate('/admin');
-            else if (newUser?.role === 'guide') navigate('/guide');
+            else if (newUser?.role === 'guide') navigate('/guide/dashboard');
             else navigate('/profile');
         } catch (err) {
             setSubmitError(err?.message || 'Đăng ký thất bại. Vui lòng thử lại.');

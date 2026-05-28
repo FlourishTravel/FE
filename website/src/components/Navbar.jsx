@@ -1,17 +1,25 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Plane, MapPin, BookOpen, Compass, Search, Phone, User } from 'lucide-react';
+import { Menu, X, Plane, MapPin, BookOpen, Compass } from 'lucide-react';
 import styles from './Navbar.module.css';
 import logo from '../assets/LogoFlourish\'.jpg';
 import { useAuth } from '../context/AuthContext';
-
-const HOTLINE = '1900 1234'; // Thay bằng số hotline thật
 
 const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
     const location = useLocation();
     const pathname = location.pathname;
     const { user } = useAuth();
+
+    const accountLabel = user?.name || user?.email || 'User';
+
+    const getInitials = (label) => {
+        const safeLabel = (label || '').trim();
+        if (!safeLabel) return 'U';
+        const parts = safeLabel.split(/\s+/).filter(Boolean);
+        if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+        return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+    };
 
     const navLinks = [
         { name: 'Chuyến đi của tôi', icon: MapPin, href: '/my-journey' },
@@ -50,16 +58,23 @@ const Navbar = () => {
                         ))}
                     </div>
 
-                    {/* Search, Hotline & Auth */}
+                    {/* Auth */}
                     <div className={styles.authContainer}>
-                        <a href={`tel:${HOTLINE.replace(/\s/g, '')}`} className={styles.hotline} title="Hotline">
-                            <Phone className={styles.navIcon} />
-                            <span className={styles.hotlineText}>{HOTLINE}</span>
-                        </a>
                         {user ? (
-                            <Link to="/profile" className={pathname === '/profile' ? `${styles.signInBtn} ${styles.navLinkActive}` : styles.signInBtn}>
-                                <User className={styles.navIcon} />
-                                Tài khoản
+                            <Link
+                                to="/profile"
+                                className={styles.accountBtn}
+                                title="Tai khoan"
+                                aria-label="Tai khoan"
+                            >
+                                <span className={styles.accountAvatarWrap}>
+                                    {user.avatar ? (
+                                        <img src={user.avatar} alt={accountLabel} className={styles.accountAvatar} />
+                                    ) : (
+                                        <span className={styles.accountFallback}>{getInitials(accountLabel)}</span>
+                                    )}
+                                </span>
+                                <span className={styles.accountName}>{accountLabel}</span>
                             </Link>
                         ) : (
                             <>
@@ -100,15 +115,17 @@ const Navbar = () => {
                                 {link.name}
                             </Link>
                         ))}
-                        <a href={`tel:${HOTLINE.replace(/\s/g, '')}`} className={styles.mobileHotline} onClick={() => setIsOpen(false)}>
-                            <Phone className="w-5 h-5" />
-                            Hotline: {HOTLINE}
-                        </a>
                         <div className={styles.mobileAuthContainer}>
                             {user ? (
-                                <Link to="/profile" className={styles.mobileSignInBtn} onClick={() => setIsOpen(false)}>
-                                    <User className="w-5 h-5" />
-                                    Tài khoản
+                                <Link to="/profile" className={styles.mobileAccountBtn} onClick={() => setIsOpen(false)}>
+                                    <span className={styles.mobileAccountAvatar}>
+                                        {user.avatar ? (
+                                            <img src={user.avatar} alt={accountLabel} className={styles.accountAvatar} />
+                                        ) : (
+                                            <span className={styles.accountFallback}>{getInitials(accountLabel)}</span>
+                                        )}
+                                    </span>
+                                    <span className={styles.accountName}>{accountLabel}</span>
                                 </Link>
                             ) : (
                                 <>

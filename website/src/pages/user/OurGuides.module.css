@@ -1,0 +1,393 @@
+@import "tailwindcss";
+@reference "../../index.css";
+
+/* ===== PAGE CONTAINER ===== */
+.pageContainer {
+    @apply min-h-screen bg-gray-50;
+}
+
+/* ===== HERO SECTION ===== */
+.heroSection {
+    @apply relative flex items-center justify-center text-center;
+    padding-top: 120px;
+    padding-bottom: 80px;
+    background: linear-gradient(135deg, #047857 0%, #10b981 40%, #34d399 100%);
+    overflow: hidden;
+}
+
+.heroSection::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    pointer-events: none;
+}
+
+.heroSection::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -10%;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.03);
+    pointer-events: none;
+}
+
+.heroOverlay {
+    @apply absolute inset-0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+.heroContent {
+    @apply relative z-10 container-custom px-4 sm:px-6;
+}
+
+.heroBadge {
+    @apply inline-flex items-center gap-2 text-sm font-semibold text-white/90 mb-4;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 8px 20px;
+    border-radius: 9999px;
+}
+
+.heroBadgeIcon {
+    @apply w-4 h-4;
+}
+
+.heroTitle {
+    @apply text-3xl md:text-5xl font-serif font-bold text-white mb-4;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.heroSubtitle {
+    @apply text-lg md:text-xl text-white/85 max-w-2xl mx-auto mb-8;
+    line-height: 1.7;
+}
+
+/* ===== SEARCH BAR ===== */
+.searchBar {
+    @apply flex items-center max-w-xl mx-auto;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 9999px;
+    padding: 6px 6px 6px 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    transition: box-shadow 0.3s ease;
+}
+
+.searchBar:focus-within {
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18);
+}
+
+.searchIcon {
+    @apply w-5 h-5 text-gray-400 flex-shrink-0;
+}
+
+.searchInput {
+    @apply flex-1 text-sm text-gray-800 placeholder-gray-400;
+    border: none;
+    outline: none;
+    background: transparent;
+    padding: 12px;
+    font-family: 'Inter', sans-serif;
+}
+
+/* ===== CONTAINER ===== */
+.container {
+    @apply container-custom px-4 sm:px-6;
+    padding-top: 40px;
+    padding-bottom: 60px;
+}
+
+/* ===== FILTER SECTION ===== */
+.filterSection {
+    @apply mb-8;
+}
+
+.filterRow {
+    @apply flex flex-wrap gap-2 mb-4;
+}
+
+.filterPill {
+    @apply text-sm font-medium px-5 py-2 rounded-full border transition-all duration-200 cursor-pointer;
+    background: white;
+    border-color: #e5e7eb;
+    color: #4b5563;
+}
+
+.filterPill:hover {
+    border-color: var(--color-primary-400);
+    color: var(--color-primary-600);
+    background: var(--color-primary-50);
+}
+
+.filterPillActive {
+    @apply text-white border-transparent;
+    background: var(--color-primary-500) !important;
+    color: white !important;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.resultCount {
+    @apply text-sm text-gray-500;
+}
+
+/* ===== GUIDE CARDS GRID ===== */
+.grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+}
+
+.cardLink {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    transition: transform 0.25s ease;
+}
+
+.cardLink:hover {
+    transform: translateY(-6px);
+}
+
+/* ===== CARD ===== */
+.card {
+    @apply bg-white rounded-2xl overflow-hidden flex flex-col h-full;
+    border: 1px solid #f0f0f0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
+    transition: box-shadow 0.3s ease;
+}
+
+.cardLink:hover .card {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(16, 185, 129, 0.08);
+}
+
+/* Card Header */
+.cardHeader {
+    @apply relative flex items-center justify-between p-5 pb-0;
+}
+
+.avatarWrap {
+    @apply relative;
+}
+
+.avatar {
+    @apply w-20 h-20 rounded-full object-cover;
+    border: 3px solid var(--color-primary-100);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+}
+
+.verifiedBadge {
+    @apply absolute -bottom-0.5 -right-0.5 w-6 h-6 flex items-center justify-center text-xs text-white font-bold rounded-full;
+    background: var(--color-primary-500);
+    border: 2px solid white;
+    box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
+}
+
+.heartBtn {
+    @apply p-2 rounded-full transition-all duration-200 cursor-pointer;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+}
+
+.heartBtn:hover {
+    background: #fef2f2;
+    border-color: #fecaca;
+}
+
+.heartActive {
+    background: #fef2f2 !important;
+    border-color: #f87171 !important;
+}
+
+.heartIcon {
+    @apply w-4 h-4 text-gray-400;
+}
+
+.heartActive .heartIcon {
+    @apply text-red-500;
+    fill: currentColor;
+}
+
+/* Card Body */
+.cardBody {
+    @apply p-5 flex-1 flex flex-col;
+}
+
+.guideName {
+    @apply text-xl font-bold text-gray-900 mb-0.5;
+    font-family: 'Playfair Display', serif;
+}
+
+.guideRole {
+    @apply text-sm font-medium mb-3;
+    color: var(--color-primary-600);
+}
+
+.ratingRow {
+    @apply flex items-center gap-1.5 mb-3;
+}
+
+.starIcon {
+    @apply w-4 h-4;
+    color: #f59e0b;
+    fill: #f59e0b;
+}
+
+.ratingValue {
+    @apply text-sm font-bold text-gray-900;
+}
+
+.reviewCount {
+    @apply text-sm text-gray-500;
+}
+
+.infoRow {
+    @apply flex items-center gap-2 text-sm text-gray-600 mb-1.5;
+}
+
+.infoIcon {
+    @apply w-3.5 h-3.5 flex-shrink-0;
+    color: var(--color-primary-500);
+}
+
+.bio {
+    @apply text-sm text-gray-600 mt-3 mb-4 line-clamp-3;
+    line-height: 1.6;
+}
+
+/* Specialty Tags */
+.specialtyRow {
+    @apply flex flex-wrap gap-1.5 mb-3;
+}
+
+.specialtyTag {
+    @apply text-xs font-medium px-3 py-1 rounded-full;
+    background: var(--color-primary-50);
+    color: var(--color-primary-700);
+}
+
+/* Award Badges */
+.badgeRow {
+    @apply flex flex-wrap gap-1.5;
+}
+
+.awardBadge {
+    @apply inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full;
+    background: #fffbeb;
+    color: #b45309;
+    border: 1px solid #fde68a;
+}
+
+.awardIcon {
+    @apply w-3 h-3;
+}
+
+/* Card Footer */
+.cardFooter {
+    @apply flex items-center justify-between p-5 pt-0 mt-auto;
+    border-top: 1px solid #f3f4f6;
+    padding-top: 16px;
+}
+
+.statsRow {
+    @apply flex items-center gap-4;
+}
+
+.stat {
+    @apply flex items-center gap-1.5 text-sm text-gray-500;
+}
+
+.statIcon {
+    @apply w-4 h-4;
+    color: var(--color-primary-500);
+}
+
+.viewProfile {
+    @apply flex items-center gap-1 text-sm font-semibold;
+    color: var(--color-primary-600);
+    transition: gap 0.2s ease;
+}
+
+.cardLink:hover .viewProfile {
+    gap: 6px;
+    color: var(--color-primary-700);
+}
+
+.chevronIcon {
+    @apply w-4 h-4;
+}
+
+/* ===== EMPTY STATE ===== */
+.emptyState {
+    @apply text-center py-16;
+}
+
+.emptyIcon {
+    @apply w-12 h-12 text-gray-300 mx-auto mb-4;
+}
+
+.emptyState h3 {
+    @apply text-lg font-bold text-gray-700 mb-2;
+}
+
+.emptyState p {
+    @apply text-sm text-gray-500;
+}
+
+/* ===== CTA SECTION ===== */
+.ctaSection {
+    @apply text-center mt-16 py-12 px-6 rounded-3xl;
+    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+    border: 1px solid #a7f3d0;
+}
+
+.ctaTitle {
+    @apply text-2xl md:text-3xl font-serif font-bold text-gray-900 mb-3;
+}
+
+.ctaText {
+    @apply text-gray-600 text-base max-w-xl mx-auto mb-6;
+    line-height: 1.7;
+}
+
+.ctaBtn {
+    @apply inline-flex items-center gap-2 px-8 py-3 rounded-full font-semibold text-white text-sm no-underline transition-all duration-200;
+    background: var(--color-primary-500);
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+}
+
+.ctaBtn:hover {
+    background: var(--color-primary-600);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
+.ctaBtnIcon {
+    @apply w-4 h-4;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .heroSection {
+        padding-top: 100px;
+        padding-bottom: 50px;
+    }
+
+    .heroTitle {
+        @apply text-2xl;
+    }
+
+    .heroSubtitle {
+        @apply text-base;
+    }
+
+    .grid {
+        @apply grid-cols-1;
+    }
+}

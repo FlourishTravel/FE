@@ -14,7 +14,7 @@
 }
 
 .bgOverlay {
-    @apply absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60;
+    @apply absolute inset-0 bg-black/20 bg-gradient-to-b from-black/40 via-transparent to-black/50;
 }
 
 .contentContainer {
@@ -26,7 +26,7 @@
 }
 
 .title {
-    @apply text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight text-shadow;
+    @apply text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight text-shadow font-serif;
 }
 
 .subtitle {
@@ -35,7 +35,7 @@
 
 /* ===== SEARCH BOX ===== */
 .searchBox {
-    @apply bg-white/10 backdrop-blur-md border border-white/20 p-6 md:p-8 shadow-xl max-w-[1000px] mx-auto animate-fade-in-up w-full rounded-[2.5rem];
+    @apply bg-white/15 backdrop-blur-lg border border-white/20 p-6 md:p-8 shadow-2xl max-w-[1000px] mx-auto animate-fade-in-up w-full rounded-[2rem];
 }
 
 .searchInputsRow {
@@ -62,28 +62,28 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    background: rgba(255, 255, 255, 0.2);
-    border: 1.5px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.25);
+    border: 1.5px solid rgba(255, 255, 255, 0.35);
     border-radius: 12px;
     padding: 10px 14px;
     transition: all 0.2s;
 }
 
 .inputWrapper:focus-within {
-    border-color: rgba(255, 255, 255, 0.6);
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
-    background: rgba(255, 255, 255, 0.3);
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
+    background: rgba(255, 255, 255, 0.35);
 }
 
 .inputIcon {
     width: 18px;
     height: 18px;
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(255, 255, 255, 0.8);
     flex-shrink: 0;
 }
 
 .textInput {
-    @apply text-sm text-white placeholder-white/60;
+    @apply text-sm text-white placeholder-white/80;
     border: none;
     outline: none;
     background: transparent;
@@ -99,7 +99,7 @@
 
 .searchButton {
     @apply text-sm font-bold text-white;
-    background: #16a34a;
+    background: #10b981;
     border: none;
     padding: 12px 28px;
     border-radius: 12px;
@@ -110,9 +110,9 @@
 }
 
 .searchButton:hover {
-    background: #15803d;
+    background: #059669;
     transform: translateY(-1px);
-    box-shadow: 0 4px 14px rgba(22, 163, 74, 0.35);
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
 }
 
 /* ===== RESPONSIVE ===== */

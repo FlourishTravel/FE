@@ -1,90 +1,245 @@
 @import "tailwindcss";
 @reference "../../index.css";
 
+/* Base Container */
 .pageContainer {
-    @apply min-h-screen bg-gray-50;
-    padding-top: 80px;
-    padding-bottom: 48px;
+    @apply min-h-screen bg-[#f5f7f4] font-sans text-[#4b5563];
+    padding-top: 100px;
+    padding-bottom: 120px;
 }
 
 .container {
-    @apply container-custom px-4 sm:px-6;
+    @apply max-w-[1200px] mx-auto px-5 lg:px-8;
 }
 
-.hero {
-    @apply text-center mb-12;
+/* Common Section Styles */
+.section {
+    @apply mb-[100px];
 }
 
-.title {
-    @apply text-3xl md:text-4xl font-serif font-bold text-gray-900 mb-3;
+.sectionTitle {
+    @apply text-3xl md:text-4xl font-bold text-[#063f2a] mb-6;
+    line-height: 1.3;
 }
 
-.subtitle {
-    @apply text-gray-600 text-lg max-w-2xl mx-auto;
+.sectionTitleCenter {
+    @apply text-3xl md:text-4xl font-bold text-[#063f2a] mb-4 text-center;
+    line-height: 1.3;
 }
 
-.grid {
-    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+.sectionDesc {
+    @apply text-lg leading-relaxed text-[#4b5563];
 }
 
-.card {
-    @apply bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 flex flex-col;
-    transition: box-shadow 0.2s ease;
+.sectionDescCenter {
+    @apply text-lg leading-relaxed text-[#4b5563] text-center max-w-2xl mx-auto mb-10;
 }
 
-.card:hover {
-    @apply shadow-md;
+/* ================= HERO SECTION ================= */
+.heroWrapper {
+    @apply relative w-full rounded-[32px] overflow-hidden mb-[100px] shadow-[0_20px_50px_rgba(0,0,0,0.08)];
+    height: 600px;
+
+    @media (min-width: 1024px) {
+        height: 720px;
+    }
 }
 
-.cardImageWrap {
-    @apply relative block h-44 overflow-hidden;
+.heroImage {
+    @apply absolute inset-0 w-full h-full object-cover;
 }
 
-.cardImage {
-    @apply w-full h-full object-cover;
+.heroContent {
+    @apply absolute bottom-6 left-4 right-4 sm:bottom-12 sm:left-12 sm:right-auto bg-transparent backdrop-blur-3xl p-8 md:p-12 rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.08)];
+    max-width: 580px;
 }
 
-.card:hover .cardImage {
-    transform: scale(1.03);
-    transition: transform 0.3s ease;
+.heroBadge {
+    @apply inline-block px-4 py-1.5 bg-[#e6f0eb] text-[#064e2f] text-xs font-bold tracking-widest uppercase rounded-full mb-5;
 }
 
-.category {
-    @apply absolute top-3 left-3 text-xs font-semibold text-white bg-primary-600/90 px-2 py-1 rounded-md;
+.heroTitle {
+    @apply text-4xl md:text-[52px] font-bold text-[#064e2f] mb-4 leading-[1.1];
 }
 
-.cardContent {
-    @apply p-5 flex flex-col flex-1;
+.heroDesc {
+    @apply text-lg text-gray-700 leading-relaxed;
 }
 
-.cardTitle {
-    @apply text-lg font-bold text-gray-900 mb-2 line-clamp-2;
+/* ================= SECTION 1: OVERVIEW ================= */
+.overviewGrid {
+    @apply grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center;
 }
 
-.cardExcerpt {
-    @apply text-gray-600 text-sm flex-1 line-clamp-2 mb-4;
+.overviewImageWrap {
+    @apply relative rounded-[32px] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.08)];
 }
 
-.cardFooter {
-    @apply flex items-center justify-between pt-3 border-t border-gray-100;
+.overviewImage {
+    @apply w-full h-[400px] lg:h-[600px] object-cover;
 }
 
-.readTime {
-    @apply flex items-center gap-1.5 text-sm text-gray-500;
+.overviewNoteCard {
+    @apply absolute bottom-6 left-6 right-6 sm:right-auto bg-white p-5 rounded-[18px] shadow-[0_20px_50px_rgba(0,0,0,0.08)];
+    max-width: 280px;
 }
 
-.clockIcon {
-    @apply w-4 h-4 text-primary-500;
+.overviewNoteText {
+    @apply text-sm italic text-[#4b5563] leading-relaxed;
 }
 
-.readMore {
-    @apply flex items-center gap-1 text-sm font-medium text-primary-600;
+/* ================= SECTION 2: TIME TO VISIT ================= */
+.timeSectionBox {
+    @apply bg-[#ebf0ec] rounded-[32px] py-16 px-6 sm:px-12 lg:px-20 border border-black/5;
 }
 
-.arrowIcon {
-    @apply w-4 h-4;
+.timeGrid {
+    @apply grid grid-cols-1 lg:grid-cols-3 gap-6;
 }
 
-.card:hover .readMore {
-    @apply text-primary-700;
+.timeCard {
+    @apply bg-white rounded-[20px] p-7 md:p-9 shadow-[0_20px_50px_rgba(0,0,0,0.08)] flex flex-col items-center text-center transition-transform hover:-translate-y-1;
+}
+
+.timeIconWrap {
+    @apply w-14 h-14 rounded-full flex items-center justify-center mb-6 shadow-sm;
+}
+
+/* Colors for specific cards */
+.timeIconGreen {
+    @apply bg-[#064e2f] text-white;
+}
+
+.timeIconBrown {
+    @apply bg-[#b47125] text-white;
+}
+
+.timeIconGray {
+    @apply bg-[#e5e7eb] text-gray-600;
+}
+
+.timeCardTitle {
+    @apply text-xl font-bold text-[#064e2f] mb-1;
+}
+
+.timeCardDesc {
+    @apply text-gray-500 text-sm mb-6;
+}
+
+.timeList {
+    @apply space-y-4 text-left w-full;
+}
+
+.timeListItem {
+    @apply flex items-start gap-3 text-[#4b5563] text-[15px] leading-relaxed;
+}
+
+.timeListIcon {
+    @apply w-5 h-5 text-[#064e2f] shrink-0 mt-0.5;
+}
+
+.timeSummary {
+    @apply mt-10 text-center text-[#4b5563] italic text-[15px] max-w-3xl mx-auto;
+}
+
+/* ================= SECTION 3: DESTINATIONS ================= */
+.destGrid {
+    @apply flex flex-col gap-12 lg:gap-24;
+}
+
+.destRow {
+    @apply flex flex-col lg:flex-row gap-8 lg:gap-16 items-center;
+}
+
+.destRowReverse {
+    @apply flex flex-col lg:flex-row-reverse gap-8 lg:gap-16 items-center;
+}
+
+.destImageWrap {
+    @apply w-full lg:w-1/2 rounded-[22px] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.08)];
+}
+
+.destImage {
+    @apply w-full h-[300px] object-cover hover:scale-105 transition-transform duration-700;
+}
+
+.destContent {
+    @apply w-full lg:w-1/2;
+}
+
+.destTitle {
+    @apply text-[28px] font-bold text-[#063f2a] mb-4;
+}
+
+.destDesc {
+    @apply text-[#4b5563] text-[16px] leading-relaxed mb-8;
+}
+
+/* Buttons */
+.primaryBtn {
+    @apply inline-flex items-center justify-center bg-[#064e2f] text-white px-8 py-3.5 rounded-full font-medium hover:bg-[#043620] transition-colors shadow-md;
+}
+
+.outlineBtn {
+    @apply inline-flex items-center justify-center border-2 border-[#064e2f] text-[#064e2f] px-8 py-3.5 rounded-full font-medium hover:bg-[#064e2f] hover:text-white transition-colors bg-transparent;
+}
+
+/* Ensure images always span full width on mobile */
+@media (max-width: 767px) {
+    .container {
+        @apply px-4;
+    }
+
+    .heroWrapper {
+        @apply rounded-2xl h-[500px];
+    }
+
+    .overviewImage {
+        @apply h-[300px];
+    }
+
+    .embassyCard {
+        @apply rounded-2xl;
+    }
+}
+
+/* ================= SECTION 5: EMBASSY CARD ================= */
+.embassyCard {
+    @apply bg-white rounded-[32px] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.06)] grid grid-cols-1 lg:grid-cols-12 gap-0 border border-black/5 max-w-4xl mx-auto mb-[100px];
+}
+
+.embassyImageWrap {
+    @apply lg:col-span-5 relative min-h-[250px] lg:min-h-full;
+}
+
+.embassyImage {
+    @apply absolute inset-0 w-full h-full object-cover;
+}
+
+.embassyContent {
+    @apply lg:col-span-7 p-8 sm:p-10 flex flex-col justify-center;
+}
+
+.embassyTitle {
+    @apply text-2xl font-bold text-[#064e2f] mb-2;
+}
+
+.embassyText {
+    @apply text-sm text-gray-500 mb-6 leading-relaxed;
+}
+
+.embassyDetails {
+    @apply space-y-4;
+}
+
+.detailItem {
+    @apply flex items-start gap-4 text-sm text-[#4b5563] leading-relaxed;
+}
+
+.detailIcon {
+    @apply w-8 h-8 rounded-full bg-[#e6f0eb] text-[#064e2f] flex items-center justify-center shrink-0 mt-0.5;
+}
+
+.detailText {
+    @apply flex-1;
 }

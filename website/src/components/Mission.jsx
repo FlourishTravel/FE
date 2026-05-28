@@ -1,5 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import styles from './Mission.module.css';
+import img1 from '../assets/thai-lan-5n4d-1.jpg';
+import img2 from '../assets/thai-lan-5n4d-p2.jpg';
+import img3 from '../assets/thai-lan-5n4d-p11-768x514.jpg';
 
 const Mission = () => {
     const [currentSlide, setCurrentSlide] = useState(0);
@@ -10,19 +14,19 @@ const Mission = () => {
     const slides = [
         {
             id: 0,
-            image: 'https://cdn.pixabay.com/photo/2019/02/11/16/35/iguazu-falls-3990887_1280.jpg',
+            image: img1,
             title: 'MEGA ULTIMA SOUTH AMERICA',
             subtitle: '13 Wild Experiences across the continent of extremes.'
         },
         {
             id: 1,
-            image: 'https://cdn.pixabay.com/photo/2013/11/15/13/57/road-210913_1280.jpg',
+            image: img2,
             title: 'THE UNTAMED AMAZON',
             subtitle: 'Journey deeper into the lungs of the Earth.'
         },
         {
             id: 2,
-            image: 'https://cdn.pixabay.com/photo/2017/06/04/16/32/patagonia-2371353_1280.jpg',
+            image: img3,
             title: 'PATAGONIA EXPEDITIONS',
             subtitle: 'Where ice and fire meet at the edge of the world.'
         }
@@ -76,64 +80,72 @@ const Mission = () => {
 
     return (
         <section className={styles.section}>
-            {/* Hero Image Area */}
-            <div
-                className={styles.hero}
-                style={{
-                    backgroundImage: `url(${slides[currentSlide].image})`,
-                    cursor: isDragging ? 'grabbing' : 'grab'
-                }}
-                onTouchStart={handleTouchStart}
-                onTouchMove={handleTouchMove}
-                onTouchEnd={handleTouchEnd}
-                onMouseDown={handleMouseDown}
-                onMouseMove={handleMouseMove}
-                onMouseUp={handleMouseUp}
-                onMouseLeave={handleMouseLeave}
-            >
-                <div className={styles.heroOverlay}></div>
-                <div key={currentSlide} className={styles.heroContent}>
-                    <h2 className={styles.heroTitle}>{slides[currentSlide].title}</h2>
-                    <p className={styles.heroSubtitle}>
-                        {slides[currentSlide].subtitle}
-                    </p>
-                    <button className={styles.dareBtn}>
-                        DO YOU DARE
-                    </button>
+            {/* Top Column: Carousel Wrapper (Full Width) */}
+            <div className={styles.carouselColumn}>
+                <div
+                    className={styles.carouselContainer}
+                    style={{
+                        backgroundImage: `url(${slides[currentSlide].image})`,
+                        cursor: isDragging ? 'grabbing' : 'grab'
+                    }}
+                    onTouchStart={handleTouchStart}
+                    onTouchMove={handleTouchMove}
+                    onTouchEnd={handleTouchEnd}
+                    onMouseDown={handleMouseDown}
+                    onMouseMove={handleMouseMove}
+                    onMouseUp={handleMouseUp}
+                    onMouseLeave={handleMouseLeave}
+                >
+                    <div className={styles.heroOverlay}></div>
+                    <div key={currentSlide} className={styles.heroContent}>
+                        <h2 className={styles.heroTitle}>{slides[currentSlide].title}</h2>
+                        <p className={styles.heroSubtitle}>
+                            {slides[currentSlide].subtitle}
+                        </p>
+                        <Link to="/tours" className={styles.dareBtn}>
+                            DO YOU DARE
+                        </Link>
+                    </div>
+                </div>
+
+                {/* Carousel Dots */}
+                <div className={styles.carouselDots}>
+                    {slides.map((slide, index) => (
+                        <button
+                            key={slide.id}
+                            className={`${styles.dot} ${currentSlide === index ? styles.active : ''}`}
+                            onClick={() => setCurrentSlide(index)}
+                        ></button>
+                    ))}
                 </div>
             </div>
 
-            {/* Carousel Dots */}
-            <div className={styles.carouselDots}>
-                {slides.map((slide, index) => (
-                    <button
-                        key={slide.id}
-                        className={`${styles.dot} ${currentSlide === index ? styles.active : ''}`}
-                        onClick={() => setCurrentSlide(index)}
-                    ></button>
-                ))}
-            </div>
+            <div className={styles.container}>
+                {/* Bottom Column: Mission text content and CTA */}
+                <div className={styles.missionColumn}>
+                    <h3 className={styles.missionTitle}>SỨ MỆNH CỦA CHÚNG TÔI</h3>
 
-            {/* Mission Text Area */}
-            <div className={styles.missionContent}>
-                <h3 className={styles.missionTitle}>SỨ MỆNH CỦA CHÚNG TÔI</h3>
+                    <p className={styles.missionText}>
+                        Chúng tôi <strong>không</strong> tạo ra những chuyến du lịch rập khuôn, những điểm check-in đông đúc hay các danh sách “Top 10” quen thuộc mà ai cũng biết. <strong>Flourish Tourism</strong> được tạo ra để dẫn dắt thế hệ trẻ khám phá những trải nghiệm du lịch ngách, nơi mỗi hành trình đều mang tính cá nhân, mới lạ và đáng nhớ.
+                    </p>
 
-                <p className={styles.missionText}>
-                    Chúng tôi <strong>không</strong> tạo ra những chuyến du lịch rập khuôn, những điểm check-in đông đúc hay các danh sách “Top 10” quen thuộc mà ai cũng biết. <strong>Flourish Tourism</strong> được tạo ra để dẫn dắt thế hệ trẻ khám phá những trải nghiệm du lịch ngách, nơi mỗi hành trình đều mang tính cá nhân, mới lạ và đáng nhớ.
-                </p>
+                    <p className={styles.missionText}>
+                        Chúng tôi tìm đến những góc ít người biết của thế giới — từ những con phố nhỏ đầy văn hoá địa phương, những quán cà phê ẩn mình trong thành phố, đến các hành trình khám phá thiên nhiên hoang sơ và những câu chuyện chỉ người bản địa mới biết.
+                    </p>
 
-                <p className={styles.missionText}>
-                    Chúng tôi tìm đến những góc ít người biết của thế giới — từ những con phố nhỏ đầy văn hoá địa phương, những quán cà phê ẩn mình trong thành phố, đến các hành trình khám phá thiên nhiên hoang sơ và những câu chuyện chỉ người bản địa mới biết.
-                </p>
+                    <p className={styles.missionText}>
+                        <strong>Flourish Tourism</strong> dành cho những người trẻ tò mò, năng động và thích khám phá khác biệt.
+                        Những người tin rằng du lịch không chỉ là đi đến một nơi mới, mà là trải nghiệm, kết nối và trưởng thành qua từng hành trình.
+                    </p>
 
-                <p className={styles.missionText}>
-                    <strong>Flourish Tourism</strong> dành cho những người trẻ tò mò, năng động và thích khám phá khác biệt.
-                    Những người tin rằng du lịch không chỉ là đi đến một nơi mới, mà là trải nghiệm, kết nối và trưởng thành qua từng hành trình.
-                </p>
+                    <p className={styles.missionText}>
+                        Nếu bạn thích những chuyến đi độc đáo, khác biệt và đầy cảm hứng — <strong>Flourish Tourism</strong> chính là nơi hành trình của bạn bắt đầu.
+                    </p>
 
-                <p className={styles.missionText}>
-                    Nếu bạn thích những chuyến đi độc đáo, khác biệt và đầy cảm hứng — <strong>Flourish Tourism</strong>  chính là nơi hành trình của bạn bắt đầu.
-                </p>
+                    <Link to="/tours" className={styles.ctaButton}>
+                        Khám Phá Ngay
+                    </Link>
+                </div>
             </div>
         </section>
     );

@@ -31,13 +31,19 @@ const RecommendedForYou = () => {
                                 <h3 className={styles.cardTitle}>{tour.title}</h3>
                                 <p className={styles.cardMeta}>
                                     <MapPin className={styles.metaIcon} />
-                                    {tour.location}
+                                    <span>{tour.location}</span>
                                     <span className={styles.metaSep}>·</span>
                                     <Calendar className={styles.metaIcon} />
-                                    {tour.duration}
+                                    <span>{tour.duration}</span>
                                 </p>
-                                <p className={styles.cardReason}>{tour.reason}</p>
-                                <p className={styles.cardPrice}>{tour.price.toLocaleString('vi-VN')} VND</p>
+                                <div className={styles.cardReason}>
+                                    <Sparkles className={styles.reasonIcon} />
+                                    <span>{tour.reason}</span>
+                                </div>
+                                <div className={styles.priceContainer}>
+                                    <span className={styles.priceLabel}>Giá trọn gói</span>
+                                    <span className={styles.cardPrice}>{tour.price.toLocaleString('vi-VN')} VNĐ</span>
+                                </div>
                             </div>
                         </Link>
                     ))}

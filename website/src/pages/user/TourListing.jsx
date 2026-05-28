@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Heart, Clock, Users, ChevronLeft, ChevronRight, ChevronDown, RotateCcw } from 'lucide-react';
+import { MapPin, Heart, Clock, Users, ChevronLeft, ChevronRight, ChevronDown, RotateCcw, Calendar } from 'lucide-react';
 import styles from './TourListing.module.css';
 import { listPublicTours } from '../../api/tours';
 import { listCategories } from '../../api/categories';
@@ -55,6 +55,34 @@ function remainingSlots(t) {
     const cur = es.currentParticipants ?? 0;
     const r = max - cur;
     return r > 0 ? r : null;
+}
+
+function formatStartDate(t) {
+    const es = t?.earliestSession;
+    if (!es || !es.startDate) return 'Liên hệ';
+    try {
+        const d = new Date(es.startDate);
+        if (isNaN(d.getTime())) return 'Liên hệ';
+        const day = String(d.getDate()).padStart(2, '0');
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const year = d.getFullYear();
+        return `${day}/${month}/${year}`;
+    } catch {
+        return 'Liên hệ';
+    }
+}
+
+function getTourCode(t) {
+    if (t?.slug) return t.slug.toUpperCase();
+    if (t?.id) return `FL-TOUR-${String(t.id).slice(0, 5).toUpperCase()}`;
+    return 'FL-TOUR-GEN';
+}
+
+function getDeparturePoint(t) {
+    if (t?.locations && t.locations[0]?.locationName) {
+        return t.locations[0].locationName;
+    }
+    return 'TP. Hồ Chí Minh';
 }
 
 const TourListing = () => {
@@ -274,57 +302,87 @@ const TourListing = () => {
                                 const tagColor = categoryTagClass(tour.category?.name);
                                 const spots = remainingSlots(tour);
                                 return (
-                                    <Link key={tour.id} to={`/tours/${tour.id}`} className={styles.tourCardLink}>
-                                        <div className={styles.tourCard}>
-                                            <div className={styles.cardImageContainer}>
+                                    <div key={tour.id} className={styles.tourCard}>
+                                        {/* Left Image Section */}
+                                        <div className={styles.cardImageContainer}>
+                                            <Link to={`/tours/${tour.id}`} className={styles.imageLink}>
                                                 <img src={img} alt={tour.title} className={styles.cardImage} />
-                                                <span className={`${styles.cardTag} ${getTagClass(tagColor)}`}>{catName}</span>
-                                                {spots != null ? (
-                                                    <span className={styles.spotsLeft}>Chỉ còn {spots} chỗ</span>
-                                                ) : null}
-                                                <button
-                                                    type="button"
-                                                    className={`${styles.heartBtn} ${savedTours.includes(tour.id) ? styles.heartActive : ''}`}
-                                                    onClick={(e) => {
-                                                        e.preventDefault();
-                                                        toggleSave(tour.id);
-                                                    }}
-                                                >
-                                                    <Heart className={styles.heartIcon} />
-                                                </button>
+                                            </Link>
+                                            <span className={`${styles.cardTag} ${getTagClass(tagColor)}`}>{catName}</span>
+                                            {spots != null ? (
+                                                <span className={styles.spotsLeft}>Chỉ còn {spots} chỗ</span>
+                                            ) : null}
+                                            <button
+                                                type="button"
+                                                className={`${styles.heartBtn} ${savedTours.includes(tour.id) ? styles.heartActive : ''}`}
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    toggleSave(tour.id);
+                                                }}
+                                            >
+                                                <Heart className={styles.heartIcon} />
+                                            </button>
+                                        </div>
+
+                                        {/* Right Details Section */}
+                                        <div className={styles.cardContent}>
+                                            {/* Tag & Code Row */}
+                                            <div className={styles.cardHeaderRow}>
+                                                <span className={styles.tagLabel}>{catName.toUpperCase()}</span>
+                                                <span className={styles.tourCode}>Mã tour: {getTourCode(tour)}</span>
                                             </div>
-                                            <div className={styles.cardContent}>
-                                                <div className={styles.cardLocation}>
-                                                    <MapPin className={styles.locationIcon} />
-                                                    <span>{catName}</span>
-                                                </div>
+
+                                            {/* Title */}
+                                            <Link to={`/tours/${tour.id}`} className={styles.titleLink}>
                                                 <h3 className={styles.cardTitle}>{tour.title}</h3>
-                                                <p className={styles.cardDesc}>
-                                                    {(tour.description || '').slice(0, 180)}
-                                                    {(tour.description || '').length > 180 ? '…' : ''}
-                                                </p>
-                                                <div className={styles.cardAttributes}>
-                                                    <span className={styles.attribute}>
-                                                        <Clock className={styles.attrIcon} />
-                                                        {formatDuration(tour)}
-                                                    </span>
-                                                    <span className={styles.attribute}>
-                                                        <Users className={styles.attrIcon} />
-                                                        {formatGroupHint(tour)}
+                                            </Link>
+
+                                            {/* Info Grid */}
+                                            <div className={styles.infoGrid}>
+                                                <div className={styles.infoItem}>
+                                                    <MapPin className={styles.infoIcon} />
+                                                    <span className={styles.infoLabel}>Khởi hành từ:</span>
+                                                    <span className={styles.infoValue}>{getDeparturePoint(tour)}</span>
+                                                </div>
+                                                <div className={styles.infoItem}>
+                                                    <Calendar className={styles.infoIcon} />
+                                                    <span className={styles.infoLabel}>Ngày khởi hành:</span>
+                                                    <span className={styles.infoValue}>{formatStartDate(tour)}</span>
+                                                </div>
+                                                <div className={styles.infoItem}>
+                                                    <Users className={styles.infoIcon} />
+                                                    <span className={styles.infoLabel}>Số chỗ nhận:</span>
+                                                    <span className={styles.infoValue}>
+                                                        {spots != null ? `${spots} chỗ` : 'Còn chỗ'}
                                                     </span>
                                                 </div>
-                                                <div className={styles.cardFooter}>
-                                                    <div className={styles.priceSection}>
-                                                        <span className={styles.fromText}>Từ</span>
-                                                        <span className={styles.price}>
-                                                            {(Number(tour.basePrice) || 0).toLocaleString('vi-VN')} ₫
-                                                        </span>
-                                                    </div>
-                                                    <span className={styles.detailsBtn}>Chi tiết</span>
+                                                <div className={styles.infoItem}>
+                                                    <Clock className={styles.infoIcon} />
+                                                    <span className={styles.infoLabel}>Thời gian:</span>
+                                                    <span className={styles.infoValue}>{formatDuration(tour)}</span>
+                                                </div>
+                                            </div>
+
+                                            {/* Bottom Separator & Pricing/CTA */}
+                                            <div className={styles.cardFooterDivider}></div>
+                                            <div className={styles.cardFooter}>
+                                                <div className={styles.priceContainer}>
+                                                    <span className={styles.priceLabel}>Giá trọn gói từ</span>
+                                                    <span className={styles.priceValue}>
+                                                        {(Number(tour.basePrice) || 0).toLocaleString('vi-VN')} VNĐ
+                                                    </span>
+                                                </div>
+                                                <div className={styles.actionGroup}>
+                                                    <Link to={`/tours/${tour.id}`} className={styles.detailBtn}>
+                                                        Xem ngày khác
+                                                    </Link>
+                                                    <Link to={`/checkout/${tour.id}`} className={styles.bookNowBtn}>
+                                                        Đặt ngay
+                                                    </Link>
                                                 </div>
                                             </div>
                                         </div>
-                                    </Link>
+                                    </div>
                                 );
                             })}
                         </div>

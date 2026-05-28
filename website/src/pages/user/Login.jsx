@@ -26,7 +26,7 @@ const Login = () => {
     // Điều hướng sau khi đăng nhập theo role (đã được AuthContext chuẩn hoá: admin/guide/user)
     const redirectByRole = (role) => {
         if (role === 'admin') navigate('/admin');
-        else if (role === 'guide') navigate('/guide');
+        else if (role === 'guide') navigate('/guide/dashboard');
         else navigate('/profile');
     };
 
@@ -52,7 +52,7 @@ const Login = () => {
                 }
                 if (checkGuideCredentials(email, password)) {
                     login(MOCK_GUIDE);
-                    navigate('/guide');
+                    navigate('/guide/dashboard');
                     return;
                 }
                 if (checkCredentials(email, password)) {

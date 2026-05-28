@@ -2,10 +2,10 @@
 @reference "../index.css";
 
 .navbar {
-    @apply fixed w-full z-50 transition-all duration-300;
+    @apply sticky top-0 w-full z-50 transition-all duration-300;
     background-color: white;
     /* Solid white as requested */
-    @apply shadow-sm;
+    @apply shadow-sm border-b border-gray-100;
 }
 
 .container {
@@ -55,17 +55,26 @@
     @apply hidden md:flex items-center gap-4;
 }
 
-.searchIcon {
-    @apply text-gray-600 hover:text-primary-600 transition-colors p-1 rounded-full hover:bg-gray-100;
+
+.accountBtn {
+    @apply flex items-center gap-2 text-gray-700 font-medium hover:text-primary-600 transition-colors no-underline;
 }
 
-.hotline {
-    @apply flex items-center gap-1.5 text-gray-600 hover:text-primary-600 transition-colors text-sm font-medium no-underline;
+.accountAvatarWrap {
+    @apply w-10 h-10 rounded-full border border-gray-200 hover:border-primary-500 transition-colors overflow-hidden flex items-center justify-center bg-white;
+}
+
+.accountAvatar {
+    @apply w-full h-full object-cover;
+}
+
+.accountFallback {
+    @apply w-full h-full flex items-center justify-center bg-primary-50 text-primary-600 text-xs font-semibold;
+}
+
+.accountName {
+    @apply text-gray-700 font-medium;
     white-space: nowrap;
-}
-
-.hotlineText {
-    @apply hidden sm:inline;
 }
 
 .signInBtn {
@@ -103,8 +112,13 @@
     @apply text-primary-600 bg-primary-50;
 }
 
-.mobileHotline {
-    @apply flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-primary-600 hover:bg-gray-50 rounded-md no-underline;
+
+.mobileAccountBtn {
+    @apply flex items-center gap-2 px-3 py-2 text-gray-700 font-medium no-underline;
+}
+
+.mobileAccountAvatar {
+    @apply w-9 h-9 rounded-full border border-gray-200 overflow-hidden flex items-center justify-center bg-white;
 }
 
 .mobileAuthContainer {

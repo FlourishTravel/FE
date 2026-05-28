@@ -3,7 +3,6 @@ import { Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import FeaturedDestinations from './components/FeaturedDestinations';
-import RecommendedForYou from './components/RecommendedForYou';
 import ValueProp from './components/ValueProp';
 import Mission from './components/Mission';
 import Footer from './components/Footer';
@@ -65,7 +64,6 @@ const HomePage = () => (
     <Navbar />
     <Hero />
     <FeaturedDestinations />
-    <RecommendedForYou />
     <ValueProp />
     <Mission />
     <Footer />
@@ -87,6 +85,7 @@ function App() {
         <Route path="/my-journey" element={<><Navbar /><MyJourney /><Footer /></>} />
         <Route path="/my-journey/booking/:bookingId" element={<><Navbar /><BookingDetail /><Footer /></>} />
         <Route path="/destinations" element={<><Navbar /><Destinations /><Footer /></>} />
+        <Route path="/guide" element={<><Navbar /><Guide /><Footer /></>} />
         <Route path="/our-guides" element={<><Navbar /><Guide /><Footer /></>} />
         <Route path="/tours" element={<><Navbar /><TourListing /><Footer /></>} />
         <Route path="/tours/:id" element={<><Navbar /><TourDetail /><Footer /></>} />
@@ -117,8 +116,8 @@ function App() {
         </Route>
 
         {/* Guide Routes */}
-        <Route path="/guide" element={<ProtectedGuideRoute><GuideLayout /></ProtectedGuideRoute>}>
-          <Route index element={<GuideDashboard />} />
+        <Route path="/guide/*" element={<ProtectedGuideRoute><GuideLayout /></ProtectedGuideRoute>}>
+          <Route path="dashboard" element={<GuideDashboard />} />
           <Route path="tours" element={<GuideTourList />} />
           <Route path="tours/:tourId" element={<GuideTourDetail />} />
           <Route path="guests" element={<GuideGuestManagement />} />

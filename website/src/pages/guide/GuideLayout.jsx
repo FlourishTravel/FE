@@ -4,7 +4,7 @@ import styles from './GuideLayout.module.css';
 import logoImg from '../../assets/LogoFlourish\'.jpg';
 
 const NAV_ITEMS = [
-    { path: '/guide', icon: 'dashboard', label: 'Bảng điều khiển', end: true },
+    { path: '/guide/dashboard', icon: 'dashboard', label: 'Bảng điều khiển', end: true },
     { path: '/guide/tours', icon: 'map', label: 'Quản lý Tour' },
     { path: '/guide/guests', icon: 'groups', label: 'Quản lý Khách' },
     { path: '/guide/communication', icon: 'forum', label: 'Giao tiếp' },
