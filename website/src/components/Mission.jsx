@@ -95,18 +95,7 @@ const Mission = () => {
                     onMouseMove={handleMouseMove}
                     onMouseUp={handleMouseUp}
                     onMouseLeave={handleMouseLeave}
-                >
-                    <div className={styles.heroOverlay}></div>
-                    <div key={currentSlide} className={styles.heroContent}>
-                        <h2 className={styles.heroTitle}>{slides[currentSlide].title}</h2>
-                        <p className={styles.heroSubtitle}>
-                            {slides[currentSlide].subtitle}
-                        </p>
-                        <Link to="/tours" className={styles.dareBtn}>
-                            DO YOU DARE
-                        </Link>
-                    </div>
-                </div>
+                ></div>
 
                 {/* Carousel Dots */}
                 <div className={styles.carouselDots}>

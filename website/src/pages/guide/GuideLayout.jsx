@@ -27,14 +27,21 @@ const GuideLayout = () => {
             <aside className={`${styles.sidebar} ${sidebarCollapsed ? styles.collapsed : ''}`}>
                 <div className={styles.sidebarHeader}>
                     <div className={styles.logoArea}>
-                        <div className={styles.logoIconContainer}>
-                            <img src={logoImg} alt="Flourish HDV Logo" className={styles.guideLogoImage} />
-                        </div>
-                        {!sidebarCollapsed && (
-                            <div className={styles.logoText}>
-                                <span className={styles.logoTitle}>Flourish HDV</span>
-                                <span className={styles.logoSub}>Hướng dẫn viên chuyên nghiệp</span>
+                        {sidebarCollapsed ? (
+                            <div className={styles.collapsedLogoText}>
+                                <span className={styles.logoTitleCollapsed}>Flourish</span>
+                                <span className={styles.logoTitleCollapsedHighlight}>HDV</span>
                             </div>
+                        ) : (
+                            <>
+                                <div className={styles.logoIconContainer}>
+                                    <img src={logoImg} alt="Flourish HDV Logo" className={styles.guideLogoImage} />
+                                </div>
+                                <div className={styles.logoText}>
+                                    <span className={styles.logoTitle}>Flourish HDV</span>
+                                    <span className={styles.logoSub}>Hướng dẫn viên</span>
+                                </div>
+                            </>
                         )}
                     </div>
                     <button

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import styles from './AdminLayout.module.css';
+import logoImg from '../../assets/LogoFlourish\'.jpg';
 
 const NAV_ITEMS = [
     { path: '/admin', icon: 'dashboard', label: 'Dashboard', end: true },
@@ -32,14 +33,21 @@ const AdminLayout = () => {
             <aside className={`${styles.sidebar} ${sidebarCollapsed ? styles.collapsed : ''}`}>
                 <div className={styles.sidebarHeader}>
                     <div className={styles.logoArea}>
-                        <div className={styles.logoIcon}>
-                            <span className="material-icons-round">spa</span>
-                        </div>
-                        {!sidebarCollapsed && (
-                            <div className={styles.logoText}>
-                                <span className={styles.logoTitle}>Flourish Travel</span>
-                                <span className={styles.logoSub}>Admin Panel</span>
+                        {sidebarCollapsed ? (
+                            <div className={styles.collapsedLogoText}>
+                                <span className={styles.logoTitleCollapsed}>Flourish</span>
+                                <span className={styles.logoTitleCollapsedHighlight}>Admin</span>
                             </div>
+                        ) : (
+                            <>
+                                <div className={styles.logoIconContainer}>
+                                    <img src={logoImg} alt="Flourish Admin Logo" className={styles.guideLogoImage} />
+                                </div>
+                                <div className={styles.logoText}>
+                                    <span className={styles.logoTitle}>Flourish Travel</span>
+                                    <span className={styles.logoSub}>Admin Panel</span>
+                                </div>
+                            </>
                         )}
                     </div>
                     <button
