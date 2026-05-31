@@ -23,7 +23,7 @@ const Navbar = () => {
 
     const navLinks = [
         { name: 'Chuyến đi của tôi', icon: MapPin, href: '/my-journey' },
-        { name: 'Điểm đến', icon: Plane, href: '/destinations' },
+        { name: 'Lập kế hoạch', icon: Plane, href: '/destinations' },
         { name: 'Cẩm nang', icon: BookOpen, href: '/guide' },
         { name: 'Tour trải nghiệm', icon: Compass, href: '/tours' },
     ];
