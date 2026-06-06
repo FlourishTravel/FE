@@ -53,7 +53,7 @@
     margin: 0 auto;
     padding: 0 1.5rem;
     display: grid;
-    grid-template-columns: 320px 1fr;
+    grid-template-columns: 380px 1fr;
     gap: 2rem;
     align-items: start;
 }
@@ -320,8 +320,13 @@
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 /* Main Content Styles */
@@ -447,7 +452,8 @@
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
-    margin-left: calc(48px + 1rem); /* Align with text */
+    margin-left: calc(48px + 1rem);
+    /* Align with text */
 }
 
 .summaryChip {
@@ -526,7 +532,8 @@
     position: absolute;
     top: 0;
     bottom: 0;
-    left: 4.5rem; /* align with dots */
+    left: 4.5rem;
+    /* align with dots */
     width: 2px;
     background-color: #e2e8f0;
 }
@@ -559,7 +566,8 @@
 
 .timelineDot {
     position: absolute;
-    left: -1.9rem; /* center on the line */
+    left: -1.9rem;
+    /* center on the line */
     top: 0.75rem;
     width: 1rem;
     height: 1rem;
@@ -681,7 +689,8 @@
     gap: 1.5rem;
 }
 
-.budgetCard, .mapCard {
+.budgetCard,
+.mapCard {
     background-color: #ffffff;
     border-radius: 1rem;
     padding: 1.5rem;
@@ -760,7 +769,7 @@
     justify-content: center;
     color: #475569;
     cursor: pointer;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .mapBtn:hover {
@@ -788,7 +797,7 @@
     .mainLayout {
         grid-template-columns: 1fr;
     }
-    
+
     .sidebar {
         max-width: 600px;
         margin: 0 auto;
@@ -800,19 +809,20 @@
     .bottomGrid {
         grid-template-columns: 1fr;
     }
-    
+
     .timeline::before {
         left: 0.5rem;
     }
-    
+
     .timeBlock {
-        display: none; /* Hide time on mobile to save space, or rearrange */
+        display: none;
+        /* Hide time on mobile to save space, or rearrange */
     }
-    
+
     .bannerChips {
         margin-left: 0;
     }
-    
+
     .timelineDot {
         left: -1rem;
     }
