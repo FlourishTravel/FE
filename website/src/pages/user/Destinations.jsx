@@ -4,6 +4,30 @@ import styles from './Destinations.module.css';
 import { generatePlannerApi } from '../../api/planner';
 import { resolveMediaUrl } from '../../api/config';
 
+// Budget mapping helpers to align non-linear budget tiers with linear slider position
+const budgetToSlider = (value) => {
+    if (value <= 15000000) {
+        return (value - 5000000) / 10000000;
+    } else if (value <= 25000000) {
+        return 1 + (value - 15000000) / 10000000;
+    } else {
+        return 2 + (value - 25000000) / 25000000;
+    }
+};
+
+const sliderToBudget = (x) => {
+    let val;
+    if (x <= 1) {
+        val = 5000000 + x * 10000000;
+    } else if (x <= 2) {
+        val = 15000000 + (x - 1) * 10000000;
+    } else {
+        val = 25000000 + (x - 2) * 25000000;
+    }
+    // Round to nearest 500,000 for cleaner steps
+    return Math.round(val / 500000) * 500000;
+};
+
 const Destinations = () => {
     // State for interactive UI elements
     const [selectedDest, setSelectedDest] = useState('Bangkok');
@@ -186,11 +210,11 @@ const Destinations = () => {
                         <label className={styles.formLabel}>Ngân sách: <span>{formatCurrency(budget)}</span></label>
                         <input
                             type="range"
-                            min="5000000"
-                            max="50000000"
-                            step="1000000"
-                            value={budget}
-                            onChange={(e) => setBudget(Number(e.target.value))}
+                            min="0"
+                            max="3"
+                            step="0.02"
+                            value={budgetToSlider(budget)}
+                            onChange={(e) => setBudget(sliderToBudget(Number(e.target.value)))}
                             className={styles.rangeSlider}
                         />
                         <div className={styles.rangeLabels}>

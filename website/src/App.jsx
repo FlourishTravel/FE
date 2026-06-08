@@ -67,7 +67,6 @@ const HomePage = () => (
     <ValueProp />
     <Mission />
     <Footer />
-    <FloatingChatbot />
   </div>
 );
 
@@ -75,6 +74,7 @@ function App() {
   return (
     <>
       <ScrollToTop />
+      <FloatingChatbot />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/help" element={<><Navbar /><Help /><Footer /></>} />

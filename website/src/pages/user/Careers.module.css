@@ -3,39 +3,62 @@
 
 .pageContainer {
     @apply min-h-screen bg-gray-50;
-    padding-top: 80px;
 }
 
 .hero {
-    @apply bg-gray-900 text-white py-16 px-4 text-center;
+    @apply relative text-white pt-32 pb-24 px-4 text-center overflow-hidden;
+}
+
+.heroBackground {
+    @apply absolute inset-0 z-0;
+}
+
+.heroBackground img {
+    @apply w-full h-full object-cover;
+}
+
+.heroOverlay {
+    @apply absolute inset-0 bg-black/60 z-10;
+}
+
+.heroContent {
+    @apply relative z-20;
 }
 
 .title {
-    @apply text-3xl md:text-4xl font-serif font-bold mb-4;
+    @apply text-3xl md:text-5xl font-serif font-bold mb-4;
 }
 
 .subtitle {
-    @apply text-gray-300 text-lg max-w-2xl mx-auto;
+    @apply text-gray-200 text-lg md:text-xl max-w-2xl mx-auto;
 }
 
 .container {
-    @apply container-custom px-4 sm:px-6 py-12 max-w-3xl mx-auto;
+    @apply container-custom px-4 sm:px-6 py-12 max-w-4xl mx-auto;
 }
 
 .section {
-    @apply mb-10;
+    @apply mb-12;
 }
 
 .sectionTitle {
-    @apply text-xl font-bold text-gray-900 mb-4;
+    @apply text-2xl font-bold text-gray-900 mb-6;
+}
+
+.perksContainer {
+    @apply grid md:grid-cols-2 gap-8 items-center bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100;
+}
+
+.perksImage {
+    @apply w-full h-64 object-cover rounded-xl;
 }
 
 .perks {
-    @apply list-disc list-inside text-gray-600 space-y-2;
+    @apply list-disc list-inside text-gray-600 space-y-3;
 }
 
 .jobsSection {
-    @apply mb-10;
+    @apply mb-12;
 }
 
 .jobList {
@@ -43,7 +66,7 @@
 }
 
 .jobCard {
-    @apply bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4;
+    @apply bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col md:flex-row md:items-center md:justify-between gap-6 transition-all hover:shadow-md;
 }
 
 .jobMain {
@@ -51,11 +74,11 @@
 }
 
 .jobTitle {
-    @apply text-lg font-bold text-gray-900 mb-2;
+    @apply text-xl font-bold text-gray-900 mb-2;
 }
 
 .jobExcerpt {
-    @apply text-gray-600 text-sm mb-3;
+    @apply text-gray-600 text-sm leading-relaxed mb-4;
 }
 
 .jobMeta {
@@ -63,7 +86,7 @@
 }
 
 .jobMetaItem {
-    @apply flex items-center gap-1.5 text-sm text-gray-500;
+    @apply flex items-center gap-1.5 text-sm font-medium text-gray-500 bg-gray-50 px-3 py-1 rounded-full;
 }
 
 .metaIcon {
@@ -71,7 +94,7 @@
 }
 
 .applyBtn {
-    @apply inline-flex items-center gap-1.5 px-4 py-2 rounded-full border-2 border-primary-500 text-primary-600 font-medium hover:bg-primary-50 transition-colors flex-shrink-0;
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full border-2 border-primary-500 text-primary-600 font-semibold hover:bg-primary-500 hover:text-white transition-all flex-shrink-0;
 }
 
 .arrowIcon {
@@ -79,9 +102,9 @@
 }
 
 .note {
-    @apply text-sm text-gray-500 text-center;
+    @apply text-sm text-gray-500 text-center bg-white p-6 rounded-2xl border border-gray-100;
 }
 
 .mailLink {
-    @apply text-primary-600 font-medium hover:underline;
+    @apply text-primary-600 font-semibold hover:underline;
 }

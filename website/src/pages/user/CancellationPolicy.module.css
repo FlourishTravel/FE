@@ -15,7 +15,6 @@
 .heroSection {
     width: 100%;
     background: linear-gradient(135deg, #0c4a6e 0%, #0369a1 40%, #0ea5e9 100%);
-    margin-top: 75px;
     padding: 80px 20px;
     text-align: center;
     position: relative;
@@ -42,7 +41,7 @@
 }
 
 .heroTitle {
-    font-family: 'Georgia', 'Times New Roman', serif;
+    font-family: var(--font-serif);
     font-size: 36px;
     font-weight: 700;
     color: #ffffff;
@@ -68,7 +67,7 @@
 }
 
 .pageTitle {
-    font-family: 'Georgia', 'Times New Roman', serif;
+    font-family: var(--font-serif);
     font-size: 32px;
     font-weight: 700;
     color: #0369a1;

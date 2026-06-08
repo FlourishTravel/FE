@@ -126,23 +126,23 @@ const Guide = () => {
 
     return (
         <div className={styles.pageContainer}>
-            <div className={styles.container}>
-                {/* Hero Section */}
-                <div className={styles.heroWrapper}>
-                    <img
-                        src={thailandBg}
-                        alt="Tuyệt Tác Thái Lan"
-                        className={styles.heroImage}
-                    />
-                    <div className={styles.heroContent}>
-                        <span className={styles.heroBadge}>Cẩm nang điểm đến</span>
-                        <h1 className={styles.heroTitle}>Tuyệt Tác<br />Thái Lan</h1>
-                        <p className={styles.heroDesc}>
-                            Hành trình khám phá "Xứ sở chùa Vàng" qua lăng kính của những tâm hồn yêu sự xê dịch. Đắm chìm trong sắc xanh lục bảo của biển trời thiên nhiên.
-                        </p>
-                    </div>
+            {/* Hero Section */}
+            <div className={styles.heroWrapper}>
+                <img
+                    src={thailandBg}
+                    alt="Tuyệt Tác Thái Lan"
+                    className={styles.heroImage}
+                />
+                <div className={styles.heroOverlay}></div>
+                <div className={styles.heroContent}>
+                    <h1 className={styles.heroTitle}>Cẩm nang điểm đến</h1>
+                    <p className={styles.heroDesc}>
+                        Hành trình khám phá "Xứ sở chùa Vàng" qua lăng kính của những tâm hồn yêu sự xê dịch. Đắm chìm trong sắc xanh lục bảo của biển trời thiên nhiên.
+                    </p>
                 </div>
+            </div>
 
+            <div className={styles.container}>
                 {/* Section 1: Tổng quan */}
                 <section className={styles.section}>
                     <div className={styles.overviewGrid}>

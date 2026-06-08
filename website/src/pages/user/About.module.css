@@ -3,65 +3,162 @@
 
 .pageContainer {
     @apply min-h-screen bg-gray-50;
-    padding-top: 80px;
 }
 
-.hero {
-    @apply bg-gray-900 text-white py-16 px-4 text-center;
+/* Hero Section */
+.heroSection {
+    @apply relative w-full h-[60vh] min-h-[400px] max-h-[600px] flex items-center justify-center overflow-hidden;
 }
 
-.title {
-    @apply text-3xl md:text-4xl font-serif font-bold mb-4;
+.heroImageWrapper {
+    @apply absolute inset-0 w-full h-full;
 }
 
-.subtitle {
-    @apply text-gray-300 text-lg max-w-2xl mx-auto;
+.heroImage {
+    @apply w-full h-full object-cover object-center;
 }
 
+.heroOverlay {
+    @apply absolute inset-0 bg-black/50; /* Dark overlay for text readability */
+}
+
+.heroContent {
+    @apply relative z-10 text-center px-4 max-w-4xl mx-auto;
+    animation: fadeIn 1s ease-out forwards;
+}
+
+.heroTitle {
+    @apply text-4xl md:text-6xl font-serif font-bold text-white mb-6 drop-shadow-lg;
+}
+
+.heroSubtitle {
+    @apply text-lg md:text-2xl text-gray-100 max-w-3xl mx-auto drop-shadow-md leading-relaxed;
+}
+
+/* Container */
 .container {
-    @apply container-custom px-4 sm:px-6 py-12 max-w-4xl mx-auto;
+    @apply container-custom px-4 sm:px-6 py-16 md:py-24 max-w-7xl mx-auto flex flex-col gap-24;
 }
 
-.section {
-    @apply mb-12;
-}
-
+/* Typography Shared */
 .sectionTitle {
-    @apply text-xl font-bold text-gray-900 mb-4;
+    @apply text-3xl md:text-4xl font-bold font-serif text-gray-900 mb-6;
 }
 
-.body {
-    @apply text-gray-600 leading-relaxed;
+.sectionTitleCenter {
+    @apply text-3xl md:text-4xl font-bold font-serif text-gray-900 mb-4 text-center;
 }
 
-.values {
-    @apply mb-12;
+.sectionSubtitle {
+    @apply text-gray-600 text-lg text-center max-w-2xl mx-auto mb-12;
+}
+
+.bodyText {
+    @apply text-gray-600 text-lg leading-relaxed mb-6;
+}
+
+/* Story Section */
+.storySection {
+    @apply grid grid-cols-1 lg:grid-cols-2 gap-12 items-center;
+}
+
+.storyContent {
+    @apply order-2 lg:order-1;
+}
+
+.storyImageContainer {
+    @apply order-1 lg:order-2 rounded-2xl overflow-hidden shadow-2xl;
+}
+
+.storyImage {
+    @apply w-full h-auto object-cover transform hover:scale-105 transition-transform duration-700;
+}
+
+/* Values Section */
+.valuesSection {
+    @apply bg-white py-16 px-8 rounded-3xl shadow-sm border border-gray-100;
 }
 
 .valueGrid {
-    @apply grid grid-cols-1 md:grid-cols-3 gap-6 mt-6;
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8;
 }
 
 .valueCard {
-    @apply bg-white rounded-2xl p-6 shadow-sm border border-gray-100;
+    @apply p-6 rounded-2xl bg-gray-50 border border-gray-100 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1;
+}
+
+.iconWrapper {
+    @apply w-14 h-14 rounded-full bg-primary-100 flex items-center justify-center mb-6 text-primary-600;
 }
 
 .valueIcon {
-    @apply w-10 h-10 text-primary-500 mb-4;
+    @apply w-7 h-7;
 }
 
 .valueTitle {
-    @apply text-lg font-bold text-gray-900 mb-2;
+    @apply text-xl font-bold text-gray-900 mb-3;
 }
 
 .valueText {
-    @apply text-gray-600 text-sm leading-relaxed;
+    @apply text-gray-600 leading-relaxed;
 }
 
-.cta {
-    @apply text-center;
+/* Culture Section */
+.cultureSection {
+    @apply grid grid-cols-1 lg:grid-cols-2 gap-12 items-center;
+}
+
+.cultureImageContainer {
+    @apply rounded-2xl overflow-hidden shadow-2xl;
+}
+
+.cultureImage {
+    @apply w-full h-auto object-cover transform hover:scale-105 transition-transform duration-700;
+}
+
+.missionPoints {
+    @apply flex flex-col gap-6 mt-8;
+}
+
+.missionPoint {
+    @apply flex items-start gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors;
+}
+
+.missionIcon {
+    @apply w-8 h-8 text-secondary-500 flex-shrink-0 mt-1;
+}
+
+.missionTitle {
+    @apply text-xl font-bold text-gray-900 mb-2;
+}
+
+.missionText {
+    @apply text-gray-600 leading-relaxed;
+}
+
+/* CTA Section */
+.ctaSection {
+    @apply relative rounded-3xl overflow-hidden bg-primary-600 text-white;
+}
+
+.ctaContent {
+    @apply relative z-10 py-16 px-8 text-center max-w-3xl mx-auto;
+}
+
+.ctaTitle {
+    @apply text-3xl md:text-5xl font-serif font-bold mb-6;
+}
+
+.ctaText {
+    @apply text-xl text-primary-50 mb-10;
 }
 
 .ctaBtn {
-    @apply inline-block px-6 py-3 rounded-full bg-primary-500 text-white font-medium hover:bg-primary-600 transition-colors no-underline;
+    @apply inline-block px-8 py-4 rounded-full bg-white text-primary-600 font-bold text-lg shadow-lg hover:bg-gray-50 hover:shadow-xl transition-all transform hover:-translate-y-1 no-underline;
+}
+
+/* Keyframes overrides if needed */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }

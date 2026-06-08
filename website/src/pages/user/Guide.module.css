@@ -1,10 +1,8 @@
 @import "tailwindcss";
 @reference "../../index.css";
 
-/* Base Container */
 .pageContainer {
     @apply min-h-screen bg-[#f5f7f4] font-sans text-[#4b5563];
-    padding-top: 100px;
     padding-bottom: 120px;
 }
 
@@ -37,33 +35,28 @@
 
 /* ================= HERO SECTION ================= */
 .heroWrapper {
-    @apply relative w-full rounded-[32px] overflow-hidden mb-[100px] shadow-[0_20px_50px_rgba(0,0,0,0.08)];
-    height: 600px;
-
-    @media (min-width: 1024px) {
-        height: 720px;
-    }
+    @apply relative text-white pt-32 pb-24 px-4 text-center overflow-hidden w-full mb-[100px];
+    min-height: 500px;
 }
 
 .heroImage {
-    @apply absolute inset-0 w-full h-full object-cover;
+    @apply absolute inset-0 w-full h-full object-cover z-0;
+}
+
+.heroOverlay {
+    @apply absolute inset-0 bg-black/30 z-10;
 }
 
 .heroContent {
-    @apply absolute bottom-6 left-4 right-4 sm:bottom-12 sm:left-12 sm:right-auto bg-transparent backdrop-blur-3xl p-8 md:p-12 rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.08)];
-    max-width: 580px;
-}
-
-.heroBadge {
-    @apply inline-block px-4 py-1.5 bg-[#e6f0eb] text-[#064e2f] text-xs font-bold tracking-widest uppercase rounded-full mb-5;
+    @apply relative z-20 px-4 max-w-4xl mx-auto flex flex-col items-center justify-center py-12 md:py-20;
 }
 
 .heroTitle {
-    @apply text-4xl md:text-[52px] font-bold text-[#064e2f] mb-4 leading-[1.1];
+    @apply text-4xl md:text-6xl font-serif font-bold text-white mb-6 leading-tight;
 }
 
 .heroDesc {
-    @apply text-lg text-gray-700 leading-relaxed;
+    @apply text-lg md:text-xl text-gray-200 leading-relaxed max-w-2xl mx-auto;
 }
 
 /* ================= SECTION 1: OVERVIEW ================= */

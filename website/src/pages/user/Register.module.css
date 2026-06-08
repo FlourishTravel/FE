@@ -128,7 +128,7 @@
 /* Title */
 .title {
     @apply text-2xl font-bold text-gray-900 text-center;
-    font-family: 'Georgia', 'Times New Roman', serif;
+    font-family: var(--font-serif);
     margin-bottom: 4px;
 }
 

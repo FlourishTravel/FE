@@ -8,12 +8,12 @@ const CompanyDetails = () => {
             <section className={styles.hero}>
                 <div className={styles.heroContent}>
                     <h1 className={styles.heroTitle}>
-                        Travel with <span className={styles.heroTitleHighlight}>Purpose</span>
+                        Du lịch với <span className={styles.heroTitleHighlight}>Mục đích</span>
                     </h1>
                     <p className={styles.heroDesc}>
-                        We bridge the gap between education and adventure. Flourish Travel
-                        empowers students to explore the world, broaden their horizons, and
-                        grow through immersive global experiences.
+                        Chúng tôi kết nối đam mê khám phá và trải nghiệm văn hóa sâu sắc. Flourish Travel
+                        đồng hành cùng bạn trên hành trình khám phá Thái Lan, mở rộng thế giới quan và
+                        phát triển bản thân qua những chuyến đi đầy cảm hứng.
                     </p>
                 </div>
             </section>
@@ -24,44 +24,44 @@ const CompanyDetails = () => {
                     <div className={styles.missionImageWrapper}>
                         <img
                             src="https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=600&q=80"
-                            alt="Students in forest"
+                            alt="Du khách trong rừng Thái Lan"
                             className={styles.missionImage}
                         />
                         <img
                             src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600&q=80"
-                            alt="Students group"
+                            alt="Nhóm du khách"
                             className={styles.missionImage}
                         />
                     </div>
                     <div className={styles.missionContent}>
-                        <span className={styles.missionLabel}>✦ Our Mission</span>
+                        <span className={styles.missionLabel}>✦ Sứ mệnh của chúng tôi</span>
                         <h2 className={styles.missionTitle}>
-                            Empowering the next generation of global citizens.
+                            Truyền cảm hứng cho thế hệ công dân toàn cầu tiếp theo.
                         </h2>
                         <p className={styles.missionText}>
-                            At Flourish Travel, we believe that travel is the best form of education. Our
-                            mission is to make international travel accessible, educational, and
-                            sustainable for students worldwide. We curate experiences that aren't just
-                            about sightseeing, but about cultural immersion and personal growth.
+                            Tại Flourish Travel, chúng tôi tin rằng du lịch là hình thức học hỏi tuyệt vời nhất. 
+                            Sứ mệnh của chúng tôi là mang đến những chuyến du lịch quốc tế dễ tiếp cận, giàu tính giáo dục và 
+                            bền vững cho du khách. Chúng tôi thiết kế các trải nghiệm không chỉ đơn thuần 
+                            là ngắm cảnh, mà còn là sự hòa mình vào văn hóa và sự phát triển cá nhân.
                         </p>
                         <ul className={styles.missionFeatures}>
                             <li>
                                 <svg className={styles.checkIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
                                 </svg>
-                                Sustainable travel practices that respect local communities.
+                                Thực hành du lịch bền vững, tôn trọng cộng đồng địa phương.
                             </li>
                             <li>
                                 <svg className={styles.checkIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
                                 </svg>
-                                Scholarship programs to support underprivileged students.
+                                Chương trình hỗ trợ trải nghiệm văn hóa bản địa chân thực.
                             </li>
                             <li>
                                 <svg className={styles.checkIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
                                 </svg>
-                                Safety-first approach with 24/7 global support.
+                                Đặt sự an toàn lên hàng đầu với đội ngũ hỗ trợ toàn cầu 24/7.
                             </li>
                         </ul>
                     </div>
@@ -73,19 +73,19 @@ const CompanyDetails = () => {
                 <div className={styles.statsContainer}>
                     <div className={styles.statItem}>
                         <div className={styles.statNumber}>50+</div>
-                        <div className={styles.statLabel}>Partner Universities</div>
+                        <div className={styles.statLabel}>Đối tác tại Thái Lan</div>
                     </div>
                     <div className={styles.statItem}>
                         <div className={styles.statNumber}>12k</div>
-                        <div className={styles.statLabel}>Students Traveled</div>
+                        <div className={styles.statLabel}>Du khách đồng hành</div>
                     </div>
                     <div className={styles.statItem}>
-                        <div className={styles.statNumber}>35</div>
-                        <div className={styles.statLabel}>Countries Visited</div>
+                        <div className={styles.statNumber}>15</div>
+                        <div className={styles.statLabel}>Tỉnh thành khám phá</div>
                     </div>
                     <div className={styles.statItem}>
-                        <div className={styles.statNumber}>$2M</div>
-                        <div className={styles.statLabel}>Scholarships Awarded</div>
+                        <div className={styles.statNumber}>100%</div>
+                        <div className={styles.statLabel}>Phản hồi tích cực</div>
                     </div>
                 </div>
             </section>
@@ -93,30 +93,30 @@ const CompanyDetails = () => {
             {/* Impact Section */}
             <section className={styles.impactSection}>
                 <div className={styles.impactContainer}>
-                    <h2 className={styles.impactTitle}>Our Impact</h2>
+                    <h2 className={styles.impactTitle}>Tác động của chúng tôi</h2>
                     <p className={styles.impactSubtitle}>
-                        We measure our success not just in miles traveled, but in lives changed. See how
-                        Flourish Travel is making a difference.
+                        Chúng tôi đo lường thành công không chỉ bằng số dặm đã bay, mà bằng những trải nghiệm 
+                        đáng giá. Xem cách Flourish Travel đang tạo ra sự khác biệt.
                     </p>
                     <div className={styles.impactGrid}>
                         <div className={styles.impactCard}>
                             <div className={styles.imageContainer}>
                                 <img
                                     src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&q=80"
-                                    alt="Carbon Offset Initiative"
+                                    alt="Sáng kiến bù đắp Carbon"
                                     className={styles.impactCardImage}
                                 />
-                                <span className={styles.impactCardTag}>Environment</span>
+                                <span className={styles.impactCardTag}>Môi trường</span>
                             </div>
                             <div className={styles.impactCardContent}>
-                                <h3 className={styles.impactCardTitle}>Carbon Offset Initiative</h3>
+                                <h3 className={styles.impactCardTitle}>Sáng kiến bù đắp Carbon</h3>
                                 <p className={styles.impactCardText}>
-                                    For every flight booked, we plant 5 trees in
-                                    deforested regions, ensuring your travel leaves a
-                                    green footprint.
+                                    Với mỗi chuyến bay được đặt, chúng tôi trồng 5 cây xanh ở 
+                                    các khu vực bị tàn phá rừng, đảm bảo chuyến đi của bạn để lại 
+                                    dấu chân xanh.
                                 </p>
                                 <a href="#" className={styles.impactCardLink}>
-                                    Learn more →
+                                    Tìm hiểu thêm →
                                 </a>
                             </div>
                         </div>
@@ -124,20 +124,19 @@ const CompanyDetails = () => {
                             <div className={styles.imageContainer}>
                                 <img
                                     src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&q=80"
-                                    alt="Education Access"
+                                    alt="Hỗ trợ cộng đồng"
                                     className={styles.impactCardImage}
                                 />
-                                <span className={styles.impactCardTag}>Community</span>
+                                <span className={styles.impactCardTag}>Cộng đồng</span>
                             </div>
                             <div className={styles.impactCardContent}>
-                                <h3 className={styles.impactCardTitle}>Education Access</h3>
+                                <h3 className={styles.impactCardTitle}>Hỗ trợ cộng đồng</h3>
                                 <p className={styles.impactCardText}>
-                                    We partner with local schools in every destination
-                                    to facilitate cultural exchange and provide
-                                    educational resources.
+                                    Chúng tôi hợp tác với các trường học địa phương tại mỗi điểm đến 
+                                    để tạo điều kiện giao lưu văn hóa và cung cấp tài nguyên giáo dục.
                                 </p>
                                 <a href="#" className={styles.impactCardLink}>
-                                    Learn more →
+                                    Tìm hiểu thêm →
                                 </a>
                             </div>
                         </div>
@@ -145,19 +144,19 @@ const CompanyDetails = () => {
                             <div className={styles.imageContainer}>
                                 <img
                                     src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600&q=80"
-                                    alt="Cultural Preservation"
+                                    alt="Bảo tồn văn hóa"
                                     className={styles.impactCardImage}
                                 />
-                                <span className={styles.impactCardTag}>Culture</span>
+                                <span className={styles.impactCardTag}>Văn hóa</span>
                             </div>
                             <div className={styles.impactCardContent}>
-                                <h3 className={styles.impactCardTitle}>Cultural Preservation</h3>
+                                <h3 className={styles.impactCardTitle}>Bảo tồn văn hóa</h3>
                                 <p className={styles.impactCardText}>
-                                    Our tours are designed to support local artisans
-                                    and preserve intangible cultural heritage sites.
+                                    Các tour du lịch của chúng tôi được thiết kế để hỗ trợ các nghệ nhân 
+                                    địa phương và bảo tồn các di sản văn hóa phi vật thể.
                                 </p>
                                 <a href="#" className={styles.impactCardLink}>
-                                    Learn more →
+                                    Tìm hiểu thêm →
                                 </a>
                             </div>
                         </div>
@@ -169,11 +168,10 @@ const CompanyDetails = () => {
             <section className={styles.contactSection}>
                 <div className={styles.contactContainer}>
                     <div className={styles.contactLeft}>
-                        <h2>Contact Us</h2>
+                        <h2>Liên hệ với chúng tôi</h2>
                         <p>
-                            Have questions about our programs or need
-                            support? Our team is available 24/7 to assist
-                            you.
+                            Bạn có câu hỏi về các chương trình tour hoặc cần hỗ trợ? 
+                            Đội ngũ của chúng tôi luôn sẵn sàng 24/7 để đồng hành cùng bạn.
                         </p>
                         <div className={styles.contactInfo}>
                             <div className={styles.contactItem}>
@@ -184,8 +182,8 @@ const CompanyDetails = () => {
                                     </svg>
                                 </div>
                                 <div className={styles.contactItemContent}>
-                                    <h4>Headquarters</h4>
-                                    <p>123 Innovation Lane, Suite 400<br />Knowledge District<br />San Francisco, CA 94102</p>
+                                    <h4>Trụ sở chính</h4>
+                                    <p>Tòa nhà Bitexco Financial Tower<br />Quận 1<br />TP. Hồ Chí Minh, Việt Nam</p>
                                 </div>
                             </div>
                             <div className={styles.contactItem}>
@@ -195,7 +193,7 @@ const CompanyDetails = () => {
                                     </svg>
                                 </div>
                                 <div className={styles.contactItemContent}>
-                                    <h4>Email Us</h4>
+                                    <h4>Gửi Email</h4>
                                     <p>
                                         <a href="mailto:support@flourishtravel.com">support@flourishtravel.com</a><br />
                                         <a href="mailto:partnerships@flourishtravel.com">partnerships@flourishtravel.com</a>
@@ -209,35 +207,36 @@ const CompanyDetails = () => {
                                     </svg>
                                 </div>
                                 <div className={styles.contactItemContent}>
-                                    <h4>Call Us</h4>
-                                    <p><a href="tel:+18005550199">+1 (800) 555-0199</a></p>
+                                    <h4>Gọi cho chúng tôi</h4>
+                                    <p><a href="tel:+8419001234">+84 1900 1234</a></p>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div className={styles.companyInfoCard}>
-                        <h3 className={styles.companyInfoTitle}>Company Information</h3>
+                        <h3 className={styles.companyInfoTitle}>Thông tin công ty</h3>
                         <div className={styles.companyInfoGrid}>
                             <div className={styles.companyInfoItem}>
-                                <span className={styles.companyInfoLabel}>Legal Name</span>
-                                <span className={styles.companyInfoValue}>Flourish Global Education Inc.</span>
+                                <span className={styles.companyInfoLabel}>Tên pháp lý</span>
+                                <span className={styles.companyInfoValue}>Công ty Cổ phần Flourish Travel</span>
                             </div>
                             <div className={styles.companyInfoItem}>
-                                <span className={styles.companyInfoLabel}>Tax Identification Number</span>
-                                <span className={styles.companyInfoValue}>US-98-7654321</span>
+                                <span className={styles.companyInfoLabel}>Mã số thuế</span>
+                                <span className={styles.companyInfoValue}>0312345678</span>
                             </div>
                             <div className={styles.companyInfoItem}>
-                                <span className={styles.companyInfoLabel}>Founded</span>
-                                <span className={styles.companyInfoValue}>2018</span>
+                                <span className={styles.companyInfoLabel}>Năm thành lập</span>
+                                <span className={styles.companyInfoValue}>2022</span>
                             </div>
                             <div className={styles.companyInfoItem}>
-                                <span className={styles.companyInfoLabel}>Legal Representative</span>
-                                <span className={styles.companyInfoValue}>Sarah Jenkins, CEO</span>
+                                <span className={styles.companyInfoLabel}>Người đại diện</span>
+                                <span className={styles.companyInfoValue}>Nguyễn Văn Demo, Giám đốc</span>
                             </div>
                             <div className={`${styles.companyInfoItem} ${styles.companyInfoFull}`}>
-                                <span className={styles.companyInfoLabel}>Operating License</span>
+                                <span className={styles.companyInfoLabel}>Giấy phép hoạt động</span>
                                 <span className={styles.companyInfoValue}>
-                                    International Tour Operator License (ITO-2023-8456). Certified by the Global Sustainable Tourism Council.
+                                    Giấy phép kinh doanh dịch vụ lữ hành quốc tế (GP: 79-999/2023/TCDL-GPLHQT). 
+                                    Được chứng nhận bởi Hội đồng Du lịch Bền vững Toàn cầu.
                                 </span>
                             </div>
                         </div>

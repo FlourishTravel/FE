@@ -2,54 +2,176 @@
 @reference "../../index.css";
 
 .pageContainer {
-    @apply min-h-screen bg-gray-50;
-    padding-top: 80px;
+    @apply min-h-screen bg-slate-50;
 }
 
 .hero {
-    @apply bg-gray-900 text-white py-16 px-4 text-center;
+    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.7)),
+        url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80');
+    background-size: cover;
+    background-position: center;
+    @apply text-white py-24 px-4 text-center;
 }
 
 .title {
-    @apply text-3xl md:text-4xl font-serif font-bold mb-4;
+    font-family: var(--font-serif);
+    @apply text-4xl md:text-5xl font-bold mb-4 drop-shadow-md;
 }
 
 .subtitle {
-    @apply text-gray-300 text-lg max-w-2xl mx-auto;
+    @apply text-gray-200 text-lg max-w-2xl mx-auto drop-shadow-sm leading-relaxed;
 }
 
 .container {
-    @apply container-custom px-4 sm:px-6 py-12 max-w-4xl mx-auto;
+    @apply container-custom px-4 sm:px-6 py-16 max-w-4xl mx-auto;
 }
 
 .newsList {
-    @apply space-y-6;
+    @apply space-y-8;
 }
 
 .newsCard {
-    @apply bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 flex flex-col sm:flex-row;
+    @apply bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-100 flex flex-col sm:flex-row transition-all duration-300 cursor-pointer;
+}
+
+.newsCard:hover {
+    @apply shadow-lg -translate-y-1 border-primary-200/50;
 }
 
 .newsImage {
-    @apply w-full sm:w-64 h-48 sm:h-auto object-cover flex-shrink-0;
+    @apply w-full sm:w-72 h-56 sm:h-auto object-cover flex-shrink-0 transition-transform duration-500;
+}
+
+.newsCard:hover .newsImage {
+    transform: scale(1.03);
 }
 
 .newsContent {
-    @apply p-6 flex flex-col flex-1;
+    @apply p-8 flex flex-col flex-1;
+}
+
+.newsMetaHeader {
+    @apply flex items-center gap-3 mb-3 flex-wrap;
+}
+
+.newsCategory {
+    @apply bg-emerald-50 text-emerald-600 text-xs font-semibold px-2.5 py-1 rounded-full uppercase tracking-wider;
 }
 
 .newsDate {
-    @apply flex items-center gap-1.5 text-sm text-primary-600 font-medium mb-2;
+    @apply flex items-center gap-1.5 text-xs text-slate-400 font-medium;
 }
 
 .dateIcon {
-    @apply w-4 h-4;
+    @apply w-3.5 h-3.5;
 }
 
 .newsTitle {
-    @apply text-lg font-bold text-gray-900 mb-2;
+    font-family: var(--font-serif);
+    @apply text-xl font-bold text-slate-800 mb-3 leading-snug transition-colors;
+}
+
+.newsCard:hover .newsTitle {
+    @apply text-primary-600;
 }
 
 .newsExcerpt {
-    @apply text-gray-600 text-sm leading-relaxed;
+    @apply text-slate-500 text-sm leading-relaxed mb-4;
+}
+
+.readMore {
+    @apply mt-auto flex items-center gap-1 text-primary-600 font-semibold text-sm transition-all duration-200;
+}
+
+.newsCard:hover .readMore {
+    @apply text-primary-700 gap-2;
+}
+
+/* Modal Overlay & Popup Styles */
+.modalOverlay {
+    @apply fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[1000] flex items-center justify-center p-4;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.modalContent {
+    @apply bg-white rounded-3xl overflow-hidden shadow-2xl relative w-full max-w-2xl max-h-[85vh] flex flex-col;
+    animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.closeBtn {
+    @apply absolute top-4 right-4 bg-white/90 text-slate-700 hover:bg-slate-100 hover:text-slate-950 p-2 rounded-full cursor-pointer z-10 transition-all duration-200 shadow-sm border border-slate-100;
+}
+
+.modalImageWrapper {
+    @apply relative w-full h-64 md:h-80 flex-shrink-0;
+}
+
+.modalImage {
+    @apply w-full h-full object-cover;
+}
+
+.modalTag {
+    @apply absolute bottom-4 left-6 bg-emerald-500 text-white text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider shadow-sm;
+}
+
+.modalBody {
+    @apply p-6 md:p-8 overflow-y-auto flex-1;
+}
+
+.modalMeta {
+    @apply flex items-center gap-2 text-xs text-slate-400 font-semibold uppercase tracking-wider mb-4;
+}
+
+.modalMetaItem {
+    @apply flex items-center gap-1;
+}
+
+.modalMetaDivider {
+    @apply text-slate-300;
+}
+
+.modalTitle {
+    font-family: var(--font-serif);
+    @apply text-2xl md:text-3xl font-bold text-slate-800 mb-6 leading-tight;
+}
+
+.modalText {
+    @apply space-y-4;
+}
+
+.modalParagraph {
+    @apply text-slate-600 text-base leading-relaxed;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .newsImage {
+        @apply h-48;
+    }
+    .modalImageWrapper {
+        @apply h-48;
+    }
+    .modalBody {
+        @apply p-5;
+    }
+    .modalTitle {
+        @apply text-xl mb-4;
+    }
 }

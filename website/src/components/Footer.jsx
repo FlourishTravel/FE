@@ -24,7 +24,7 @@ const Footer = () => {
                 </div>
 
                 <h2 className={styles.title}>
-                    Ready to Flourish?
+                    Sẵn sàng cùng Flourish?
                 </h2>
 
                 <p className={styles.description}>
@@ -34,11 +34,11 @@ const Footer = () => {
                 <div className={styles.subscribeContainer}>
                     <input
                         type="email"
-                        placeholder="Enter your email"
+                        placeholder="Nhập email của bạn"
                         className={styles.emailInput}
                     />
                     <button className={styles.subscribeBtn}>
-                        Subscribe
+                        Đăng ký
                     </button>
                 </div>
 
@@ -57,7 +57,7 @@ const Footer = () => {
 
                     {/* Column 2: GET STARTED */}
                     <div className={styles.footerColumn}>
-                        <h3 className={styles.footerTitle} style={{ color: '#0099ff', letterSpacing: '2px' }}>GET STARTED</h3>
+                        <h3 className={styles.footerTitle} style={{ color: '#0099ff', letterSpacing: '2px' }}>BẮT ĐẦU</h3>
                         <ul className={styles.footerList}>
                             <li><Link to="/login" onClick={scrollToTop} className={styles.footerLink}>Đăng nhập</Link></li>
                             <li><Link to="/register" onClick={scrollToTop} className={styles.footerLink}>Đăng ký</Link></li>
@@ -66,12 +66,11 @@ const Footer = () => {
 
                     {/* Column 3: ABOUT */}
                     <div className={styles.footerColumn}>
-                        <h3 className={styles.footerTitle} style={{ color: '#0099ff', letterSpacing: '2px' }}>ABOUT</h3>
+                        <h3 className={styles.footerTitle} style={{ color: '#0099ff', letterSpacing: '2px' }}>VỀ CHÚNG TÔI</h3>
                         <ul className={styles.footerList}>
-                            <li><Link to="/about" onClick={scrollToTop} className={styles.footerLink}>About us</Link></li>
-                            <li><Link to="/careers" onClick={scrollToTop} className={styles.footerLink}>Careers</Link></li>
-                            <li><Link to="/news" onClick={scrollToTop} className={styles.footerLink}>News & press</Link></li>
-                            <li><Link to="/stories" onClick={scrollToTop} className={styles.footerLink}>Stories</Link></li>
+                            <li><Link to="/about" onClick={scrollToTop} className={styles.footerLink}>Giới thiệu</Link></li>
+                            <li><Link to="/careers" onClick={scrollToTop} className={styles.footerLink}>Tuyển dụng</Link></li>
+                            <li><Link to="/news" onClick={scrollToTop} className={styles.footerLink}>Tin tức & Báo chí</Link></li>
                         </ul>
                     </div>
 
@@ -84,25 +83,17 @@ const Footer = () => {
                         </ul>
                     </div>
 
-                    {/* Column 5: PARTNERS */}
-                    <div className={styles.footerColumn}>
-                        <h3 className={styles.footerTitle} style={{ color: '#0099ff', letterSpacing: '2px' }}>PARTNERS</h3>
-                        <ul className={styles.footerList}>
-                            <li><span className={styles.footerLink}>Mixpanel</span></li>
-                            <li><span className={styles.footerLink}>Location IQ</span></li>
-                        </ul>
-                    </div>
                 </div>
 
                 <div className={styles.bottomBar}>
                     <div className={`${styles.copyright} flex flex-wrap gap-2 md:gap-4 items-center`}>
                         <span>&copy; 2026 Flourish Travel</span>
                         <span>·</span>
-                        <Link to="/terms-of-service" onClick={scrollToTop} className={styles.footerLink}>Terms</Link>
+                        <Link to="/terms-of-service" onClick={scrollToTop} className={styles.footerLink}>Điều khoản dịch vụ</Link>
                         <span>·</span>
-                        <Link to="/privacy-policy" onClick={scrollToTop} className={styles.footerLink}>Privacy</Link>
+                        <Link to="/privacy-policy" onClick={scrollToTop} className={styles.footerLink}>Chính sách bảo mật</Link>
                         <span>·</span>
-                        <Link to="/cookie-policy" onClick={scrollToTop} className={styles.footerLink}>Cookies</Link>
+                        <Link to="/cookie-policy" onClick={scrollToTop} className={styles.footerLink}>Chính sách Cookie</Link>
                     </div>
                     <div className="flex gap-4 mt-4 md:mt-0 text-white items-center">
                         <a href="#" aria-label="TikTok" className="hover:opacity-70 transition-opacity">

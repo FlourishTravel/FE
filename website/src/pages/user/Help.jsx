@@ -2,194 +2,181 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import styles from './Help.module.css';
 import {
-    FaPlane,
-    FaFileAlt,
-    FaMapMarkerAlt,
+    FaPlaneDeparture,
+    FaPassport,
+    FaMapMarkedAlt,
     FaCreditCard,
-    FaSearch,
     FaEnvelope,
     FaComments,
-    FaPhone,
+    FaPhoneAlt,
     FaUsers
 } from 'react-icons/fa';
 
 const Help = () => {
-    const [searchQuery, setSearchQuery] = useState('');
-
     const categories = [
         {
-            icon: <FaPlane />,
-            title: 'Booking Flights',
-            description: 'Changing dates, baggage allowance, and student discounts.',
-            articles: 12,
-            color: 'yellow'
+            icon: <FaPlaneDeparture />,
+            title: 'Đặt Tour & Lịch Trình',
+            description: 'Thông tin về các gói tour Thái Lan, chính sách hoàn hủy và thay đổi ngày khởi hành.',
+            articles: 15,
+            iconClass: styles.iconTeal
         },
         {
-            icon: <FaFileAlt />,
-            title: 'Visa Support',
-            description: 'Application guides, embassy contacts, and document checklists.',
+            icon: <FaPassport />,
+            title: 'Thủ Tục Visa & Nhập Cảnh',
+            description: 'Hướng dẫn giấy tờ, tờ khai hải quan và quy định nhập cảnh Thái Lan mới nhất.',
             articles: 8,
-            color: 'green'
+            iconClass: styles.iconEmerald
         },
         {
-            icon: <FaMapMarkerAlt />,
-            title: 'Student Travel Tips',
-            description: 'Budgeting hacks, solo travel safety, and scholarship alerts.',
-            articles: 24,
-            color: 'yellowGreen'
+            icon: <FaMapMarkedAlt />,
+            title: 'Cẩm Nang Du Lịch Thái Lan',
+            description: 'Mẹo di chuyển (BTS/MRT), văn hóa địa phương, gợi ý ẩm thực đường phố và mua sắm.',
+            articles: 32,
+            iconClass: styles.iconOrange
         },
         {
             icon: <FaCreditCard />,
-            title: 'Account & Billing',
-            description: 'Update profile, payment methods, and subscription management.',
-            articles: 5,
-            color: 'yellowLight'
+            title: 'Thanh Toán & Hóa Đơn',
+            description: 'Phương thức thanh toán an toàn, quy đổi ngoại tệ (Baht) và xuất hóa đơn dịch vụ.',
+            articles: 6,
+            iconClass: styles.iconBlue
         }
     ];
 
     const popularArticles = [
         {
-            title: 'How to apply for the Flourish Global Scholarship?',
-            updated: 'Updated 2 days ago'
+            title: 'Quy định nhập cảnh Thái Lan không cần Visa (Mới nhất)',
+            updated: 'Cập nhật 2 ngày trước'
         },
         {
-            title: 'Cancellation policy for student flights',
-            updated: 'Updated 1 week ago'
+            title: 'Hướng dẫn sử dụng tàu điện BTS & MRT tại Bangkok',
+            updated: 'Cập nhật 1 tuần trước'
         },
         {
-            title: 'Guide to host family etiquette',
-            updated: 'Updated 3 weeks ago'
+            title: 'Chính sách hoàn hủy và thay đổi tour của Flourish Travel',
+            updated: 'Cập nhật 3 tuần trước'
+        },
+        {
+            title: 'Top 10 món ăn đường phố không thể bỏ lỡ tại Chiang Mai',
+            updated: 'Cập nhật 1 tháng trước'
         }
     ];
 
     return (
-        <div className={styles.container}>
+        <div className={styles.pageContainer}>
             {/* Hero Section */}
-            <div className={styles.hero}>
+            <div className={styles.heroSection}>
+                <img 
+                    src="/images/thailand_help_hero.png" 
+                    alt="Cảnh đẹp Thái Lan" 
+                    className={styles.heroBackground} 
+                />
+                <div className={styles.heroOverlay}></div>
                 <div className={styles.heroContent}>
-                    <h1 className={styles.heroTitle}>How can we help you flourish?</h1>
+                    <h1 className={styles.heroTitle}>Flourish có thể giúp gì cho chuyến đi Thái Lan của bạn?</h1>
                     <p className={styles.heroSubtitle}>
-                        Find answers about student travel hacks, scholarship alerts, visa processes,<br />
-                        and destination guides.
+                        Tìm kiếm câu trả lời về đặt tour, thủ tục nhập cảnh, mẹo du lịch địa phương <br className="hidden md:block" /> và hướng dẫn điểm đến tại xứ sở Chùa Vàng.
                     </p>
-
-                    <div className={styles.searchContainer}>
-                        <div className={styles.searchWrapper}>
-                            <input
-                                type="text"
-                                placeholder="Search for articles, guides, or troubleshooting..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className={styles.searchInput}
-                            />
-                            <button className={styles.searchButton}>
-                                Search
-                            </button>
-                        </div>
-                    </div>
                 </div>
             </div>
 
             {/* Main Content */}
-            <div className={styles.mainContent}>
-                {/* Left Content */}
-                <div className={styles.leftContent}>
-                    {/* Browse by Category */}
-                    <div className={styles.categoriesSection}>
-                        <div className={styles.sectionHeader}>
-                            <span className={styles.headerLine}></span>
-                            <h2 className={styles.sectionTitle}>Browse by Category</h2>
+            <div className={styles.mainContainer}>
+                {/* Categories */}
+                <div className={styles.sectionHeader}>
+                    <h2 className={styles.sectionTitleCenter}>Khám phá theo chủ đề</h2>
+                    <p className={styles.sectionSubtitle}>Những chủ đề được quan tâm nhiều nhất cho chuyến đi Thái Lan</p>
+                </div>
+                
+                <div className={styles.categoriesGrid}>
+                    {categories.map((category, index) => (
+                        <div key={index} className={styles.categoryCard}>
+                            <div className={`${styles.categoryIconWrapper} ${category.iconClass}`}>
+                                {category.icon}
+                            </div>
+                            <h3 className={styles.categoryTitle}>{category.title}</h3>
+                            <p className={styles.categoryDesc}>{category.description}</p>
+                            <Link to="#" className={styles.categoryLink}>
+                                Xem {category.articles} bài viết &rarr;
+                            </Link>
                         </div>
-
-                        <div className={styles.categoriesGrid}>
-                            {categories.map((category, index) => (
-                                <div key={index} className={`${styles.categoryCard} ${styles[category.color]}`}>
-                                    <div className={styles.categoryIcon}>
-                                        {category.icon}
-                                    </div>
-                                    <h3 className={styles.categoryTitle}>{category.title}</h3>
-                                    <p className={styles.categoryDescription}>{category.description}</p>
-                                    <Link to="#" className={styles.categoryLink}>
-                                        View {category.articles} Articles →
-                                    </Link>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Popular Articles */}
-                    <div className={styles.articlesSection}>
-                        <h2 className={styles.articlesTitle}>Popular Articles</h2>
-                        <div className={styles.articlesList}>
-                            {popularArticles.map((article, index) => (
-                                <div key={index} className={styles.articleItem}>
-                                    <div className={styles.articleIcon}>
-                                        <FaFileAlt />
-                                    </div>
-                                    <div className={styles.articleContent}>
-                                        <h4 className={styles.articleTitle}>{article.title}</h4>
-                                        <span className={styles.articleDate}>{article.updated}</span>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
+                    ))}
                 </div>
 
-                {/* Right Sidebar */}
-                <div className={styles.rightSidebar}>
-                    {/* Still need help card */}
-                    <div className={styles.helpCard}>
-                        <h3 className={styles.helpCardTitle}>Still need help?</h3>
-                        <p className={styles.helpCardDesc}>
-                            Our support team is available 24/7 to assist you with your journey.
-                        </p>
-
-                        <div className={styles.contactOptions}>
-                            <div className={styles.contactItem}>
-                                <div className={styles.contactIcon}>
-                                    <FaEnvelope />
-                                </div>
-                                <div className={styles.contactInfo}>
-                                    <span className={styles.contactLabel}>EMAIL SUPPORT</span>
-                                    <span className={styles.contactValue}>support@flourish.travel</span>
-                                </div>
-                            </div>
-
-                            <div className={styles.contactItem}>
-                                <div className={styles.contactIcon}>
-                                    <FaComments />
-                                </div>
-                                <div className={styles.contactInfo}>
-                                    <span className={styles.contactLabel}>LIVE CHAT</span>
-                                    <span className={styles.contactValue}>Start a conversation</span>
-                                </div>
-                            </div>
-
-                            <div className={styles.contactItem}>
-                                <div className={styles.contactIcon}>
-                                    <FaPhone />
-                                </div>
-                                <div className={styles.contactInfo}>
-                                    <span className={styles.contactLabel}>HOTLINE</span>
-                                    <span className={styles.contactValue}>+1 (800) 123-4567</span>
-                                </div>
+                {/* Bottom Section */}
+                <div className={styles.bottomSection}>
+                    {/* Left: Popular Articles */}
+                    <div className={styles.articlesColumn}>
+                        <div className={styles.articlesCard}>
+                            <h2 className={styles.sectionTitle}>Bài viết phổ biến</h2>
+                            <div className={styles.articlesList}>
+                                {popularArticles.map((article, index) => (
+                                    <div key={index} className={styles.articleItem}>
+                                        <div className={styles.articleIconCircle}>
+                                            <FaMapMarkedAlt className={styles.articleIconSmall} />
+                                        </div>
+                                        <div className={styles.articleText}>
+                                            <h4 className={styles.articleHeading}>{article.title}</h4>
+                                            <p className={styles.articleMeta}>{article.updated}</p>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     </div>
 
-                    {/* Join the Community card */}
-                    <div className={styles.communityCard}>
-                        <div className={styles.communityIcon}>
-                            <FaUsers />
+                    {/* Right: Support Sidebar */}
+                    <div className={styles.sidebarColumn}>
+                        <div className={styles.supportCard}>
+                            <h3 className={styles.sidebarTitle}>Bạn vẫn cần hỗ trợ?</h3>
+                            <p className={styles.sidebarDesc}>
+                                Đội ngũ chuyên gia du lịch Thái Lan của Flourish luôn sẵn sàng hỗ trợ bạn 24/7.
+                            </p>
+                            
+                            <div className={styles.contactList}>
+                                <div className={styles.contactItem}>
+                                    <div className={styles.contactIconContainer}>
+                                        <FaEnvelope />
+                                    </div>
+                                    <div className={styles.contactDetails}>
+                                        <span className={styles.contactLabel}>EMAIL HỖ TRỢ</span>
+                                        <span className={styles.contactValue}>support@flourishtravel.com</span>
+                                    </div>
+                                </div>
+                                <div className={styles.contactItem}>
+                                    <div className={styles.contactIconContainer}>
+                                        <FaComments />
+                                    </div>
+                                    <div className={styles.contactDetails}>
+                                        <span className={styles.contactLabel}>LIVE CHAT</span>
+                                        <span className={styles.contactValue}>Bắt đầu trò chuyện</span>
+                                    </div>
+                                </div>
+                                <div className={styles.contactItem}>
+                                    <div className={styles.contactIconContainer}>
+                                        <FaPhoneAlt />
+                                    </div>
+                                    <div className={styles.contactDetails}>
+                                        <span className={styles.contactLabel}>HOTLINE (24/7)</span>
+                                        <span className={styles.contactValue}>+84 1900 1234</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <h3 className={styles.communityTitle}>Join the Community</h3>
-                        <p className={styles.communityDesc}>
-                            Connect with thousands of student travelers sharing their experiences.
-                        </p>
-                        <button className={styles.communityButton}>
-                            Join Forum
-                        </button>
+
+                        <div className={styles.communityCard}>
+                            <div className={styles.communityIconCircle}>
+                                <FaUsers />
+                            </div>
+                            <h3 className={styles.communityTitle}>Cộng đồng yêu Thái Lan</h3>
+                            <p className={styles.communityDesc}>
+                                Kết nối và chia sẻ kinh nghiệm khám phá xứ sở Chùa Vàng cùng hàng ngàn du khách khác.
+                            </p>
+                            <button className={styles.communityBtn}>
+                                Tham gia ngay
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

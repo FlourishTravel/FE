@@ -7,305 +7,305 @@ const TermsOfService = () => {
         <div className={styles.pageWrapper}>
             {/* Hero Image */}
             <div className={styles.heroImage}>
-                <img src={heroImage} alt="Terms & Services" className={styles.heroImg} />
+                <img src={heroImage} alt="Điều khoản dịch vụ" className={styles.heroImg} />
             </div>
 
             {/* Title Section */}
             <div className={styles.titleSection}>
-                <h1 className={styles.pageTitle}>Terms & Services</h1>
+                <h1 className={styles.pageTitle}>Điều khoản Dịch vụ</h1>
             </div>
 
             {/* Main Content */}
             <main className={styles.mainContent}>
                 {/* Section 1: Introduction */}
                 <section id="introduction" className={styles.section}>
-                    <h2 className={styles.sectionTitle}>1. INTRODUCTION</h2>
+                    <h2 className={styles.sectionTitle}>1. GIỚI THIỆU</h2>
                     <p className={styles.sectionText}>
-                        The Flourish Travel Website ("Website") is operated by <strong>Flourish Tourism</strong> to provide information and support for customers who have participated or will participate in Flourish tours.
+                        Website Flourish Travel ("Website") được vận hành bởi <strong>Flourish Tourism</strong> nhằm cung cấp thông tin và hỗ trợ cho khách hàng đã, đang hoặc sẽ tham gia các tour của Flourish.
                     </p>
                     <p className={styles.sectionText}>
-                        This Website is not an e-commerce platform, does not sell airline tickets, does not book accommodation services, and does not process online payments.
+                        Website này không phải là sàn thương mại điện tử, không bán vé máy bay, không đặt phòng lưu trú và không xử lý thanh toán trực tuyến.
                     </p>
 
                     <div className={styles.importantBox}>
-                        <h4 className={styles.importantTitle}>Important Notice</h4>
+                        <h4 className={styles.importantTitle}>Lưu ý quan trọng</h4>
                         <p className={styles.importantText}>
-                            By accessing and using this Website, you confirm that you have read, understood, and agreed to the following Terms & Services.
+                            Bằng việc truy cập và sử dụng Website này, bạn xác nhận rằng bạn đã đọc, hiểu và đồng ý với các Điều khoản Dịch vụ dưới đây.
                         </p>
                     </div>
                 </section>
 
                 {/* Section 2: Target Users */}
                 <section id="target-users" className={styles.section}>
-                    <h2 className={styles.sectionTitle}>2. TARGET USERS</h2>
+                    <h2 className={styles.sectionTitle}>2. ĐỐI TƯỢNG SỬ DỤNG</h2>
                     <p className={styles.sectionText}>
-                        This Website is intended for:
+                        Website này dành cho:
                     </p>
                     <ul className={styles.featureList}>
                         <li className={styles.featureItem}>
                             <span className={styles.featureIcon}></span>
-                            <span className={styles.featureText}>Customers who have purchased Flourish tours</span>
+                            <span className={styles.featureText}>Khách hàng đã mua tour của Flourish</span>
                         </li>
                         <li className={styles.featureItem}>
                             <span className={styles.featureIcon}></span>
-                            <span className={styles.featureText}>Individuals interested in Flourish tour information</span>
+                            <span className={styles.featureText}>Cá nhân quan tâm đến thông tin tour Flourish</span>
                         </li>
                         <li className={styles.featureItem}>
                             <span className={styles.featureIcon}></span>
-                            <span className={styles.featureText}>Internal staff (leaders, tour guides, operators)</span>
+                            <span className={styles.featureText}>Nhân viên nội bộ (trưởng đoàn, hướng dẫn viên, điều hành)</span>
                         </li>
                     </ul>
 
                     <div className={styles.warningBox}>
-                        <h4 className={styles.warningTitle}>Access Denial Rights</h4>
+                        <h4 className={styles.warningTitle}>Quyền từ chối truy cập</h4>
                         <p className={styles.warningText}>
-                            Flourish reserves the right to refuse or terminate access if misuse is detected.
+                            Flourish có quyền từ chối hoặc chấm dứt quyền truy cập nếu phát hiện có sự lạm dụng.
                         </p>
                     </div>
                 </section>
 
                 {/* Section 3: Scope of Services */}
                 <section id="scope-of-services" className={styles.section}>
-                    <h2 className={styles.sectionTitle}>3. SCOPE OF SERVICES ON WEBSITE</h2>
+                    <h2 className={styles.sectionTitle}>3. PHẠM VI DỊCH VỤ TRÊN WEBSITE</h2>
                     <p className={styles.sectionText}>
-                        The Website provides:
+                        Website cung cấp:
                     </p>
                     <ul className={styles.featureList}>
                         <li className={styles.featureItem}>
                             <span className={styles.featureIcon}></span>
-                            <span className={styles.featureText}>Tour information & itineraries</span>
+                            <span className={styles.featureText}>Thông tin & lịch trình tour</span>
                         </li>
                         <li className={styles.featureItem}>
                             <span className={styles.featureIcon}></span>
-                            <span className={styles.featureText}>Destination introduction content</span>
+                            <span className={styles.featureText}>Nội dung giới thiệu điểm đến</span>
                         </li>
                         <li className={styles.featureItem}>
                             <span className={styles.featureIcon}></span>
-                            <span className={styles.featureText}>Announcements & tour-related updates</span>
+                            <span className={styles.featureText}>Thông báo & cập nhật liên quan đến tour</span>
                         </li>
                         <li className={styles.featureItem}>
                             <span className={styles.featureIcon}></span>
-                            <span className={styles.featureText}>Contact channels with Flourish</span>
+                            <span className={styles.featureText}>Các kênh liên hệ với Flourish</span>
                         </li>
                         <li className={styles.featureItem}>
                             <span className={styles.featureIcon}></span>
-                            <span className={styles.featureText}>Internal areas (if access is granted)</span>
+                            <span className={styles.featureText}>Khu vực nội bộ (nếu được cấp quyền truy cập)</span>
                         </li>
                     </ul>
 
                     <div className={styles.importantBox}>
-                        <h4 className={styles.importantTitle}>👉 Please Note</h4>
+                        <h4 className={styles.importantTitle}>👉 Xin lưu ý</h4>
                         <p className={styles.importantText}>
-                            This Website is for informational and operational support purposes only and does not replace the official tour contract.
+                            Website này chỉ nhằm mục đích cung cấp thông tin và hỗ trợ vận hành, không thay thế cho hợp đồng tour chính thức.
                         </p>
                     </div>
                 </section>
 
                 {/* Section 4: Account & Access Rights */}
                 <section id="account-access" className={styles.section}>
-                    <h2 className={styles.sectionTitle}>4. ACCOUNT & ACCESS RIGHTS</h2>
+                    <h2 className={styles.sectionTitle}>4. TÀI KHOẢN & QUYỀN TRUY CẬP</h2>
                     <p className={styles.sectionText}>
-                        Some content on the Website may require:
+                        Một số nội dung trên Website có thể yêu cầu:
                     </p>
                     <ul className={styles.featureList}>
                         <li className={styles.featureItem}>
                             <span className={styles.featureIcon}></span>
-                            <span className={styles.featureText}>An account issued by Flourish</span>
+                            <span className={styles.featureText}>Tài khoản do Flourish cấp</span>
                         </li>
                         <li className={styles.featureItem}>
                             <span className={styles.featureIcon}></span>
-                            <span className={styles.featureText}>A valid tour code</span>
+                            <span className={styles.featureText}>Mã tour hợp lệ</span>
                         </li>
                     </ul>
 
                     <p className={styles.sectionText} style={{ marginTop: '20px' }}>
-                        <strong>Users are responsible for:</strong>
+                        <strong>Người dùng có trách nhiệm:</strong>
                     </p>
                     <ol className={styles.numberedList}>
-                        <li>Keeping login information confidential</li>
-                        <li>Not sharing accounts with third parties</li>
-                        <li>Immediately notifying Flourish if unauthorized access is detected</li>
+                        <li>Bảo mật thông tin đăng nhập</li>
+                        <li>Không chia sẻ tài khoản với bên thứ ba</li>
+                        <li>Thông báo ngay cho Flourish nếu phát hiện truy cập trái phép</li>
                     </ol>
                 </section>
 
                 {/* Section 5: Content & Accuracy */}
                 <section id="content-accuracy" className={styles.section}>
-                    <h2 className={styles.sectionTitle}>5. CONTENT & INFORMATION ACCURACY</h2>
+                    <h2 className={styles.sectionTitle}>5. ĐỘ CHÍNH XÁC CỦA NỘI DUNG & THÔNG TIN</h2>
                     <p className={styles.sectionText}>
-                        Flourish strives to ensure that information on the Website is accurate and up-to-date, however:
+                        Flourish cố gắng đảm bảo thông tin trên Website luôn chính xác và cập nhật, tuy nhiên:
                     </p>
                     <ul className={styles.featureList}>
                         <li className={styles.featureItem}>
                             <span className={styles.featureIcon}></span>
-                            <span className={styles.featureText}>Schedules, times, and activities may change due to objective factors</span>
+                            <span className={styles.featureText}>Lịch trình, thời gian và hoạt động có thể thay đổi do yếu tố khách quan</span>
                         </li>
                         <li className={styles.featureItem}>
                             <span className={styles.featureIcon}></span>
-                            <span className={styles.featureText}>Website content may be adjusted without prior notice</span>
+                            <span className={styles.featureText}>Nội dung Website có thể được điều chỉnh mà không cần báo trước</span>
                         </li>
                     </ul>
 
                     <div className={styles.warningBox}>
-                        <h4 className={styles.warningTitle}>Information Priority</h4>
+                        <h4 className={styles.warningTitle}>Ưu tiên thông tin</h4>
                         <p className={styles.warningText}>
-                            In case of discrepancies, information provided directly by the tour leader or tour operator will take precedence.
+                            Trong trường hợp có sự sai lệch, thông tin do trưởng đoàn hoặc điều hành tour cung cấp trực tiếp sẽ được ưu tiên.
                         </p>
                     </div>
                 </section>
 
                 {/* Section 6: Prohibited Actions */}
                 <section id="prohibited-actions" className={styles.section}>
-                    <h2 className={styles.sectionTitle}>6. PROHIBITED ACTIONS</h2>
+                    <h2 className={styles.sectionTitle}>6. CÁC HÀNH VI BỊ CẤM</h2>
                     <p className={styles.sectionText}>
-                        Users are not permitted to:
+                        Người dùng không được phép:
                     </p>
                     <ul className={styles.featureList}>
                         <li className={styles.featureItem}>
                             <span className={styles.featureIcon}></span>
-                            <span className={styles.featureText}>Copy or distribute Website content without permission</span>
+                            <span className={styles.featureText}>Sao chép hoặc phân phối nội dung Website khi chưa được phép</span>
                         </li>
                         <li className={styles.featureItem}>
                             <span className={styles.featureIcon}></span>
-                            <span className={styles.featureText}>Use the Website for unauthorized commercial purposes</span>
+                            <span className={styles.featureText}>Sử dụng Website cho mục đích thương mại trái phép</span>
                         </li>
                         <li className={styles.featureItem}>
                             <span className={styles.featureIcon}></span>
-                            <span className={styles.featureText}>Interfere with or damage the system or data</span>
+                            <span className={styles.featureText}>Can thiệp hoặc gây thiệt hại cho hệ thống hay dữ liệu</span>
                         </li>
                         <li className={styles.featureItem}>
                             <span className={styles.featureIcon}></span>
-                            <span className={styles.featureText}>Post content that violates laws or public morality</span>
+                            <span className={styles.featureText}>Đăng tải nội dung vi phạm pháp luật hoặc đạo đức xã hội</span>
                         </li>
                     </ul>
 
                     <div className={styles.warningBox}>
-                        <h4 className={styles.warningTitle}>⚠️ Warning</h4>
+                        <h4 className={styles.warningTitle}>⚠️ Cảnh báo</h4>
                         <p className={styles.warningText}>
-                            Flourish reserves the right to take action in accordance with current laws if violations are detected.
+                            Flourish có quyền áp dụng các biện pháp xử lý theo quy định của pháp luật hiện hành nếu phát hiện vi phạm.
                         </p>
                     </div>
                 </section>
 
                 {/* Section 7: Intellectual Property */}
                 <section id="intellectual-property" className={styles.section}>
-                    <h2 className={styles.sectionTitle}>7. INTELLECTUAL PROPERTY</h2>
+                    <h2 className={styles.sectionTitle}>7. SỞ HỮU TRÍ TUỆ</h2>
                     <p className={styles.sectionText}>
-                        All of the following:
+                        Tất cả những nội dung sau:
                     </p>
                     <ul className={styles.featureList}>
                         <li className={styles.featureItem}>
                             <span className={styles.featureIcon}></span>
-                            <span className={styles.featureText}>Content</span>
+                            <span className={styles.featureText}>Nội dung</span>
                         </li>
                         <li className={styles.featureItem}>
                             <span className={styles.featureIcon}></span>
-                            <span className={styles.featureText}>Images</span>
+                            <span className={styles.featureText}>Hình ảnh</span>
                         </li>
                         <li className={styles.featureItem}>
                             <span className={styles.featureIcon}></span>
-                            <span className={styles.featureText}>Design</span>
+                            <span className={styles.featureText}>Thiết kế</span>
                         </li>
                         <li className={styles.featureItem}>
                             <span className={styles.featureIcon}></span>
-                            <span className={styles.featureText}>Flourish brand</span>
+                            <span className={styles.featureText}>Thương hiệu Flourish</span>
                         </li>
                     </ul>
                     <p className={styles.sectionText}>
-                        are owned by <strong>Flourish Tourism</strong> or its legitimate partners.
+                        đều thuộc sở hữu của <strong>Flourish Tourism</strong> hoặc các đối tác hợp pháp của chúng tôi.
                     </p>
 
                     <div className={styles.importantBox}>
-                        <h4 className={styles.importantTitle}>Reuse Requirements</h4>
+                        <h4 className={styles.importantTitle}>Yêu cầu tái sử dụng</h4>
                         <p className={styles.importantText}>
-                            Any reuse in any form requires written consent.
+                            Mọi hình thức tái sử dụng đều cần có sự đồng ý bằng văn bản.
                         </p>
                     </div>
                 </section>
 
                 {/* Section 8: Limitation of Liability */}
                 <section id="liability-limitation" className={styles.section}>
-                    <h2 className={styles.sectionTitle}>8. LIMITATION OF LIABILITY</h2>
+                    <h2 className={styles.sectionTitle}>8. GIỚI HẠN TRÁCH NHIỆM</h2>
                     <p className={styles.sectionText}>
-                        Flourish is not responsible for:
+                        Flourish không chịu trách nhiệm đối với:
                     </p>
                     <ul className={styles.featureList}>
                         <li className={styles.featureItem}>
                             <span className={styles.featureIcon}></span>
-                            <span className={styles.featureText}>Damages arising from users using information for unintended purposes</span>
+                            <span className={styles.featureText}>Thiệt hại phát sinh từ việc người dùng sử dụng thông tin không đúng mục đích</span>
                         </li>
                         <li className={styles.featureItem}>
                             <span className={styles.featureIcon}></span>
-                            <span className={styles.featureText}>Technical issues beyond control (network, devices, browsers)</span>
+                            <span className={styles.featureText}>Sự cố kỹ thuật ngoài tầm kiểm soát (mạng, thiết bị, trình duyệt)</span>
                         </li>
                         <li className={styles.featureItem}>
                             <span className={styles.featureIcon}></span>
-                            <span className={styles.featureText}>Third-party services linked to or mentioned on the Website</span>
+                            <span className={styles.featureText}>Dịch vụ của bên thứ ba được liên kết hoặc nhắc đến trên Website</span>
                         </li>
                     </ul>
                 </section>
 
                 {/* Section 9: Third-Party Links */}
                 <section id="third-party-links" className={styles.section}>
-                    <h2 className={styles.sectionTitle}>9. THIRD-PARTY LINKS</h2>
+                    <h2 className={styles.sectionTitle}>9. LIÊN KẾT BÊN THỨ BA</h2>
                     <p className={styles.sectionText}>
-                        The Website may contain links to:
+                        Website có thể chứa các liên kết đến:
                     </p>
                     <ul className={styles.featureList}>
                         <li className={styles.featureItem}>
                             <span className={styles.featureIcon}></span>
-                            <span className={styles.featureText}>Maps</span>
+                            <span className={styles.featureText}>Bản đồ</span>
                         </li>
                         <li className={styles.featureItem}>
                             <span className={styles.featureIcon}></span>
-                            <span className={styles.featureText}>Transportation services</span>
+                            <span className={styles.featureText}>Dịch vụ vận chuyển</span>
                         </li>
                         <li className={styles.featureItem}>
                             <span className={styles.featureIcon}></span>
-                            <span className={styles.featureText}>Partner information pages</span>
+                            <span className={styles.featureText}>Trang thông tin đối tác</span>
                         </li>
                     </ul>
                     <p className={styles.sectionText}>
-                        Flourish is not responsible for the content or policies of these external websites.
+                        Flourish không chịu trách nhiệm về nội dung hoặc chính sách của các trang web bên ngoài này.
                     </p>
                 </section>
 
                 {/* Section 10: Changes to Terms */}
                 <section id="terms-changes" className={styles.section}>
-                    <h2 className={styles.sectionTitle}>10. CHANGES TO TERMS</h2>
+                    <h2 className={styles.sectionTitle}>10. THAY ĐỔI ĐIỀU KHOẢN</h2>
                     <p className={styles.sectionText}>
-                        Flourish reserves the right to:
+                        Flourish có quyền:
                     </p>
                     <ul className={styles.featureList}>
                         <li className={styles.featureItem}>
                             <span className={styles.featureIcon}></span>
-                            <span className={styles.featureText}>Update or modify the Terms & Services</span>
+                            <span className={styles.featureText}>Cập nhật hoặc sửa đổi Điều khoản Dịch vụ</span>
                         </li>
                         <li className={styles.featureItem}>
                             <span className={styles.featureIcon}></span>
-                            <span className={styles.featureText}>Publish new versions on the Website</span>
+                            <span className={styles.featureText}>Công bố các phiên bản mới trên Website</span>
                         </li>
                     </ul>
                     <p className={styles.sectionText}>
-                        Continued use of the Website after terms are changed means you accept the new content.
+                        Việc tiếp tục sử dụng Website sau khi điều khoản thay đổi đồng nghĩa với việc bạn chấp nhận nội dung mới.
                     </p>
                 </section>
 
                 {/* Section 11: Applicable Law */}
                 <section id="applicable-law" className={styles.section}>
-                    <h2 className={styles.sectionTitle}>11. APPLICABLE LAW</h2>
+                    <h2 className={styles.sectionTitle}>11. LUẬT ÁP DỤNG</h2>
                     <p className={styles.sectionText}>
-                        These terms are governed by the <strong>laws of Vietnam</strong>.
+                        Các điều khoản này tuân thủ theo <strong>luật pháp Việt Nam</strong>.
                     </p>
                     <p className={styles.sectionText}>
-                        Any disputes (if any) will be resolved preferably through negotiation before being referred to competent authorities.
+                        Mọi tranh chấp (nếu có) sẽ được ưu tiên giải quyết thông qua thương lượng trước khi đưa ra cơ quan có thẩm quyền.
                     </p>
                 </section>
 
                 {/* Section 12: Contact Information */}
                 <section id="contact" className={styles.section}>
-                    <h2 className={styles.sectionTitle}>12. CONTACT INFORMATION</h2>
+                    <h2 className={styles.sectionTitle}>12. THÔNG TIN LIÊN HỆ</h2>
                     <p className={styles.sectionText}>
-                        For any questions regarding Terms & Services, please contact:
+                        Đối với bất kỳ câu hỏi nào liên quan đến Điều khoản Dịch vụ, vui lòng liên hệ:
                     </p>
 
                     <div className={styles.contactGrid}>
@@ -321,9 +321,9 @@ const TermsOfService = () => {
                         <div className={styles.contactCard}>
                             <span className={styles.contactIcon}>📍</span>
                             <div>
-                                <div className={styles.contactLabel}>Address:</div>
+                                <div className={styles.contactLabel}>Địa chỉ:</div>
                                 <span className={styles.contactAddress}>
-                                    Flourish Tourism – Vietnam
+                                    Flourish Tourism – Việt Nam
                                 </span>
                             </div>
                         </div>
