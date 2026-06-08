@@ -159,7 +159,7 @@ const Help = () => {
                                     </div>
                                     <div className={styles.contactDetails}>
                                         <span className={styles.contactLabel}>HOTLINE (24/7)</span>
-                                        <span className={styles.contactValue}>+84 1900 1234</span>
+                                        <span className={styles.contactValue}>+84 398 34 83 87</span>
                                     </div>
                                 </div>
                             </div>
@@ -173,9 +173,14 @@ const Help = () => {
                             <p className={styles.communityDesc}>
                                 Kết nối và chia sẻ kinh nghiệm khám phá xứ sở Chùa Vàng cùng hàng ngàn du khách khác.
                             </p>
-                            <button className={styles.communityBtn}>
+                            <a 
+                                href="https://www.facebook.com/share/1GuVzzwYdG/?mibextid=wwXIfr" 
+                                target="_blank" 
+                                rel="noopener noreferrer" 
+                                className={`${styles.communityBtn} block text-center`}
+                            >
                                 Tham gia ngay
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>
