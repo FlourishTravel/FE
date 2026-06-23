@@ -127,3 +127,50 @@ export async function participantActivityCheckOut(sessionId, participantId, acti
   const json = await parseJson(res);
   return json?.data || null;
 }
+
+/** Lịch trình theo session — mẫu tour + override đoàn (draft/published). */
+export async function getSessionSchedule(sessionId) {
+  const res = await fetch(`${API_BASE}/guide/sessions/${sessionId}/schedule`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+  });
+  const json = await parseJson(res);
+  return json?.data || null;
+}
+
+export async function patchSessionActivitySchedule(sessionId, activityId, body) {
+  const res = await fetch(
+    `${API_BASE}/guide/sessions/${sessionId}/schedule/activities/${activityId}`,
+    {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', ...authHeaders() },
+      body: JSON.stringify(body),
+    },
+  );
+  const json = await parseJson(res);
+  return json?.data || null;
+}
+
+export async function publishSessionActivitySchedule(sessionId, activityId) {
+  const res = await fetch(
+    `${API_BASE}/guide/sessions/${sessionId}/schedule/activities/${activityId}/publish`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    },
+  );
+  const json = await parseJson(res);
+  return json?.data || null;
+}
+
+export async function cancelSessionActivitySchedule(sessionId, activityId) {
+  const res = await fetch(
+    `${API_BASE}/guide/sessions/${sessionId}/schedule/activities/${activityId}/cancel`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    },
+  );
+  const json = await parseJson(res);
+  return json?.data || null;
+}

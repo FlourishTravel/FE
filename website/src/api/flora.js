@@ -50,10 +50,49 @@ export async function postFloraNearbyRecommendations(bookingId, body = {}) {
 }
 
 export async function markNotificationRead(id) {
+  const res = await fetch(`${API_BASE}/notifications/${id}/read`, {
     method: 'PATCH',
     headers: authHeaders(),
   });
   const json = await res.json();
   if (!res.ok) throw new Error(json.message || 'Lỗi đánh dấu đã đọc');
+  return json;
+}
+
+export async function getFloraPreferences() {
+  const res = await fetch(`${API_BASE}/flora/preferences/me`, { headers: authHeaders() });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.message || 'Không tải sở thích');
+  return json;
+}
+
+export async function updateFloraPreferences(body) {
+  const res = await fetch(`${API_BASE}/flora/preferences/me`, {
+    method: 'PATCH',
+    headers: authHeaders(),
+    body: JSON.stringify(body),
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.message || 'Không lưu sở thích');
+  return json;
+}
+
+export async function getPostTourFeedbackContext(bookingId) {
+  const res = await fetch(`${API_BASE}/flora/bookings/${bookingId}/post-tour-feedback`, {
+    headers: authHeaders(),
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.message || 'Không tải phản hồi chuyến đi');
+  return json;
+}
+
+export async function previewFeedbackPreferences(selectedTagIds) {
+  const res = await fetch(`${API_BASE}/flora/feedback/preference-preview`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify({ selectedTagIds }),
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.message || 'Không xem trước sở thích');
   return json;
 }

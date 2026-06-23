@@ -2,10 +2,14 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import styles from './GuideTourDetail.module.css';
 import {
+    cancelSessionActivitySchedule,
     checkinSessionMember,
     getGuideSessionGuests,
     getMyGuideSessionDetail,
     getSessionMembers,
+    getSessionSchedule,
+    patchSessionActivitySchedule,
+    publishSessionActivitySchedule,
 } from '../../../api/guideTours';
 
 const ACTIVITY_TYPE_LABELS = {
@@ -55,6 +59,19 @@ const GuideTourDetail = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [memberModalOpen, setMemberModalOpen] = useState(false);
+    const [sessionSchedule, setSessionSchedule] = useState(null);
+    const [editActivity, setEditActivity] = useState(null);
+    const [editForm, setEditForm] = useState({});
+    const [scheduleBusy, setScheduleBusy] = useState(false);
+
+    const reloadSchedule = async () => {
+        try {
+            const sched = await getSessionSchedule(tourId);
+            setSessionSchedule(sched);
+        } catch {
+            setSessionSchedule(null);
+        }
+    };
 
     useEffect(() => {
         let mounted = true;
@@ -80,6 +97,7 @@ const GuideTourDetail = () => {
                 if (detail?.itineraryDays?.length) {
                     setActiveDay(detail.itineraryDays[0].dayNumber || 1);
                 }
+                await reloadSchedule();
             } catch (err) {
                 if (mounted) setError(err?.message || 'Khong the tai chi tiet tour');
             } finally {
@@ -89,6 +107,109 @@ const GuideTourDetail = () => {
         load();
         return () => { mounted = false; };
     }, [tourId]);
+
+    const activeScheduleDay = useMemo(
+        () => (sessionSchedule?.days || []).find((d) => d.dayNumber === activeDay),
+        [sessionSchedule, activeDay],
+    );
+
+    const scheduleRowForActivity = (act) => {
+        const id = act.id || act.activityId;
+        if (!id || !activeScheduleDay?.activities) return null;
+        return activeScheduleDay.activities.find((r) => r.activityId === id) || null;
+    };
+
+    const openEditActivity = (row) => {
+        const eff = row?.effective || {};
+        const start = eff.startTime || row?.template?.startTime;
+        const end = eff.endTime || row?.template?.endTime;
+        setEditActivity(row);
+        setEditForm({
+            title: eff.title || row?.template?.title || '',
+            locationName: eff.locationName || row?.template?.locationName || '',
+            locationAddress: eff.locationAddress || row?.template?.locationAddress || '',
+            startTime: formatTimeLabel(start),
+            endTime: formatTimeLabel(end),
+            scheduleStatus: eff.scheduleStatus || row?.template?.scheduleStatus || 'CONFIRMED',
+            operationalNote: row?.override?.operationalNote || '',
+            isGatheringEvent: eff.isGatheringEvent ?? row?.template?.isGatheringEvent ?? false,
+        });
+    };
+
+    const buildPatchBody = () => {
+        const baseDate = sessionDetail?.startDate
+            ? new Date(sessionDetail.startDate).toISOString().slice(0, 10)
+            : '2026-01-01';
+        const toOffset = (timeStr) => {
+            if (!timeStr) return undefined;
+            const [h, m] = timeStr.split(':');
+            return `${baseDate}T${h.padStart(2, '0')}:${m}:00+07:00`;
+        };
+        return {
+            title: editForm.title || undefined,
+            locationName: editForm.locationName || undefined,
+            locationAddress: editForm.locationAddress || undefined,
+            startAt: toOffset(editForm.startTime),
+            endAt: toOffset(editForm.endTime),
+            scheduleStatus: editForm.scheduleStatus,
+            operationalNote: editForm.operationalNote || undefined,
+            isGatheringEvent: editForm.isGatheringEvent,
+        };
+    };
+
+    const handleSaveDraft = async () => {
+        if (!editActivity?.activityId) return;
+        try {
+            setScheduleBusy(true);
+            const data = await patchSessionActivitySchedule(tourId, editActivity.activityId, buildPatchBody());
+            setSessionSchedule(data);
+            setEditActivity(null);
+        } catch (err) {
+            setError(err?.message || 'Lưu nháp thất bại');
+        } finally {
+            setScheduleBusy(false);
+        }
+    };
+
+    const handlePublish = async () => {
+        if (!editActivity?.activityId) return;
+        const ok = window.confirm(
+            'Thay đổi này sẽ cập nhật hành trình Flora cho khách trong đoàn và gửi thông báo trong ứng dụng cho những khách đã bật nhận thông báo.',
+        );
+        if (!ok) return;
+        try {
+            setScheduleBusy(true);
+            await patchSessionActivitySchedule(tourId, editActivity.activityId, buildPatchBody());
+            const data = await publishSessionActivitySchedule(tourId, editActivity.activityId);
+            setSessionSchedule(data);
+            setEditActivity(null);
+        } catch (err) {
+            setError(err?.message || 'Công bố thất bại');
+        } finally {
+            setScheduleBusy(false);
+        }
+    };
+
+    const handleCancelActivity = async (activityId) => {
+        const ok = window.confirm('Hủy hoạt động này trong lịch đoàn? Khách sẽ thấy sau khi công bố.');
+        if (!ok) return;
+        try {
+            setScheduleBusy(true);
+            const data = await cancelSessionActivitySchedule(tourId, activityId);
+            setSessionSchedule(data);
+        } catch (err) {
+            setError(err?.message || 'Hủy hoạt động thất bại');
+        } finally {
+            setScheduleBusy(false);
+        }
+    };
+
+    const publicationBadge = (status) => {
+        if (status === 'PUBLISHED') return { label: 'Đã công bố', cls: styles.badgePublished };
+        if (status === 'DRAFT') return { label: 'Bản nháp', cls: styles.badgeDraft };
+        if (status === 'CANCELLED') return { label: 'Đã hủy', cls: styles.badgeCancelled };
+        return { label: 'Lịch mẫu', cls: styles.badgeTemplate };
+    };
 
     const activeItinerary = useMemo(
         () => (sessionDetail?.itineraryDays || []).find((d) => d.dayNumber === activeDay),
@@ -268,9 +389,16 @@ const GuideTourDetail = () => {
                             const typeKey = (act.activityType || '').toUpperCase().replace('-', '_');
                             const icon = ACTIVITY_ICONS[typeKey] || 'place';
                             const typeLabel = ACTIVITY_TYPE_LABELS[typeKey] || act.activityType || 'Hoạt động';
-                            const timeRange = formatActivityTimeRange(act);
+                            const schedRow = scheduleRowForActivity(act);
+                            const pub = publicationBadge(schedRow?.override?.publicationStatus);
+                            const eff = schedRow?.effective;
+                            const timeRange = eff
+                                ? formatActivityTimeRange({ startTime: eff.startTime, endTime: eff.endTime })
+                                : formatActivityTimeRange(act);
+                            const displayTitle = eff?.title || act.title;
+                            const displayLocation = eff?.locationName || act.locationName;
                             return (
-                                <div key={`${act.sortOrder ?? idx}-${act.title ?? idx}`} className={styles.timelineItem}>
+                                <div key={`${act.sortOrder ?? idx}-${displayTitle ?? idx}`} className={styles.timelineItem}>
                                     <div className={styles.timelineLeft}>
                                         <div className={`${styles.timelineDot} ${styles.dot_upcoming}`} />
                                         {idx < arr.length - 1 && <div className={styles.timelineLine} />}
@@ -283,15 +411,34 @@ const GuideTourDetail = () => {
                                             {act.activityType && (
                                                 <span className={styles.activityTypeBadge}>{typeLabel}</span>
                                             )}
+                                            <span className={pub.cls}>{pub.label}</span>
+                                            {schedRow?.sourceLabel && schedRow.sourceLabel !== 'Lịch mẫu' && (
+                                                <span className={styles.badgeOverride}>{schedRow.sourceLabel}</span>
+                                            )}
+                                            {eff?.scheduleStatus === 'CONFIRMED' && (
+                                                <span className={styles.badgeConfirmed}>Đã xác nhận</span>
+                                            )}
+                                            {eff?.scheduleStatus === 'ESTIMATED' && (
+                                                <span className={styles.badgeEstimated}>Dự kiến</span>
+                                            )}
+                                            {schedRow?.activityId && (
+                                                <button
+                                                    type="button"
+                                                    className={styles.scheduleEditBtn}
+                                                    onClick={() => openEditActivity(schedRow)}
+                                                >
+                                                    Cập nhật đoàn
+                                                </button>
+                                            )}
                                         </div>
                                         <div className={styles.contentHeader}>
                                             <span className="material-icons-round" style={{ fontSize: '18px' }}>{icon}</span>
-                                            <strong>{act.title || 'Hoạt động'}</strong>
+                                            <strong>{displayTitle || 'Hoạt động'}</strong>
                                         </div>
-                                        {act.locationName && (
+                                        {displayLocation && (
                                             <div className={styles.activityLocation}>
                                                 <span className="material-icons-round" style={{ fontSize: '14px' }}>place</span>
-                                                {act.locationName}
+                                                {displayLocation}
                                             </div>
                                         )}
                                         {act.description && (
@@ -332,6 +479,61 @@ const GuideTourDetail = () => {
                 </div>
             )}
             {error && <p className={styles.contentDesc}>{error}</p>}
+
+            {editActivity && (
+                <div className={styles.memberModalOverlay} onClick={() => !scheduleBusy && setEditActivity(null)}>
+                    <div className={styles.scheduleEditModal} onClick={(e) => e.stopPropagation()}>
+                        <h2 className={styles.sectionTitle}>Cập nhật lịch đoàn</h2>
+                        <p className={styles.contentDesc}>
+                            Lịch mẫu giữ nguyên — thay đổi chỉ áp dụng cho chuyến này sau khi công bố.
+                        </p>
+                        <label className={styles.editField}>
+                            Tiêu đề
+                            <input value={editForm.title} onChange={(e) => setEditForm((f) => ({ ...f, title: e.target.value }))} />
+                        </label>
+                        <label className={styles.editField}>
+                            Giờ bắt đầu (HH:mm)
+                            <input value={editForm.startTime} onChange={(e) => setEditForm((f) => ({ ...f, startTime: e.target.value }))} />
+                        </label>
+                        <label className={styles.editField}>
+                            Giờ kết thúc (HH:mm)
+                            <input value={editForm.endTime} onChange={(e) => setEditForm((f) => ({ ...f, endTime: e.target.value }))} />
+                        </label>
+                        <label className={styles.editField}>
+                            Địa điểm
+                            <input value={editForm.locationName} onChange={(e) => setEditForm((f) => ({ ...f, locationName: e.target.value }))} />
+                        </label>
+                        <label className={styles.editField}>
+                            Ghi chú vận hành
+                            <textarea value={editForm.operationalNote} onChange={(e) => setEditForm((f) => ({ ...f, operationalNote: e.target.value }))} />
+                        </label>
+                        <label className={styles.editField}>
+                            Trạng thái lịch
+                            <select value={editForm.scheduleStatus} onChange={(e) => setEditForm((f) => ({ ...f, scheduleStatus: e.target.value }))}>
+                                <option value="CONFIRMED">Đã xác nhận</option>
+                                <option value="ESTIMATED">Dự kiến</option>
+                                <option value="UNAVAILABLE">Chưa có</option>
+                            </select>
+                        </label>
+                        <div className={styles.scheduleEditActions}>
+                            <button type="button" className={styles.heroBtnOutline} disabled={scheduleBusy} onClick={handleSaveDraft}>
+                                Lưu nháp
+                            </button>
+                            <button type="button" className={styles.actionBtn} disabled={scheduleBusy} onClick={handlePublish}>
+                                Công bố
+                            </button>
+                            <button
+                                type="button"
+                                className={styles.actionBtn}
+                                disabled={scheduleBusy}
+                                onClick={() => handleCancelActivity(editActivity.activityId)}
+                            >
+                                Hủy hoạt động
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

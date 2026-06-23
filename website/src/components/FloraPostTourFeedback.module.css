@@ -1,0 +1,89 @@
+@import "tailwindcss";
+
+.panel {
+  @apply bg-white rounded-xl border border-emerald-100 shadow-sm p-5 mb-4;
+}
+
+.title {
+  @apply text-lg font-semibold text-gray-900 mb-1;
+}
+
+.subTitle {
+  @apply text-sm font-semibold text-gray-800 mt-3 mb-2;
+}
+
+.intro {
+  @apply text-sm text-gray-600 mb-3;
+}
+
+.hint {
+  @apply text-xs text-gray-500 mb-2;
+}
+
+.muted {
+  @apply text-sm text-gray-500;
+}
+
+.error {
+  @apply text-sm text-red-600;
+}
+
+.success {
+  @apply text-sm text-emerald-700 font-medium;
+}
+
+.stars {
+  @apply flex gap-1 mb-3;
+}
+
+.starOn {
+  @apply text-amber-400 text-2xl leading-none;
+}
+
+.starOff {
+  @apply text-gray-300 text-2xl leading-none hover:text-amber-200;
+}
+
+.label {
+  @apply block text-sm text-gray-700;
+}
+
+.textarea {
+  @apply mt-1 w-full border border-gray-200 rounded-lg p-2 text-sm;
+}
+
+.divider {
+  @apply my-4 border-gray-100;
+}
+
+.chips {
+  @apply flex flex-wrap gap-2 mb-2;
+}
+
+.chip {
+  @apply text-xs px-3 py-1.5 rounded-full border border-gray-200 text-gray-700 bg-gray-50 hover:bg-emerald-50;
+}
+
+.chipOn {
+  @apply text-xs px-3 py-1.5 rounded-full border border-emerald-500 text-emerald-800 bg-emerald-50;
+}
+
+.prefBlock {
+  @apply mt-3 p-3 bg-emerald-50/50 rounded-lg;
+}
+
+.changeList {
+  @apply text-xs text-gray-700 list-disc pl-4 mb-2;
+}
+
+.actions {
+  @apply flex flex-wrap gap-2 mt-4;
+}
+
+.btnPrimary {
+  @apply px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 disabled:opacity-50;
+}
+
+.btnSecondary {
+  @apply px-4 py-2 rounded-lg border border-emerald-600 text-emerald-700 text-sm font-medium hover:bg-emerald-50 disabled:opacity-50;
+}

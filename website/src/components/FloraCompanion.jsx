@@ -132,6 +132,26 @@ export default function FloraCompanion({ bookingId, onChatFlora }) {
         <span className={badge.className}>{badge.label}</span>
       </div>
 
+      {(meeting?.scheduleSource === 'SESSION_OVERRIDE' || next?.scheduleSource === 'SESSION_OVERRIDE') && (
+        <div className={styles.scheduleUpdated}>
+          <strong>Lịch trình đã cập nhật</strong>
+          {meeting?.lastUpdatedAt && (
+            <span className={styles.muted}> — Cập nhật lúc {formatInstant(meeting.lastUpdatedAt)}</span>
+          )}
+          {meeting?.locationName && meeting.scheduleSource === 'SESSION_OVERRIDE' && (
+            <p className={styles.line}>
+              <strong>Điểm tập trung mới:</strong> {meeting.locationName}
+            </p>
+          )}
+          <p className={styles.muted}>
+            Thông tin lịch trình có thể thay đổi theo điều kiện thực tế.
+          </p>
+          <button type="button" className={styles.actionBtn} onClick={loadJourney}>
+            Làm mới hành trình
+          </button>
+        </div>
+      )}
+
       {current && (
         <p className={styles.line}>
           <strong>Đang diễn ra:</strong> {current.title}

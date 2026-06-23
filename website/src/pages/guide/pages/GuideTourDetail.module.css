@@ -650,3 +650,70 @@
         padding: 16px;
     }
 }
+
+.badgeTemplate,
+.badgeDraft,
+.badgePublished,
+.badgeCancelled,
+.badgeOverride,
+.badgeConfirmed,
+.badgeEstimated {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    margin-right: 6px;
+    font-weight: 600;
+}
+
+.badgeTemplate { background: #f3f4f6; color: #4b5563; }
+.badgeDraft { background: #fef3c7; color: #92400e; }
+.badgePublished { background: #d1fae5; color: #065f46; }
+.badgeCancelled { background: #fee2e2; color: #991b1b; }
+.badgeOverride { background: #dbeafe; color: #1e40af; }
+.badgeConfirmed { background: #d1fae5; color: #047857; }
+.badgeEstimated { background: #ffedd5; color: #c2410c; }
+
+.scheduleEditBtn {
+    margin-left: auto;
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 8px;
+    border: 1px solid #93c5fd;
+    background: #eff6ff;
+    color: #1d4ed8;
+    cursor: pointer;
+}
+
+.scheduleEditModal {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    max-width: 480px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.editField {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 13px;
+}
+
+.editField input,
+.editField textarea,
+.editField select {
+    padding: 8px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+}
+
+.scheduleEditActions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+}

@@ -171,3 +171,11 @@
   color: #92400e;
   font-weight: 600;
 }
+
+.scheduleUpdated {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 12px;
+}

@@ -55,23 +55,26 @@ const FloatingChatbot = ({ bookingId: bookingIdProp, pageSource = 'flora' }) => 
         throw new Error(res.message || 'Không nhận được phản hồi');
       }
 
-      const { reply, tours = [], quickReplies = [], suggestedActions = [], state: nextState } = res.data;
+      const { reply, tours, quickReplies, suggestedActions, state: nextState } = res.data;
+      const tourList = Array.isArray(tours) ? tours : [];
+      const quickReplyList = Array.isArray(quickReplies) ? quickReplies : [];
+      const actionList = Array.isArray(suggestedActions) ? suggestedActions : [];
       if (nextState) setLastState(nextState);
 
       setMessages(prev => [...prev, {
         role: 'bot',
         text: reply,
-        tours: tours.length ? tours.map(t => ({
+        tours: tourList.length ? tourList.map(t => ({
           id: t.id,
           title: t.title,
           slug: t.slug,
           price: t.price,
           durationDays: t.durationDays,
           imageUrl: t.imageUrl,
-          actions: t.actions || [],
+          actions: Array.isArray(t.actions) ? t.actions : [],
         })) : undefined,
-        quickReplies: quickReplies.length ? quickReplies : undefined,
-        suggestedActions: suggestedActions.length ? suggestedActions : undefined,
+        quickReplies: quickReplyList.length ? quickReplyList : undefined,
+        suggestedActions: actionList.length ? actionList : undefined,
       }]);
     } catch (err) {
       setError(err.message || `Lỗi kết nối API (${import.meta.env.VITE_API_URL || 'chưa cấu hình'})`);
