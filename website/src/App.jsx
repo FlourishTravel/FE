@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import FeaturedDestinations from './components/FeaturedDestinations';
@@ -67,9 +67,18 @@ const HomePage = () => (
     <ValueProp />
     <Mission />
     <Footer />
-    <FloatingChatbot />
   </div>
 );
+
+function FloraGlobalAssistant() {
+  const location = useLocation();
+  if (location.pathname.startsWith('/admin')
+    || location.pathname.startsWith('/guide')
+    || location.pathname.startsWith('/chat/')) {
+    return null;
+  }
+  return <FloatingChatbot pageSource="flora-web" />;
+}
 
 function App() {
   return (
@@ -126,6 +135,7 @@ function App() {
           <Route path="expenses" element={<GuideExpenses />} />
         </Route>
       </Routes>
+      <FloraGlobalAssistant />
     </>
   );
 }

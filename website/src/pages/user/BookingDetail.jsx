@@ -13,6 +13,7 @@ import {
 } from '../../api/bookings';
 import { getAccessToken } from '../../api/auth';
 import { resolveMediaUrl } from '../../api/config';
+import FloraCompanion from '../../components/FloraCompanion';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -237,6 +238,8 @@ const BookingDetail = () => {
                         <p className={styles.value} style={{ margin: 0 }}>{actionMsg}</p>
                     </div>
                 ) : null}
+
+                <FloraCompanion bookingId={detail.bookingId} />
 
                 <div className={styles.hero}>
                     <img className={styles.heroImg} src={thumb} alt={detail.tourTitle || 'Tour'} />

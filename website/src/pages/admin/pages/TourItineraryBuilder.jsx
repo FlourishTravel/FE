@@ -96,6 +96,10 @@ const newActivity = (sortOrder = 0) => ({
     costEstimate: '',
     costIncluded: true,
     tags: '', // CSV in form state
+    locationAddress: '',
+    isGatheringEvent: false,
+    gatheringEventType: '',
+    scheduleStatus: 'ESTIMATED',
 });
 
 const newDay = (dayNumber) => ({
@@ -140,6 +144,10 @@ const fromServer = (serverList) =>
             costEstimate: a.costEstimate ?? '',
             costIncluded: a.costIncluded ?? true,
             tags: a.tags ?? '',
+            locationAddress: a.locationAddress ?? '',
+            isGatheringEvent: a.isGatheringEvent ?? false,
+            gatheringEventType: a.gatheringEventType ?? '',
+            scheduleStatus: a.scheduleStatus ?? 'ESTIMATED',
         })),
     }));
 
@@ -171,6 +179,10 @@ const toServer = (days) =>
                 a.costEstimate === '' || a.costEstimate === null ? null : Number(a.costEstimate),
             costIncluded: a.costIncluded ?? true,
             tags: a.tags?.trim() || null,
+            locationAddress: a.locationAddress?.trim() || null,
+            isGatheringEvent: Boolean(a.isGatheringEvent),
+            gatheringEventType: a.gatheringEventType || null,
+            scheduleStatus: a.scheduleStatus || null,
         })),
     }));
 
@@ -792,6 +804,66 @@ const TourItineraryBuilder = () => {
                                                     })
                                                 }
                                             />
+                                        </div>
+
+                                        <div className={styles.actGridGeo}>
+                                            <input
+                                                type="text"
+                                                className={styles.activityInput}
+                                                placeholder="Địa chỉ chi tiết (tuỳ chọn)"
+                                                value={act.locationAddress || ''}
+                                                onChange={(e) =>
+                                                    updateActivity(activeDay._key, act._key, {
+                                                        locationAddress: e.target.value,
+                                                    })
+                                                }
+                                            />
+                                        </div>
+
+                                        <div className={styles.actGridTop}>
+                                            <label className={styles.inlineCheck}>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={Boolean(act.isGatheringEvent)}
+                                                    onChange={(e) =>
+                                                        updateActivity(activeDay._key, act._key, {
+                                                            isGatheringEvent: e.target.checked,
+                                                        })
+                                                    }
+                                                />
+                                                Hoạt động tập trung / lên xe
+                                            </label>
+                                            {act.isGatheringEvent && (
+                                                <select
+                                                    className={styles.typeSelect}
+                                                    value={act.gatheringEventType || ''}
+                                                    onChange={(e) =>
+                                                        updateActivity(activeDay._key, act._key, {
+                                                            gatheringEventType: e.target.value,
+                                                        })
+                                                    }
+                                                >
+                                                    <option value="">— Loại tập trung —</option>
+                                                    <option value="DEPARTURE">Khởi hành</option>
+                                                    <option value="RETURN_TO_BUS">Tập trung lên xe</option>
+                                                    <option value="MEETING">Họp đoàn</option>
+                                                    <option value="CHECK_IN">Nhận phòng</option>
+                                                    <option value="CHECK_OUT">Trả phòng</option>
+                                                </select>
+                                            )}
+                                            <select
+                                                className={styles.typeSelect}
+                                                value={act.scheduleStatus || 'ESTIMATED'}
+                                                onChange={(e) =>
+                                                    updateActivity(activeDay._key, act._key, {
+                                                        scheduleStatus: e.target.value,
+                                                    })
+                                                }
+                                            >
+                                                <option value="CONFIRMED">Đã xác nhận</option>
+                                                <option value="ESTIMATED">Dự kiến</option>
+                                                <option value="UNAVAILABLE">Chưa có</option>
+                                            </select>
                                         </div>
 
                                         {/* Row: image + cost */}

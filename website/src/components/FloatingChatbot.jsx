@@ -1,12 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { MessageCircle, X, Send, Bot } from 'lucide-react';
 import { sendChatbotMessage } from '../api/chatbot';
+import { useAuth } from '../context/AuthContext';
 import styles from './FloatingChatbot.module.css';
 
 const WELCOME_MSG = {
   role: 'bot',
-  text: 'Xin chào! Tôi là trợ lý AI của Flourish. Bạn có thể hỏi "Tour biển 3 ngày", "Chính sách hủy tour?" hoặc "5 ngày Đà Nẵng + Hội An" để tôi gợi ý.',
+  text: 'Chào bạn, Flora đây! Mình sẽ đồng hành cùng bạn để chuyến đi thuận tiện và vui vẻ hơn. Bạn có thể hỏi "Tour biển 3 ngày", "Chính sách hủy tour?" hoặc "5 ngày Đà Nẵng + Hội An" nhé.',
 };
 
 function formatPrice(n) {
@@ -14,7 +15,10 @@ function formatPrice(n) {
   return new Intl.NumberFormat('vi-VN').format(n) + '₫';
 }
 
-const FloatingChatbot = () => {
+const FloatingChatbot = ({ bookingId: bookingIdProp, pageSource = 'flora' }) => {
+  const { user } = useAuth();
+  const { bookingId: routeBookingId } = useParams();
+  const bookingId = bookingIdProp || routeBookingId || undefined;
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([WELCOME_MSG]);
   const [input, setInput] = useState('');
@@ -40,14 +44,18 @@ const FloatingChatbot = () => {
       const res = await sendChatbotMessage({
         content,
         sessionId: sessionIdRef.current,
+        userId: user?.id || undefined,
         state: lastState || undefined,
+        bookingId,
+        locale: 'vi',
+        source: pageSource,
       });
 
       if (!res.success || !res.data) {
         throw new Error(res.message || 'Không nhận được phản hồi');
       }
 
-      const { reply, tours = [], quickReplies = [], state: nextState } = res.data;
+      const { reply, tours = [], quickReplies = [], suggestedActions = [], state: nextState } = res.data;
       if (nextState) setLastState(nextState);
 
       setMessages(prev => [...prev, {
@@ -63,9 +71,10 @@ const FloatingChatbot = () => {
           actions: t.actions || [],
         })) : undefined,
         quickReplies: quickReplies.length ? quickReplies : undefined,
+        suggestedActions: suggestedActions.length ? suggestedActions : undefined,
       }]);
     } catch (err) {
-      setError(err.message || 'Lỗi kết nối. Kiểm tra backend đang chạy tại ' + (import.meta.env.VITE_API_URL || 'http://localhost:8080'));
+      setError(err.message || `Lỗi kết nối API (${import.meta.env.VITE_API_URL || 'chưa cấu hình'})`);
       setMessages(prev => [...prev, {
         role: 'bot',
         text: 'Mình đang gặp sự cố kỹ thuật. Bạn thử lại sau hoặc liên hệ hotline nhé.',
@@ -97,7 +106,7 @@ const FloatingChatbot = () => {
           <div className={styles.panelHeader}>
             <div className={styles.panelTitle}>
               <Bot className={styles.botIcon} />
-              Trợ lý AI Flourish
+              Flora AI
             </div>
             <button type="button" className={styles.closeBtn} onClick={() => setOpen(false)} aria-label="Đóng">
               <X className={styles.closeIcon} />
@@ -156,6 +165,24 @@ const FloatingChatbot = () => {
                           onClick={() => handleQuickReply(q.payload || q.label)}
                         >
                           {q.label || q.payload}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {m.suggestedActions && m.suggestedActions.length > 0 && (
+                    <div className={styles.quickReplies}>
+                      {m.suggestedActions.map((a, ai) => (
+                        <button
+                          key={ai}
+                          type="button"
+                          className={styles.quickReplyBtn}
+                          onClick={() => {
+                            if (a.type === 'OPEN_NEARBY_RECOMMENDATIONS' && (a.payload || bookingId)) {
+                              window.location.href = `/bookings/${a.payload || bookingId}`;
+                            }
+                          }}
+                        >
+                          {a.label || 'Xem gợi ý gần đây'}
                         </button>
                       ))}
                     </div>
