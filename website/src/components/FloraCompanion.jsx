@@ -86,6 +86,7 @@ export default function FloraCompanion({ bookingId, onChatFlora }) {
           body = {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
+            locationConsent: true,
           };
         } catch {
           // Fall back to activity/destination on server when permission denied
