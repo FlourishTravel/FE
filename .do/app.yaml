@@ -1,5 +1,5 @@
-# DigitalOcean App Platform — repo GitHub "FE" (Vite/React trong website/)
-# Push file này lên main → Apps → Create App → chọn repo FE → App Spec.
+# DigitalOcean App Platform — repo GitHub "FE" (Vite/React + nginx)
+# Push Dockerfile + file này lên main → Apps → chọn repo FE (hoặc Update App Spec).
 name: flourish-travel-fe
 region: sgp
 ingress:
@@ -9,15 +9,16 @@ ingress:
       match:
         path:
           prefix: /
-static_sites:
+services:
   - name: web
-    source_dir: website
-    build_command: npm ci && npm run build
-    output_dir: dist
-    index_document: index.html
-    catchall_document: index.html
+    dockerfile_path: Dockerfile
+    http_port: 8080
+    instance_count: 1
+    instance_size_slug: apps-s-1vcpu-0.5gb
     envs:
       - key: VITE_API_URL
+        scope: BUILD_TIME
         value: https://flourishtravel-rtdye.ondigitalocean.app/api
       - key: VITE_BASE
+        scope: BUILD_TIME
         value: /
