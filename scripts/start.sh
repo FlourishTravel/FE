@@ -1,13 +1,11 @@
 #!/bin/sh
 set -eu
 
+# Fallback khi DO Web Service không chạy build phase (dist bị thiếu lúc runtime)
 if [ ! -f dist/index.html ]; then
-  echo "ERROR: dist/index.html missing at runtime"
-  echo "Root:"
-  ls -la
-  echo "website/:"
-  ls -la website/ 2>/dev/null || true
-  exit 1
+  echo "dist/ missing — building at startup..."
+  export NODE_OPTIONS="${NODE_OPTIONS:---max-old-space-size=460}"
+  sh scripts/build.sh
 fi
 
 echo "Serving dist/ on port ${PORT:-8080}"
