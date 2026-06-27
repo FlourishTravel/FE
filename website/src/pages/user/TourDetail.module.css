@@ -106,6 +106,29 @@
     @apply text-sm text-gray-600;
 }
 
+.favoriteBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid #fecaca;
+    background: #fff;
+    color: #b91c1c;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.favoriteBtnActive {
+    background: #fef2f2;
+}
+
+.favoriteIcon {
+    width: 14px;
+    height: 14px;
+}
+
 .starIcon {
     width: 15px;
     height: 15px;

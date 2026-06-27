@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Star, MapPin, Globe, Award, Clock, Users, ChevronRight, Search, Heart } from 'lucide-react';
 import styles from './OurGuides.module.css';
+import { listPublicGuides } from '../../api/guides';
+import { resolveMediaUrl } from '../../api/config';
 
 const TOUR_GUIDES = [
     {
@@ -116,10 +118,58 @@ const TOUR_GUIDES = [
 
 const SPECIALTIES_FILTER = ['Tất cả', 'Ẩm thực', 'Văn hóa', 'Phiêu lưu', 'Wellness', 'Bền vững', 'Nghệ thuật'];
 
+function normalizeGuide(raw, fallbackIndex) {
+    const languages = Array.isArray(raw?.languages)
+        ? raw.languages.map((lang) => (typeof lang === 'string' ? lang : (lang?.name || lang?.label || '')))
+        : [];
+    const specialties = Array.isArray(raw?.specialties)
+        ? raw.specialties.map((s) => (typeof s === 'string' ? s : (s?.name || s?.label || '')))
+        : [];
+    const badges = Array.isArray(raw?.badges)
+        ? raw.badges.map((b) => (typeof b === 'string' ? b : (b?.name || b?.label || '')))
+        : [];
+    const experienceYears = raw?.experienceYears ?? raw?.yearsExperience;
+    return {
+        id: raw?.id || `fallback-${fallbackIndex}`,
+        name: raw?.fullName || raw?.name || 'Hướng dẫn viên',
+        avatar: resolveMediaUrl(raw?.avatarUrl || raw?.avatar) || 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&w=400&q=80',
+        role: raw?.title || raw?.role || 'Tour Guide',
+        location: raw?.location || raw?.baseLocation || 'Flourish Travel',
+        rating: Number(raw?.rating) || 4.8,
+        reviewCount: Number(raw?.reviewCount) || 0,
+        toursCompleted: Number(raw?.toursCompleted) || 0,
+        experience: experienceYears ? `${experienceYears} năm` : (raw?.experience || 'Kinh nghiệm thực chiến'),
+        languages: languages.filter(Boolean).length ? languages.filter(Boolean) : ['Tiếng Việt'],
+        specialties: specialties.filter(Boolean).length ? specialties.filter(Boolean) : ['Trải nghiệm'],
+        bio: raw?.bio || raw?.shortBio || 'Đồng hành cùng du khách với phong cách chuyên nghiệp và gần gũi.',
+        badges: badges.filter(Boolean),
+        verified: Boolean(raw?.verified ?? true),
+    };
+}
+
 const OurGuides = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [activeFilter, setActiveFilter] = useState('Tất cả');
     const [savedGuides, setSavedGuides] = useState([]);
+    const [guides, setGuides] = useState([]);
+
+    useEffect(() => {
+        let alive = true;
+        (async () => {
+            try {
+                const list = await listPublicGuides();
+                if (!alive) return;
+                const normalized = (Array.isArray(list) ? list : []).map((guide, index) => normalizeGuide(guide, index));
+                setGuides(normalized.length ? normalized : TOUR_GUIDES);
+            } catch {
+                if (!alive) return;
+                setGuides(TOUR_GUIDES);
+            }
+        })();
+        return () => {
+            alive = false;
+        };
+    }, []);
 
     const toggleSave = (e, id) => {
         e.preventDefault();
@@ -129,13 +179,18 @@ const OurGuides = () => {
         );
     };
 
-    const filteredGuides = TOUR_GUIDES.filter((guide) => {
-        const matchesSearch = guide.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            guide.location.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesFilter = activeFilter === 'Tất cả' ||
-            guide.specialties.some(s => s.toLowerCase().includes(activeFilter.toLowerCase()));
-        return matchesSearch && matchesFilter;
-    });
+    const filteredGuides = useMemo(() => {
+        return guides.filter((guide) => {
+            const query = searchQuery.toLowerCase();
+            const matchesSearch =
+                guide.name.toLowerCase().includes(query) ||
+                guide.location.toLowerCase().includes(query);
+            const matchesFilter =
+                activeFilter === 'Tất cả' ||
+                guide.specialties.some((s) => s.toLowerCase().includes(activeFilter.toLowerCase()));
+            return matchesSearch && matchesFilter;
+        });
+    }, [guides, searchQuery, activeFilter]);
 
     return (
         <div className={styles.pageContainer}>

@@ -30,6 +30,14 @@
     @apply bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 flex flex-col sm:flex-row;
 }
 
+.newsCardLink {
+    @apply flex flex-col sm:flex-row flex-1 text-inherit no-underline hover:opacity-95 transition-opacity;
+}
+
+.readMore {
+    @apply inline-flex items-center gap-1 text-primary-600 text-sm font-medium mt-3;
+}
+
 .newsImage {
     @apply w-full sm:w-64 h-48 sm:h-auto object-cover flex-shrink-0;
 }

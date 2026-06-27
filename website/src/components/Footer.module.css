@@ -46,6 +46,16 @@
     @apply absolute right-1 top-1 bottom-1 bg-primary-500 text-gray-900 font-bold px-4 rounded-full hover:bg-primary-400 transition-colors text-xs;
 }
 
+.subscribeSuccess {
+    @apply text-sm mb-4;
+    color: #34d399;
+}
+
+.subscribeError {
+    @apply text-sm mb-4;
+    color: #fca5a5;
+}
+
 .footerGrid {
     @apply grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-6 max-w-6xl mx-auto text-left;
 }

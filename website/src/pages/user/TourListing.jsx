@@ -1,10 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { MapPin, Heart, Clock, Users, ChevronLeft, ChevronRight, ChevronDown, RotateCcw, Calendar } from 'lucide-react';
 import styles from './TourListing.module.css';
 import { listPublicTours } from '../../api/tours';
 import { listCategories } from '../../api/categories';
 import { resolveMediaUrl } from '../../api/config';
+import { addFavorite, listFavorites, removeFavorite } from '../../api/favorites';
+import { useAuth } from '../../context/AuthContext';
 
 const PLACEHOLDER_IMG =
     'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=800&q=80';
@@ -86,10 +88,14 @@ function getDeparturePoint(t) {
 }
 
 const TourListing = () => {
+    const { user } = useAuth();
+    const [searchParams] = useSearchParams();
+    const destinationFromQuery = searchParams.get('destination') || '';
     const [destinationInput, setDestinationInput] = useState('');
     const [selectedCategoryId, setSelectedCategoryId] = useState(null);
     const [selectedBudget, setSelectedBudget] = useState('all');
     const [savedTours, setSavedTours] = useState([]);
+    const [favoriteLoadingIds, setFavoriteLoadingIds] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [sortBy, setSortBy] = useState('Đề xuất');
     const [categories, setCategories] = useState([]);
@@ -100,16 +106,44 @@ const TourListing = () => {
     const [error, setError] = useState('');
 
     const [applied, setApplied] = useState({
-        destination: '',
+        destination: destinationFromQuery,
         categoryId: null,
         budget: 'all',
     });
+
+    useEffect(() => {
+        if (!destinationFromQuery) return;
+        setDestinationInput(destinationFromQuery);
+        setApplied((prev) => ({ ...prev, destination: destinationFromQuery }));
+        setCurrentPage(1);
+    }, [destinationFromQuery]);
 
     useEffect(() => {
         listCategories()
             .then((list) => setCategories(Array.isArray(list) ? list : []))
             .catch(() => setCategories([]));
     }, []);
+
+    useEffect(() => {
+        let alive = true;
+        if (!user) {
+            setSavedTours([]);
+            return undefined;
+        }
+        (async () => {
+            try {
+                const list = await listFavorites();
+                if (!alive) return;
+                setSavedTours(list.map((item) => String(item.tourId)));
+            } catch {
+                if (!alive) return;
+                setSavedTours([]);
+            }
+        })();
+        return () => {
+            alive = false;
+        };
+    }, [user]);
 
     useEffect(() => {
         let alive = true;
@@ -155,8 +189,28 @@ const TourListing = () => {
         return arr;
     }, [tours, sortBy]);
 
-    const toggleSave = (id) => {
-        setSavedTours((prev) => (prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]));
+    const toggleSave = async (tourId) => {
+        if (!user) {
+            alert('Vui lòng đăng nhập để lưu tour yêu thích.');
+            return;
+        }
+        const id = String(tourId);
+        if (favoriteLoadingIds.includes(id)) return;
+        setFavoriteLoadingIds((prev) => [...prev, id]);
+        const isSaved = savedTours.includes(id);
+        try {
+            if (isSaved) {
+                await removeFavorite(id);
+                setSavedTours((prev) => prev.filter((s) => s !== id));
+            } else {
+                await addFavorite(id);
+                setSavedTours((prev) => (prev.includes(id) ? prev : [...prev, id]));
+            }
+        } catch (e) {
+            alert(e.message || 'Không thể cập nhật yêu thích.');
+        } finally {
+            setFavoriteLoadingIds((prev) => prev.filter((x) => x !== id));
+        }
     };
 
     const resetFilters = () => {
@@ -301,6 +355,7 @@ const TourListing = () => {
                                 const catName = tour.category?.name || 'TRẢI NGHIỆM';
                                 const tagColor = categoryTagClass(tour.category?.name);
                                 const spots = remainingSlots(tour);
+                                const tourId = String(tour.id);
                                 return (
                                     <div key={tour.id} className={styles.tourCard}>
                                         {/* Left Image Section */}
@@ -314,11 +369,12 @@ const TourListing = () => {
                                             ) : null}
                                             <button
                                                 type="button"
-                                                className={`${styles.heartBtn} ${savedTours.includes(tour.id) ? styles.heartActive : ''}`}
+                                                className={`${styles.heartBtn} ${savedTours.includes(tourId) ? styles.heartActive : ''}`}
                                                 onClick={(e) => {
                                                     e.preventDefault();
-                                                    toggleSave(tour.id);
+                                                    toggleSave(tourId);
                                                 }}
+                                                disabled={favoriteLoadingIds.includes(tourId)}
                                             >
                                                 <Heart className={styles.heartIcon} />
                                             </button>

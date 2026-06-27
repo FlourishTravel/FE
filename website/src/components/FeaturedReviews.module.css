@@ -1,0 +1,73 @@
+.section {
+  padding: 4rem 1.5rem;
+  background: linear-gradient(180deg, #f0faf8 0%, #fff 100%);
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  text-align: center;
+  color: #1a3a32;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  text-align: center;
+  color: #5a6b66;
+  margin-bottom: 2rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+.card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 1.25rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e8f0ed;
+}
+
+.quoteIcon {
+  color: #00796b;
+  opacity: 0.5;
+  margin-bottom: 0.5rem;
+}
+
+.comment {
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: #333;
+  margin-bottom: 1rem;
+  min-height: 3rem;
+}
+
+.footer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.stars {
+  display: flex;
+  gap: 2px;
+}
+
+.author {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #1a3a32;
+}
+
+.tour {
+  font-size: 0.75rem;
+  color: #00796b;
+}

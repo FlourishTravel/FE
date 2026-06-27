@@ -501,6 +501,23 @@
     background: #f9fafb;
 }
 
+.chatLink {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    background: white;
+    color: #2563eb;
+    text-decoration: none;
+}
+
+.chatLink:hover {
+    background: #eff6ff;
+}
+
 .iconBtn {
     width: 34px;
     height: 34px;

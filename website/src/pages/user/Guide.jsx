@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, Leaf, Sun, CloudRain, CheckCircle2, Navigation, MapPin, Phone, Mail } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import styles from './Guide.module.css';
 import { useAuth } from '../../context/AuthContext';
+import { useSiteContent } from '../../hooks/useSiteContent';
 import bangkokImg from '../../assets/294274-3000x2000-desktop-hd-bangkok-background-image.jpg';
 import entryImg from '../../assets/du-lich-thai-lan-ivivu-1.jpg';
 import transportImg from '../../assets/di-chuyen-di-lai-thai-lan-2.webp';
@@ -31,6 +32,7 @@ const GUIDE_ARTICLES = [
 
 const Guide = () => {
     const navigate = useNavigate();
+    const { items: guideArticles, loading: guideArticlesLoading } = useSiteContent('guide', GUIDE_ARTICLES);
 
     // Preserving all existing hooks/variables as requested by "không đổi tên biến/function"
     const {
@@ -409,6 +411,38 @@ const Guide = () => {
                                 </p>
                             </div>
                         </div>
+                    </div>
+                </section>
+
+                {/* Bài viết cẩm nang từ CMS */}
+                <section className={styles.section}>
+                    <h2 className={styles.sectionTitleCenter}>Mẹo & kinh nghiệm du lịch</h2>
+                    <p className={styles.sectionDescCenter} style={{ marginBottom: '1.5rem' }}>
+                        Bài viết do đội ngũ Flourish biên soạn — cập nhật qua trang quản trị.
+                    </p>
+                    {guideArticlesLoading && <p className={styles.sectionDescCenter}>Đang tải bài viết...</p>}
+                    <div className={styles.tipsGrid}>
+                        {guideArticles.map((article) => (
+                            article.slug ? (
+                                <Link key={article.id} to={`/content/${article.slug}`} className={styles.tipCard}>
+                                    <img src={article.image} alt="" className={styles.tipImage} />
+                                    <div className={styles.tipBody}>
+                                        {article.category && <span className={styles.tipCategory}>{article.category}</span>}
+                                        <h3 className={styles.tipTitle}>{article.title}</h3>
+                                        <p className={styles.tipExcerpt}>{article.excerpt}</p>
+                                        <span className={styles.tipLink}>Đọc thêm <ArrowRight size={14} /></span>
+                                    </div>
+                                </Link>
+                            ) : (
+                                <div key={article.id} className={styles.tipCard}>
+                                    <img src={article.image} alt="" className={styles.tipImage} />
+                                    <div className={styles.tipBody}>
+                                        <h3 className={styles.tipTitle}>{article.title}</h3>
+                                        <p className={styles.tipExcerpt}>{article.excerpt}</p>
+                                    </div>
+                                </div>
+                            )
+                        ))}
                     </div>
                 </section>
 

@@ -1,219 +1,296 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import styles from './GuideCommunication.module.css';
+import { useGuideSessions } from '../hooks/useGuideSessions';
+import { getGuideSessionGuests } from '../../../api/guideTours';
+import {
+  getTourChatContext,
+  listBookingChatMessages,
+  sendBookingChatMessage,
+} from '../../../api/tourChat';
+import { useAuth } from '../../../context/AuthContext';
 
-const CHAT_MESSAGES = [
-    {
-        id: 1,
-        type: 'system',
-        text: '10:30 AM - Bạn đã gửi Broadcast "Tập trung tại sảnh"',
-    },
-    {
-        id: 2,
-        sender: 'Anh Tuấn (Phòng 204)',
-        text: 'Cho mình hỏi chiều nay mấy giờ xe chạy đi Hội An vậy HDV?',
-        time: '10:35 AM',
-        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
-        isMine: false,
-    },
-    {
-        id: 3,
-        text: 'Dạ 14:00 xe sẽ đón mình tại sảnh khách sạn ạ. Anh Tuấn nhớ mang theo nón nhé, chiều nay nắng khá gắt.',
-        time: '10:38 AM',
-        isMine: true,
-        read: true,
-    },
-    {
-        id: 4,
-        sender: 'Chị Lan (Phòng 205)',
-        text: 'Cảm ơn em nhiều nha.',
-        time: '10:40 AM',
-        avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80',
-        isMine: false,
-    },
-];
+function formatMsgTime(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  return d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+}
 
-const QUICK_TEMPLATES = ['Tập trung', 'Đổi lịch', 'Ăn trưa'];
-
-const LIVE_TIPS = [
-    { id: 1, title: 'Góc chụp Hội An', time: 'Đã ghim 5p trước', icon: 'camera_alt', color: '#059669' },
-    { id: 2, title: 'Đường thi công', subtitle: 'Tránh lối đi cổng Tây', icon: 'warning', color: '#ef4444' },
-];
+function senderLabel(msg, userId) {
+  const r = (msg.senderRole || '').toUpperCase();
+  if (r === 'TOUR_GUIDE') return msg.senderName ? `${msg.senderName} (HDV)` : 'Hướng dẫn viên';
+  if (r === 'ADMIN') return msg.senderName || 'Quản trị';
+  if (msg.senderId && userId && String(msg.senderId) === String(userId)) return 'Bạn';
+  return msg.senderName || 'Thành viên';
+}
 
 const GuideCommunication = () => {
-    const [activeTab, setActiveTab] = useState('group');
-    const [message, setMessage] = useState('');
-    const [broadcastContent, setBroadcastContent] = useState('');
+  const { user } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { sessions, loading: sessionsLoading } = useGuideSessions();
+  const [sessionId, setSessionId] = useState(searchParams.get('sessionId') || '');
+  const [guestData, setGuestData] = useState(null);
+  const [guestsLoading, setGuestsLoading] = useState(false);
+  const [bookingId, setBookingId] = useState(searchParams.get('bookingId') || '');
+  const [context, setContext] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState('');
+  const [chatLoading, setChatLoading] = useState(false);
+  const [chatErr, setChatErr] = useState('');
+  const [sending, setSending] = useState(false);
+  const messagesEndRef = useRef(null);
 
-    return (
-        <div className={styles.page}>
-            {/* Header */}
-            <div className={styles.pageHeader}>
-                <div>
-                    <h1 className={styles.pageTitle}>Giao tiếp & Cập nhật</h1>
-                    <p className={styles.pageSubtitle}>Quản lý luồng thông tin và hỗ trợ đoàn khách Tour VN-2023-A.</p>
-                </div>
-                <div className={styles.headerBadges}>
-                    <span className={styles.guestBadge}>
-                        <span className="material-icons-round" style={{ fontSize: '16px' }}>groups</span>
-                        42 Khách
-                    </span>
-                    <span className={styles.liveBadge}>
-                        <span className={styles.liveDot}></span>
-                        Đang Live
-                    </span>
-                </div>
-            </div>
+  useEffect(() => {
+    if (!sessionId && sessions.length > 0) {
+      setSessionId(sessions[0].sessionId);
+    }
+  }, [sessions, sessionId]);
 
-            {/* Main Content */}
-            <div className={styles.mainGrid}>
-                {/* Broadcast */}
-                <div className={styles.broadcastCard}>
-                    <h2 className={styles.broadcastTitle}>
-                        <span style={{ fontSize: '18px' }}>📡</span> Broadcast Center
-                    </h2>
-                    <p className={styles.broadcastSub}>Gửi thông báo khẩn/nhắc nhở toàn đoàn.</p>
+  useEffect(() => {
+    if (!sessionId) return;
+    let alive = true;
+    (async () => {
+      setGuestsLoading(true);
+      try {
+        const data = await getGuideSessionGuests(sessionId);
+        if (alive) setGuestData(data);
+      } catch {
+        if (alive) setGuestData(null);
+      } finally {
+        if (alive) setGuestsLoading(false);
+      }
+    })();
+    return () => { alive = false; };
+  }, [sessionId]);
 
-                    <div className={styles.templateRow}>
-                        {QUICK_TEMPLATES.map(t => (
-                            <button key={t} className={styles.templateBtn} onClick={() => setBroadcastContent(t)}>
-                                {t}
-                            </button>
-                        ))}
-                    </div>
+  const bookings = useMemo(() => guestData?.bookings || [], [guestData]);
 
-                    <div className={styles.broadcastForm}>
-                        <label className={styles.formLabel}>Nội dung thông báo</label>
-                        <textarea
-                            className={styles.broadcastTextarea}
-                            placeholder="Nhập nội dung cần thông báo..."
-                            value={broadcastContent}
-                            onChange={(e) => setBroadcastContent(e.target.value)}
-                            rows={4}
-                        ></textarea>
-                    </div>
+  useEffect(() => {
+    if (!bookingId && bookings.length > 0) {
+      setBookingId(bookings[0].bookingId);
+      return;
+    }
+    if (bookingId && bookings.length > 0) {
+      const valid = bookings.some((b) => String(b.bookingId) === String(bookingId));
+      if (!valid) setBookingId(bookings[0].bookingId);
+    }
+  }, [bookings, bookingId]);
 
-                    <div className={styles.broadcastOptions}>
-                        <div className={styles.scheduleRow}>
-                            <span className="material-icons-round" style={{ fontSize: '18px', color: '#9ca3af' }}>schedule</span>
-                            <span>Gửi ngay</span>
-                            <span className="material-icons-round" style={{ fontSize: '18px', color: '#9ca3af' }}>expand_more</span>
-                        </div>
-                        <label className={styles.pushCheckbox}>
-                            <input type="checkbox" defaultChecked className={styles.checkbox} />
-                            <span>Kèm Push Notification tới App khách</span>
-                        </label>
-                    </div>
+  useEffect(() => {
+    const next = new URLSearchParams();
+    if (sessionId) next.set('sessionId', sessionId);
+    if (bookingId) next.set('bookingId', bookingId);
+    setSearchParams(next, { replace: true });
+  }, [sessionId, bookingId, setSearchParams]);
 
-                    <button className={styles.broadcastBtn}>
-                        <span className="material-icons-round" style={{ fontSize: '18px' }}>play_arrow</span>
-                        Phát sóng
-                    </button>
-                </div>
+  const loadChat = useCallback(async () => {
+    if (!bookingId) return;
+    setChatLoading(true);
+    setChatErr('');
+    try {
+      const ctx = await getTourChatContext(bookingId);
+      setContext(ctx);
+      const list = await listBookingChatMessages(bookingId, { limit: 80 });
+      setMessages(Array.isArray(list) ? list : []);
+    } catch (e) {
+      setContext(null);
+      setMessages([]);
+      setChatErr(e.message || 'Không mở được phòng chat.');
+    } finally {
+      setChatLoading(false);
+    }
+  }, [bookingId]);
 
-                {/* Chat Area */}
-                <div className={styles.chatCard}>
-                    <div className={styles.chatTabs}>
-                        <button
-                            className={`${styles.chatTab} ${activeTab === 'group' ? styles.chatTabActive : ''}`}
-                            onClick={() => setActiveTab('group')}
-                        >
-                            Chat Đoàn (42)
-                        </button>
-                        <button
-                            className={`${styles.chatTab} ${activeTab === 'private' ? styles.chatTabActive : ''}`}
-                            onClick={() => setActiveTab('private')}
-                        >
-                            Chat Riêng (3)
-                        </button>
-                    </div>
+  useEffect(() => {
+    loadChat();
+  }, [loadChat]);
 
-                    <div className={styles.chatMessages}>
-                        {CHAT_MESSAGES.map(msg => {
-                            if (msg.type === 'system') {
-                                return (
-                                    <div key={msg.id} className={styles.systemMsg}>
-                                        {msg.text}
-                                    </div>
-                                );
-                            }
-                            return (
-                                <div key={msg.id} className={`${styles.msgRow} ${msg.isMine ? styles.msgMine : ''}`}>
-                                    {!msg.isMine && msg.avatar && (
-                                        <img src={msg.avatar} alt="" className={styles.msgAvatar} />
-                                    )}
-                                    <div className={`${styles.msgBubble} ${msg.isMine ? styles.bubbleMine : styles.bubbleOther}`}>
-                                        {!msg.isMine && <span className={styles.msgSender}>{msg.sender}</span>}
-                                        <p className={styles.msgText}>{msg.text}</p>
-                                        <span className={styles.msgTime}>
-                                            {msg.time}
-                                            {msg.read && <span className="material-icons-round" style={{ fontSize: '14px', color: '#3b82f6' }}>done_all</span>}
-                                        </span>
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </div>
+  useEffect(() => {
+    if (!context?.canChat || !bookingId) return undefined;
+    const id = setInterval(async () => {
+      try {
+        const list = await listBookingChatMessages(bookingId, { limit: 80 });
+        setMessages(Array.isArray(list) ? list : []);
+      } catch {
+        /* ignore poll errors */
+      }
+    }, 8000);
+    return () => clearInterval(id);
+  }, [context?.canChat, bookingId]);
 
-                    <div className={styles.chatInputBar}>
-                        <button className={styles.chatActionBtn}>
-                            <span className="material-icons-round">add_circle_outline</span>
-                        </button>
-                        <button className={styles.chatActionBtn}>
-                            <span className="material-icons-round">image</span>
-                        </button>
-                        <input
-                            type="text"
-                            className={styles.chatInput}
-                            placeholder="Nhập tin nhắn..."
-                            value={message}
-                            onChange={(e) => setMessage(e.target.value)}
-                        />
-                        <button className={styles.sendBtn}>
-                            <span className="material-icons-round" style={{ fontSize: '20px' }}>send</span>
-                        </button>
-                    </div>
-                </div>
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
-                {/* Live Tips */}
-                <div className={styles.liveTipsCard}>
-                    <div className={styles.liveTipsHeader}>
-                        <h3 className={styles.liveTipsTitle}>
-                            <span style={{ fontSize: '16px' }}>🧭</span> Live Tips
-                        </h3>
-                        <span className={styles.liveTipsSub}>Ghim bản đồ realtime</span>
-                        <button className={styles.addTipBtn}>
-                            <span className="material-icons-round" style={{ fontSize: '20px' }}>add</span>
-                        </button>
-                    </div>
+  const handleSend = async () => {
+    if (!bookingId || !input.trim() || sending || !context?.canChat) return;
+    setSending(true);
+    try {
+      const dto = await sendBookingChatMessage(bookingId, input.trim());
+      setInput('');
+      if (dto) setMessages((prev) => [...prev, dto]);
+      else await loadChat();
+    } catch (e) {
+      setChatErr(e.message || 'Gửi tin nhắn thất bại.');
+    } finally {
+      setSending(false);
+    }
+  };
 
-                    <div className={styles.tipMap}>
-                        <div className={styles.tipMapContent}>
-                            <span className="material-icons-round" style={{ fontSize: '36px', color: '#059669' }}>explore</span>
-                            <p>Điểm check-in đẹp</p>
-                        </div>
-                    </div>
+  const selectedBooking = bookings.find((b) => String(b.bookingId) === String(bookingId));
 
-                    <p className={styles.tipActivityLabel}>Ghim đang hoạt động (2)</p>
-
-                    {LIVE_TIPS.map(tip => (
-                        <div key={tip.id} className={styles.tipItem}>
-                            <div className={styles.tipIcon} style={{ background: `${tip.color}15`, color: tip.color }}>
-                                <span className="material-icons-round" style={{ fontSize: '18px' }}>{tip.icon}</span>
-                            </div>
-                            <div className={styles.tipInfo}>
-                                <span className={styles.tipName}>{tip.title}</span>
-                                {tip.subtitle && <span className={styles.tipSub}>{tip.subtitle}</span>}
-                                {tip.time && <span className={styles.tipTime}>{tip.time}</span>}
-                            </div>
-                            <button className={styles.tipClose}>
-                                <span className="material-icons-round" style={{ fontSize: '16px' }}>close</span>
-                            </button>
-                        </div>
-                    ))}
-                </div>
-            </div>
+  return (
+    <div className={styles.page}>
+      <div className={styles.pageHeader}>
+        <div>
+          <h1 className={styles.pageTitle}>Giao tiếp đoàn</h1>
+          <p className={styles.pageSubtitle}>
+            Chat theo từng booking — cùng API với app khách và trang chat công khai.
+          </p>
         </div>
-    );
+        <div className={styles.headerBadges}>
+          <span className={styles.guestBadge}>
+            <span className="material-icons-round" style={{ fontSize: '16px' }}>groups</span>
+            {bookings.length} đơn
+          </span>
+        </div>
+      </div>
+
+      <div className={styles.sessionRow} style={{ marginBottom: 12 }}>
+        <select
+          value={sessionId}
+          onChange={(e) => {
+            setSessionId(e.target.value);
+            setBookingId('');
+          }}
+          disabled={sessionsLoading || !sessions.length}
+          style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid #e5e7eb', minWidth: 280 }}
+        >
+          {sessions.map((s) => (
+            <option key={s.sessionId} value={s.sessionId}>
+              {s.tourTitle} · {s.startDate || ''}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className={styles.mainGrid}>
+        <div className={styles.broadcastCard}>
+          <h2 className={styles.broadcastTitle}>
+            <span className="material-icons-round">forum</span>
+            Phòng chat theo đơn
+          </h2>
+          <p className={styles.broadcastSub}>Chọn booking để nhắn với khách trong đơn đó.</p>
+          {guestsLoading && <p className={styles.broadcastSub}>Đang tải...</p>}
+          {!guestsLoading && bookings.length === 0 && (
+            <p className={styles.broadcastSub}>Chưa có booking trên chuyến này.</p>
+          )}
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {bookings.map((b) => (
+              <li key={b.bookingId}>
+                <button
+                  type="button"
+                  onClick={() => setBookingId(b.bookingId)}
+                  style={{
+                    width: '100%',
+                    textAlign: 'left',
+                    padding: '10px 12px',
+                    borderRadius: 10,
+                    border: String(b.bookingId) === String(bookingId) ? '2px solid #059669' : '1px solid #e5e7eb',
+                    background: String(b.bookingId) === String(bookingId) ? '#ecfdf5' : '#fff',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <strong>{b.travelerName || 'Khách'}</strong>
+                  <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>
+                    {b.guestCount > 1 ? `${b.guestCount} khách · ` : ''}
+                    {b.effectiveContactPhone || b.phone || '—'}
+                  </div>
+                </button>
+              </li>
+            ))}
+          </ul>
+          <Link to="/guide/guests" style={{ display: 'inline-block', marginTop: 16, fontSize: 13, color: '#059669' }}>
+            Quản lý khách & điểm danh →
+          </Link>
+        </div>
+
+        <div className={styles.chatCard}>
+          <div className={styles.chatTabs}>
+            <button type="button" className={`${styles.chatTab} ${styles.chatTabActive}`}>
+              {selectedBooking?.travelerName || 'Chọn đơn'}
+            </button>
+          </div>
+
+          <div className={styles.chatMessages}>
+            {chatLoading && <p className={styles.systemMsg}>Đang tải tin nhắn...</p>}
+            {chatErr && !chatLoading && <p className={styles.systemMsg}>{chatErr}</p>}
+            {context && !context.canChat && !chatLoading && (
+              <p className={styles.systemMsg}>{context.denyReason || 'Chưa thể chat với đơn này.'}</p>
+            )}
+            {!chatLoading && messages.length === 0 && context?.canChat && (
+              <p className={styles.systemMsg}>Chưa có tin nhắn — gửi lời chào đoàn!</p>
+            )}
+            {messages.map((msg) => {
+              const mine = msg.senderId && user?.id && String(msg.senderId) === String(user.id);
+              return (
+                <div key={msg.id || `${msg.createdAt || msg.sentAt}-${msg.content}`} className={`${styles.msgRow} ${mine ? styles.msgMine : ''}`}>
+                  {!mine && (
+                    <div className={styles.msgAvatar} style={{ background: '#e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12 }}>
+                      {(msg.senderName || '?')[0]}
+                    </div>
+                  )}
+                  <div className={`${styles.msgBubble} ${mine ? styles.bubbleMine : styles.bubbleOther}`}>
+                    {!mine && <span className={styles.msgSender}>{senderLabel(msg, user?.id)}</span>}
+                    <span className={styles.msgText}>{msg.content}</span>
+                    <span className={styles.msgTime}>{formatMsgTime(msg.createdAt || msg.sentAt)}</span>
+                  </div>
+                </div>
+              );
+            })}
+            <div ref={messagesEndRef} />
+          </div>
+
+          <div className={styles.chatInputBar}>
+            <input
+              className={styles.chatInput}
+              placeholder="Nhắn tin đoàn..."
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleSend())}
+              disabled={!context?.canChat || sending}
+            />
+            <button type="button" className={styles.sendBtn} onClick={handleSend} disabled={!context?.canChat || sending || !input.trim()}>
+              <span className="material-icons-round" style={{ fontSize: '20px' }}>send</span>
+            </button>
+          </div>
+        </div>
+
+        <div className={styles.liveTipsCard}>
+          <div className={styles.liveTipsHeader}>
+            <span className={styles.liveTipsTitle}>
+              <span className="material-icons-round" style={{ fontSize: '18px' }}>tips_and_updates</span>
+              Gợi ý HDV
+            </span>
+          </div>
+          <p className={styles.liveTipsSub}>
+            Mỗi booking có phòng chat riêng. Dùng chat để thông báo tập trung, đổi giờ đón hoặc thăm dò ý kiến đoàn.
+          </p>
+          {bookingId && (
+            <a
+              href={`/chat/${bookingId}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ fontSize: 13, color: '#059669' }}
+            >
+              Mở chat toàn màn hình ↗
+            </a>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default GuideCommunication;

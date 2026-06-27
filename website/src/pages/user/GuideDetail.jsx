@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import {
     Star, MapPin, Globe, Award, Clock, Users, ChevronRight, ChevronLeft,
     Heart, MessageCircle, Calendar, CheckCircle, Camera, Coffee, Shield
 } from 'lucide-react';
 import styles from './GuideDetail.module.css';
+import { getPublicGuide } from '../../api/guides';
+import { resolveMediaUrl } from '../../api/config';
 
 const GUIDES_DATA = {
     1: {
@@ -75,11 +77,95 @@ const GUIDES_DATA = {
 // Fallback for any guide ID
 const DEFAULT_GUIDE = GUIDES_DATA[1];
 
+function mapGuideDetail(raw) {
+    if (!raw) return null;
+    const languages = Array.isArray(raw.languages)
+        ? raw.languages.map((l) => (typeof l === 'string' ? l : (l?.name || l?.label || ''))).filter(Boolean)
+        : [];
+    const specialties = Array.isArray(raw.specialties)
+        ? raw.specialties.map((s) => (typeof s === 'string' ? s : (s?.name || s?.label || ''))).filter(Boolean)
+        : [];
+    const badges = Array.isArray(raw.badges)
+        ? raw.badges.map((b) => (typeof b === 'string' ? b : (b?.name || b?.label || ''))).filter(Boolean)
+        : [];
+    const tours = Array.isArray(raw.tours) ? raw.tours : [];
+    const reviews = Array.isArray(raw.reviews) ? raw.reviews : [];
+    return {
+        name: raw.fullName || raw.name || DEFAULT_GUIDE.name,
+        avatar: resolveMediaUrl(raw.avatarUrl || raw.avatar) || DEFAULT_GUIDE.avatar,
+        coverImage: resolveMediaUrl(raw.coverImageUrl || raw.coverImage) || DEFAULT_GUIDE.coverImage,
+        role: raw.title || raw.role || DEFAULT_GUIDE.role,
+        location: raw.location || raw.baseLocation || DEFAULT_GUIDE.location,
+        rating: Number(raw.rating) || DEFAULT_GUIDE.rating,
+        reviewCount: Number(raw.reviewCount) || reviews.length || DEFAULT_GUIDE.reviewCount,
+        toursCompleted: Number(raw.toursCompleted) || tours.length || DEFAULT_GUIDE.toursCompleted,
+        experience: raw.experienceYears ? `${raw.experienceYears} năm` : (raw.experience || DEFAULT_GUIDE.experience),
+        languages: languages.length ? languages : DEFAULT_GUIDE.languages,
+        specialties: specialties.length ? specialties : DEFAULT_GUIDE.specialties,
+        bio: raw.shortBio || raw.bio || DEFAULT_GUIDE.bio,
+        fullBio: raw.bio || DEFAULT_GUIDE.fullBio,
+        badges: badges.length ? badges : DEFAULT_GUIDE.badges,
+        verified: Boolean(raw.verified ?? true),
+        joinedDate: raw.joinedDate || raw.createdAt || DEFAULT_GUIDE.joinedDate,
+        tours: tours.length
+            ? tours.map((tour, index) => ({
+                id: tour.id || index,
+                title: tour.title || 'Tour',
+                duration: tour.durationText || `${tour.durationDays || 1} Ngày`,
+                price: Number(tour.basePrice) || 0,
+                image: resolveMediaUrl(tour.thumbnailUrl || tour.imageUrl) || DEFAULT_GUIDE.tours[0].image,
+                rating: Number(tour.rating) || 4.8,
+                nextDate: tour.nextStartDate || 'Đang cập nhật',
+            }))
+            : DEFAULT_GUIDE.tours,
+        reviews: reviews.length
+            ? reviews.map((review, index) => ({
+                id: review.id || index,
+                name: review.authorName || review.name || 'Du khách',
+                avatar: resolveMediaUrl(review.authorAvatarUrl || review.avatar) || DEFAULT_GUIDE.reviews[0].avatar,
+                rating: Number(review.rating) || 5,
+                date: review.createdAt || review.date || '',
+                comment: review.comment || '',
+                tourName: review.tourName || 'Tour Flourish',
+            }))
+            : DEFAULT_GUIDE.reviews,
+        stats: {
+            responseRate: raw.responseRate || DEFAULT_GUIDE.stats.responseRate,
+            responseTime: raw.responseTime || DEFAULT_GUIDE.stats.responseTime,
+            repeatGuests: raw.repeatGuests || DEFAULT_GUIDE.stats.repeatGuests,
+        },
+    };
+}
+
 const GuideDetail = () => {
-    const { guideId } = useParams();
+    const { id } = useParams();
     const navigate = useNavigate();
-    const guide = GUIDES_DATA[guideId] || DEFAULT_GUIDE;
     const [isSaved, setIsSaved] = useState(false);
+    const [guideApi, setGuideApi] = useState(null);
+
+    useEffect(() => {
+        let alive = true;
+        if (!id) return undefined;
+        (async () => {
+            try {
+                const data = await getPublicGuide(id);
+                if (!alive) return;
+                setGuideApi(mapGuideDetail(data?.data || data));
+            } catch {
+                if (!alive) return;
+                setGuideApi(null);
+            }
+        })();
+        return () => {
+            alive = false;
+        };
+    }, [id]);
+
+    const guide = useMemo(() => {
+        if (guideApi) return guideApi;
+        if (id && GUIDES_DATA[id]) return GUIDES_DATA[id];
+        return DEFAULT_GUIDE;
+    }, [guideApi, id]);
 
     const renderStars = (rating) => {
         return Array.from({ length: 5 }, (_, i) => (

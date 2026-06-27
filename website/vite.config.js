@@ -11,11 +11,12 @@ const DEFAULT_API_URL = 'https://flourishtravel-rtdye.ondigitalocean.app/api'
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, rootDir, 'VITE_')
   const apiUrl = (env.VITE_API_URL || DEFAULT_API_URL).trim()
+  const base = (env.VITE_BASE || (mode === 'production' ? '/FE/' : '/')).trim()
 
   return {
     root: rootDir,
     envDir: rootDir,
-    base: mode === 'production' ? '/FE/' : '/',
+    base,
     plugins: [
       react(),
       tailwindcss(),

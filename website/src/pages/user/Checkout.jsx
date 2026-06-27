@@ -149,15 +149,16 @@ function phoneOk(p) {
 
 const Checkout = () => {
     const { tourId } = useParams();
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
     const navigate = useNavigate();
     const { user } = useAuth();
 
     const sessionIdParam = searchParams.get('sessionId');
-    const isLiveBooking = isUuid(tourId) && sessionIdParam && isUuid(sessionIdParam);
+    const isLiveTour = isUuid(tourId);
+    const isLiveBooking = isLiveTour && sessionIdParam && isUuid(sessionIdParam);
 
     const [liveTour, setLiveTour] = useState(null);
-    const [liveLoading, setLiveLoading] = useState(isLiveBooking);
+    const [liveLoading, setLiveLoading] = useState(isLiveTour);
     const [liveError, setLiveError] = useState('');
     const [submitError, setSubmitError] = useState('');
     const [submitting, setSubmitting] = useState(false);
@@ -188,7 +189,7 @@ const Checkout = () => {
     const ageCutoffLabels = useMemo(() => getAgeCutoffLabels(), []);
 
     const tour = useMemo(() => {
-        if (isLiveBooking && liveTour) {
+        if (isLiveTour && liveTour) {
             const imgs = (liveTour.images || []).map((i) => resolveMediaUrl(i?.imageUrl)).filter(Boolean);
             const loc =
                 (liveTour.locations || []).map((l) => l.locationName).filter(Boolean).join(' · ') ||
@@ -208,17 +209,26 @@ const Checkout = () => {
             };
         }
         return TOUR_DATA[tourId] || DEFAULT_TOUR;
-    }, [isLiveBooking, liveTour, tourId]);
+    }, [isLiveTour, liveTour, tourId]);
+
+    const bookableSessions = useMemo(() => {
+        if (!liveTour?.sessions) return [];
+        return liveTour.sessions.filter(
+            (s) =>
+                s.status === 'scheduled' &&
+                (s.maxParticipants ?? 0) > (s.currentParticipants ?? 0),
+        );
+    }, [liveTour]);
 
     const sessionOk = useMemo(() => {
-        if (!isLiveBooking || !liveTour || !sessionIdParam) return true;
-        return (liveTour.sessions || []).some((s) => s.id === sessionIdParam);
-    }, [isLiveBooking, liveTour, sessionIdParam]);
+        if (!isLiveTour || !liveTour || !sessionIdParam) return false;
+        return bookableSessions.some((s) => s.id === sessionIdParam);
+    }, [isLiveTour, liveTour, sessionIdParam, bookableSessions]);
 
     const selectedSession = useMemo(() => {
-        if (!isLiveBooking || !liveTour || !sessionIdParam) return null;
-        return (liveTour.sessions || []).find((s) => s.id === sessionIdParam) || null;
-    }, [isLiveBooking, liveTour, sessionIdParam]);
+        if (!liveTour?.sessions || !sessionIdParam) return null;
+        return liveTour.sessions.find((s) => s.id === sessionIdParam) || null;
+    }, [liveTour, sessionIdParam]);
 
     const date = useMemo(() => {
         if (selectedSession?.startDate) {
@@ -229,15 +239,15 @@ const Checkout = () => {
     }, [selectedSession, searchParams]);
 
     const tourOrderCode = useMemo(() => {
-        if (isLiveBooking && tour?.slug && sessionIdParam) {
+        if (isLiveTour && tour?.slug && sessionIdParam) {
             const p = String(tour.slug).replace(/-/g, '').toUpperCase().slice(0, 10);
             const s = String(sessionIdParam).replace(/-/g, '').toUpperCase().slice(0, 12);
             return `${p}-${s}`;
         }
         return `FT-${String(tourId || 'demo').toUpperCase()}-${String(Date.now()).slice(-6)}`;
-    }, [isLiveBooking, tour, sessionIdParam, tourId]);
+    }, [isLiveTour, tour, sessionIdParam, tourId]);
 
-    const useLivePricing = isLiveBooking && liveTour;
+    const useLivePricing = isLiveTour && liveTour && selectedSession && sessionOk;
     const totalPassengers = adults + children + infants;
     const maxParty = useMemo(() => {
         if (!selectedSession) return 20;
@@ -262,8 +272,19 @@ const Checkout = () => {
 
     const returnUrl = `/checkout/${tourId}?${searchParams.toString()}`;
 
+    const selectSession = useCallback(
+        (sessionId) => {
+            const next = new URLSearchParams(searchParams);
+            next.set('sessionId', sessionId);
+            setSearchParams(next, { replace: true });
+            setPromoResult(null);
+            setSubmitError('');
+        },
+        [searchParams, setSearchParams],
+    );
+
     useEffect(() => {
-        if (!isLiveBooking) {
+        if (!isLiveTour) {
             setLiveLoading(false);
             return undefined;
         }
@@ -283,11 +304,20 @@ const Checkout = () => {
         return () => {
             cancel = true;
         };
-    }, [tourId, isLiveBooking]);
+    }, [tourId, isLiveTour]);
 
     useEffect(() => {
-        if (isLiveBooking) setPaymentType('full');
-    }, [isLiveBooking]);
+        if (!isLiveTour || liveLoading || !liveTour || sessionIdParam) return;
+        const first = bookableSessions[0];
+        if (!first?.id) return;
+        const next = new URLSearchParams(searchParams);
+        next.set('sessionId', first.id);
+        setSearchParams(next, { replace: true });
+    }, [isLiveTour, liveLoading, liveTour, sessionIdParam, bookableSessions, searchParams, setSearchParams]);
+
+    useEffect(() => {
+        if (isLiveTour) setPaymentType('full');
+    }, [isLiveTour]);
 
     useEffect(() => {
         if (!user) return;
@@ -321,13 +351,13 @@ const Checkout = () => {
     }, []);
 
     const applyPromo = async () => {
-        const code = formData.promoInput.trim();
+        const code = formData.promoInput.trim().toUpperCase();
         if (!code) {
             setPromoResult({ valid: false, message: 'Nhập mã ưu đãi.' });
             return;
         }
-        if (!isLiveBooking || !sessionIdParam) {
-            setPromoResult({ valid: false, message: 'Mã ưu đãi chỉ áp dụng khi đặt tour qua hệ thống (chọn lịch từ trang tour).' });
+        if (!isLiveTour || !sessionOk || !sessionIdParam) {
+            setPromoResult({ valid: false, message: 'Chọn đợt khởi hành trước khi áp dụng mã ưu đãi.' });
             return;
         }
         setPromoLoading(true);
@@ -345,7 +375,10 @@ const Checkout = () => {
                 code: r.valid ? code : null,
             });
         } catch (e) {
-            setPromoResult({ valid: false, message: e.message || 'Không kiểm tra được mã.' });
+            const msg = e.status === 401
+                ? 'Vui lòng đăng nhập để áp dụng mã ưu đãi.'
+                : (e.message || 'Không kiểm tra được mã.');
+            setPromoResult({ valid: false, message: msg });
         } finally {
             setPromoLoading(false);
         }
@@ -451,14 +484,14 @@ const Checkout = () => {
 
     const handleConfirmBooking = async () => {
         setSubmitError('');
-        if (isLiveBooking) {
+        if (isLiveTour) {
+            if (!sessionOk || !liveTour || !sessionIdParam) {
+                setSubmitError('Vui lòng chọn đợt khởi hành còn chỗ.');
+                return;
+            }
             const token = getAccessToken();
             if (!token) {
                 navigate(`/login?return=${encodeURIComponent(returnUrl)}`);
-                return;
-            }
-            if (!sessionOk || !liveTour) {
-                setSubmitError('Lịch khởi hành không hợp lệ hoặc đã đóng.');
                 return;
             }
             setSubmitting(true);
@@ -518,7 +551,7 @@ const Checkout = () => {
         setStep(3);
     };
 
-    if (isLiveBooking && liveLoading) {
+    if (isLiveTour && liveLoading) {
         return (
             <div className={styles.pageContainer}>
                 <div className={styles.container} style={{ padding: '80px 24px', textAlign: 'center' }}>
@@ -528,7 +561,7 @@ const Checkout = () => {
         );
     }
 
-    if (isLiveBooking && liveError) {
+    if (isLiveTour && liveError) {
         return (
             <div className={styles.pageContainer}>
                 <div className={styles.container} style={{ padding: '80px 24px', textAlign: 'center' }}>
@@ -539,16 +572,42 @@ const Checkout = () => {
         );
     }
 
-    if (isLiveBooking && liveTour && !sessionOk) {
+    const renderSessionPicker = (compact = false) => {
+        if (!isLiveTour) return null;
+        if (bookableSessions.length === 0) {
+            return (
+                <p className={styles.sessionEmpty}>
+                    Hiện chưa có đợt khởi hành còn chỗ.{' '}
+                    <Link to={`/tours/${tourId}`}>Quay lại trang tour</Link>
+                </p>
+            );
+        }
         return (
-            <div className={styles.pageContainer}>
-                <div className={styles.container} style={{ padding: '80px 24px', textAlign: 'center' }}>
-                    <p style={{ marginBottom: 16 }}>Lịch khởi hành không còn hợp lệ. Vui lòng chọn lại trên trang tour.</p>
-                    <Link to={`/tours/${tourId}`}>← Quay lại chi tiết tour</Link>
-                </div>
+            <div className={compact ? styles.sessionListCompact : styles.sessionList}>
+                {bookableSessions.map((s) => {
+                    const rem = Math.max(0, (s.maxParticipants ?? 0) - (s.currentParticipants ?? 0));
+                    const active = sessionIdParam === s.id;
+                    const dateLabel = `${formatIsoDateViDash(s.startDate)}${
+                        s.endDate ? ` → ${formatIsoDateViDash(s.endDate)}` : ''
+                    }`;
+                    return (
+                        <button
+                            key={s.id}
+                            type="button"
+                            className={`${styles.sessionOption} ${active ? styles.sessionOptionActive : ''}`}
+                            onClick={() => selectSession(s.id)}
+                        >
+                            <Calendar className={styles.sessionOptionIcon} />
+                            <span className={styles.sessionOptionText}>
+                                <strong>{dateLabel}</strong>
+                                <span>Còn {rem} chỗ</span>
+                            </span>
+                        </button>
+                    );
+                })}
             </div>
         );
-    }
+    };
 
     const stepsMeta = [
         { num: 1, short: '1', name: 'Nhập thông tin' },
@@ -738,6 +797,24 @@ const Checkout = () => {
                                     </div>
                                 </div>
 
+                                {isLiveTour ? (
+                                    <div className={styles.formSection}>
+                                        <h2 className={styles.sectionTitle}>
+                                            <Calendar className={styles.sectionIcon} />
+                                            Chọn đợt khởi hành
+                                        </h2>
+                                        <p className={styles.sessionPickerHint}>
+                                            Chọn ngày đi còn chỗ cho tour này. Giá và số chỗ cập nhật theo từng đợt.
+                                        </p>
+                                        {renderSessionPicker()}
+                                        {sessionIdParam && !sessionOk ? (
+                                            <p className={styles.sessionWarn}>
+                                                Đợt đã chọn không còn chỗ hoặc đã đóng — vui lòng chọn đợt khác.
+                                            </p>
+                                        ) : null}
+                                    </div>
+                                ) : null}
+
                                 <div className={styles.formSection}>
                                     <h2 className={styles.sectionTitle}>
                                         <Users className={styles.sectionIcon} />
@@ -820,7 +897,7 @@ const Checkout = () => {
                                             </div>
                                         </div>
                                     </div>
-                                    {isLiveBooking ? (
+                                    {isLiveTour && sessionOk ? (
                                         <p style={{ marginTop: 12, fontSize: 12, color: '#6b7280' }}>
                                             Tối đa {maxParty} khách cho đợt đã chọn (theo chỗ còn lại).
                                         </p>
@@ -1184,13 +1261,19 @@ const Checkout = () => {
                                             name="promoInput"
                                             value={formData.promoInput}
                                             onChange={handleChange}
-                                            placeholder="Ví dụ: VIETRAVEL100"
+                                            placeholder="Ví dụ: CHAT5, WELCOME50"
                                             className={styles.formInput}
+                                            autoComplete="off"
                                         />
-                                        <button type="button" className={styles.btnApply} onClick={applyPromo} disabled={promoLoading}>
+                                        <button type="button" className={styles.btnApply} onClick={applyPromo} disabled={promoLoading || !sessionOk}>
                                             {promoLoading ? '...' : 'Áp dụng'}
                                         </button>
                                     </div>
+                                    {isLiveTour && !sessionOk ? (
+                                        <p className={styles.promoMsg} style={{ color: '#b45309' }}>
+                                            Chọn đợt khởi hành trước khi áp dụng mã giảm giá.
+                                        </p>
+                                    ) : null}
                                     {promoResult?.message ? (
                                         <p className={styles.promoMsg} style={{ color: promoResult.valid ? '#047857' : '#b91c1c' }}>
                                             {promoResult.message}
@@ -1339,6 +1422,12 @@ const Checkout = () => {
                                     <Plane style={{ width: 14, height: 14, display: 'inline', verticalAlign: 'middle', marginRight: 6 }} />
                                     Lịch khởi hành / di chuyển
                                 </div>
+                                {isLiveTour ? (
+                                    <>
+                                        <p className={styles.sessionPickerHint}>Chọn đợt còn chỗ:</p>
+                                        {renderSessionPicker(true)}
+                                    </>
+                                ) : null}
                                 <div className={styles.scheduleLeg}>
                                     <span className={styles.scheduleLegLabel}>Ngày đi</span>
                                     <div className={styles.scheduleLegBody}>

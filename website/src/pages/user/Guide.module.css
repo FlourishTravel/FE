@@ -243,3 +243,35 @@
 .detailText {
     @apply flex-1;
 }
+
+.tipsGrid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+}
+
+.tipCard {
+    @apply bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 flex flex-col no-underline text-inherit hover:shadow-md transition-shadow;
+}
+
+.tipImage {
+    @apply w-full h-40 object-cover;
+}
+
+.tipBody {
+    @apply p-5 flex flex-col flex-1;
+}
+
+.tipCategory {
+    @apply text-xs font-semibold uppercase tracking-wide text-primary-600 mb-2;
+}
+
+.tipTitle {
+    @apply text-lg font-bold text-gray-900 mb-2;
+}
+
+.tipExcerpt {
+    @apply text-sm text-gray-600 leading-relaxed flex-1;
+}
+
+.tipLink {
+    @apply inline-flex items-center gap-1 text-primary-600 text-sm font-medium mt-3;
+}

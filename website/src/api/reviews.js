@@ -20,3 +20,20 @@ export async function createReview({ bookingId, rating, comment, feedbackTags })
   if (!res.ok) throw new Error(json.message || 'Không gửi được đánh giá');
   return json;
 }
+
+export async function listFeaturedReviews(limit = 6) {
+  const res = await fetch(`${API_BASE}/reviews/featured?limit=${limit}`);
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.message || 'Không tải đánh giá');
+  return Array.isArray(json.data) ? json.data : [];
+}
+
+export async function listPublicReviews({ tourId, limit = 20 } = {}) {
+  const params = new URLSearchParams();
+  if (tourId) params.set('tourId', tourId);
+  if (limit) params.set('limit', String(limit));
+  const res = await fetch(`${API_BASE}/reviews/public?${params}`);
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.message || 'Không tải đánh giá');
+  return Array.isArray(json.data) ? json.data : [];
+}

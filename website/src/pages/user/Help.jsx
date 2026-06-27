@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import styles from './Help.module.css';
+import { submitContact } from '../../api/contact';
+import { listSiteContent } from '../../api/content';
 import {
     FaPlane,
     FaFileAlt,
@@ -15,6 +17,21 @@ import {
 
 const Help = () => {
     const [searchQuery, setSearchQuery] = useState('');
+    const [contactForm, setContactForm] = useState({
+        fullName: '',
+        email: '',
+        message: '',
+    });
+    const [contactLoading, setContactLoading] = useState(false);
+    const [contactSuccess, setContactSuccess] = useState('');
+    const [contactError, setContactError] = useState('');
+    const [helpArticles, setHelpArticles] = useState([]);
+
+    useEffect(() => {
+        listSiteContent('help')
+            .then((rows) => setHelpArticles(Array.isArray(rows) ? rows : []))
+            .catch(() => setHelpArticles([]));
+    }, []);
 
     const categories = [
         {
@@ -47,20 +64,46 @@ const Help = () => {
         }
     ];
 
-    const popularArticles = [
+    const popularArticles = helpArticles.length > 0
+        ? helpArticles.map((a) => ({
+            title: a.title,
+            updated: a.category || 'Bài viết trợ giúp',
+            body: a.summary || a.body,
+        }))
+        : [
         {
-            title: 'How to apply for the Flourish Global Scholarship?',
-            updated: 'Updated 2 days ago'
+            title: 'Cách đặt tour trên Flourish',
+            updated: 'Đặt tour',
         },
         {
-            title: 'Cancellation policy for student flights',
-            updated: 'Updated 1 week ago'
+            title: 'Chính sách hủy và hoàn tiền',
+            updated: 'Thanh toán',
         },
         {
-            title: 'Guide to host family etiquette',
-            updated: 'Updated 3 weeks ago'
-        }
+            title: 'Chat đoàn và liên lạc HDV',
+            updated: 'Trong tour',
+        },
     ];
+
+    const handleContactSubmit = async (e) => {
+        e.preventDefault();
+        setContactLoading(true);
+        setContactError('');
+        setContactSuccess('');
+        try {
+            await submitContact({
+                fullName: contactForm.fullName.trim(),
+                email: contactForm.email.trim(),
+                message: contactForm.message.trim(),
+            });
+            setContactSuccess('Đã gửi liên hệ thành công. Đội ngũ sẽ phản hồi sớm.');
+            setContactForm({ fullName: '', email: '', message: '' });
+        } catch (err) {
+            setContactError(err.message || 'Không thể gửi liên hệ. Vui lòng thử lại.');
+        } finally {
+            setContactLoading(false);
+        }
+    };
 
     return (
         <div className={styles.container}>
@@ -192,6 +235,42 @@ const Help = () => {
                         </button>
                     </div>
                 </div>
+            </div>
+
+            <div className={styles.contactFormSection}>
+                <h2 className={styles.contactFormTitle}>Gửi yêu cầu hỗ trợ</h2>
+                <p className={styles.contactFormSubtitle}>Nếu chưa tìm thấy câu trả lời, hãy để lại thông tin cho chúng tôi.</p>
+                <form className={styles.contactForm} onSubmit={handleContactSubmit}>
+                    <input
+                        className={styles.contactInput}
+                        type="text"
+                        placeholder="Họ và tên"
+                        value={contactForm.fullName}
+                        onChange={(e) => setContactForm((prev) => ({ ...prev, fullName: e.target.value }))}
+                        required
+                    />
+                    <input
+                        className={styles.contactInput}
+                        type="email"
+                        placeholder="Email"
+                        value={contactForm.email}
+                        onChange={(e) => setContactForm((prev) => ({ ...prev, email: e.target.value }))}
+                        required
+                    />
+                    <textarea
+                        className={styles.contactTextarea}
+                        placeholder="Nội dung cần hỗ trợ"
+                        value={contactForm.message}
+                        onChange={(e) => setContactForm((prev) => ({ ...prev, message: e.target.value }))}
+                        rows={4}
+                        required
+                    />
+                    <button type="submit" className={styles.contactSubmitBtn} disabled={contactLoading}>
+                        {contactLoading ? 'Đang gửi...' : 'Gửi yêu cầu'}
+                    </button>
+                    {contactSuccess ? <p className={styles.contactSuccess}>{contactSuccess}</p> : null}
+                    {contactError ? <p className={styles.contactError}>{contactError}</p> : null}
+                </form>
             </div>
         </div>
     );

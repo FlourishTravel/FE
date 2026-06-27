@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import {
     MapPin, Star, Clock, Users, Sun, Globe, ChevronRight,
-    Calendar, CheckCircle, Layers, X, Minus, Plus, RefreshCw
+    Calendar, CheckCircle, Layers, X, Minus, Plus, RefreshCw, Heart
 } from 'lucide-react';
 import bangkokImgNew from '../../assets/di-chuyen-di-lai-thai-lan-2.webp';
 import bangkokImg2 from '../../assets/366426-tour-thai-lan-5n4d-bangkok-pattaya.jpg';
@@ -12,6 +12,8 @@ import { getPublicTour, getSimilarTours } from '../../api/tours';
 import { resolveMediaUrl } from '../../api/config';
 import { listMyBookings, validateBookingSession } from '../../api/bookings';
 import { getAccessToken } from '../../api/auth';
+import { addFavorite, listFavorites, removeFavorite } from '../../api/favorites';
+import { useAuth } from '../../context/AuthContext';
 
 function todayIsoLocal() {
     const t = new Date();
@@ -160,6 +162,7 @@ function buildViewModel(detail) {
 const TourDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const { user } = useAuth();
 
     const [detail, setDetail] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -179,6 +182,8 @@ const TourDetail = () => {
     const [scheduleConflict, setScheduleConflict] = useState('');
     const [sessionValidateError, setSessionValidateError] = useState('');
     const [sessionValidateLoading, setSessionValidateLoading] = useState(false);
+    const [isFavorite, setIsFavorite] = useState(false);
+    const [favoriteLoading, setFavoriteLoading] = useState(false);
 
     useEffect(() => {
         let cancel = false;
@@ -279,6 +284,28 @@ const TourDetail = () => {
         setSessionValidateError('');
     }, [selectedSessionId, adults, children, infants]);
 
+    useEffect(() => {
+        let alive = true;
+        if (!user || !id) {
+            setIsFavorite(false);
+            return undefined;
+        }
+        (async () => {
+            try {
+                const favorites = await listFavorites();
+                if (!alive) return;
+                const favoriteTourIds = favorites.map((item) => String(item.tourId));
+                setIsFavorite(favoriteTourIds.includes(String(id)));
+            } catch {
+                if (!alive) return;
+                setIsFavorite(false);
+            }
+        })();
+        return () => {
+            alive = false;
+        };
+    }, [id, user]);
+
     const remainingCap = selectedSession
         ? Math.max(0, (selectedSession.maxParticipants ?? 0) - (selectedSession.currentParticipants ?? 0))
         : 20;
@@ -363,6 +390,28 @@ const TourDetail = () => {
         }
     };
 
+    const handleToggleFavorite = async () => {
+        if (!user) {
+            navigate('/login');
+            return;
+        }
+        if (favoriteLoading || !id) return;
+        setFavoriteLoading(true);
+        try {
+            if (isFavorite) {
+                await removeFavorite(String(id));
+                setIsFavorite(false);
+            } else {
+                await addFavorite(String(id));
+                setIsFavorite(true);
+            }
+        } catch (e) {
+            alert(e.message || 'Không thể cập nhật yêu thích.');
+        } finally {
+            setFavoriteLoading(false);
+        }
+    };
+
     if (loading) {
         return (
             <div className={styles.pageContainer}>
@@ -427,6 +476,15 @@ const TourDetail = () => {
                                 {tour.rating} ({tour.reviewCount} đánh giá)
                             </span>
                         ) : null}
+                        <button
+                            type="button"
+                            className={`${styles.favoriteBtn} ${isFavorite ? styles.favoriteBtnActive : ''}`}
+                            onClick={handleToggleFavorite}
+                            disabled={favoriteLoading}
+                        >
+                            <Heart className={styles.favoriteIcon} />
+                            {isFavorite ? 'Đã lưu' : 'Lưu tour'}
+                        </button>
                     </div>
                 </div>
 

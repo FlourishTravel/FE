@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import {
     loginApi,
     registerApi,
@@ -6,7 +6,10 @@ import {
     saveAuthTokens,
     clearAuthTokens,
     getRefreshToken,
+    getAccessToken,
 } from '../api/auth';
+import { clearAuthSession } from '../api/http';
+import { getMe } from '../api/users';
 
 const STORAGE_KEY = 'flourish_user';
 
@@ -24,6 +27,14 @@ const ROLE_MAP_BE_TO_FE = {
 const normalizeRole = (role) => {
     if (!role) return 'user';
     return ROLE_MAP_BE_TO_FE[role] || role.toLowerCase();
+};
+
+const mapGenderBeToUi = (gender) => {
+    const normalized = String(gender || '').toLowerCase();
+    if (normalized === 'male') return 'Nam';
+    if (normalized === 'female') return 'Nữ';
+    if (normalized === 'other') return 'Khác';
+    return '';
 };
 
 // =========================
@@ -93,7 +104,12 @@ const mapBackendUser = (beUser) => {
         id: beUser.id,
         email: beUser.email,
         name: beUser.fullName || beUser.name || beUser.email,
+        fullName: beUser.fullName || beUser.name || '',
+        phone: beUser.phone || '',
+        address: beUser.address || '',
+        gender: mapGenderBeToUi(beUser.gender),
         avatar: beUser.avatarUrl || beUser.avatar || null,
+        avatarUrl: beUser.avatarUrl || beUser.avatar || '',
         role: normalizeRole(beUser.role),
         rawRole: beUser.role,
     };
@@ -101,7 +117,7 @@ const mapBackendUser = (beUser) => {
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(getStoredUser);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     const persistUser = (userData) => {
         setUser(userData);
@@ -153,17 +169,63 @@ export const AuthProvider = ({ children }) => {
         persistUser(userData);
     };
 
-    const logout = async () => {
+    const logout = useCallback(async () => {
         const refreshToken = getRefreshToken();
         await logoutApi(refreshToken);
-        clearAuthTokens();
-        persistUser(null);
-    };
+        clearAuthSession();
+        setUser(null);
+    }, []);
 
-    const updateUser = (updatedData) => {
-        const newUser = { ...user, ...updatedData };
-        persistUser(newUser);
-    };
+    useEffect(() => {
+        const onSessionExpired = () => {
+            setUser(null);
+        };
+        window.addEventListener('flourish:session-expired', onSessionExpired);
+        return () => window.removeEventListener('flourish:session-expired', onSessionExpired);
+    }, []);
+
+    useEffect(() => {
+        let alive = true;
+        (async () => {
+            const token = getAccessToken();
+            const stored = getStoredUser();
+            if (!token) {
+                if (stored) persistUser(null);
+                if (alive) setLoading(false);
+                return;
+            }
+            if (!stored) {
+                if (alive) setLoading(false);
+                return;
+            }
+            try {
+                const res = await getMe();
+                if (!alive) return;
+                const me = res?.data || res?.user || res;
+                if (me?.email || me?.id) {
+                    persistUser(mapBackendUser(me));
+                }
+            } catch (e) {
+                if (!alive) return;
+                if (e?.status === 401) {
+                    clearAuthSession();
+                    setUser(null);
+                }
+            } finally {
+                if (alive) setLoading(false);
+            }
+        })();
+        return () => { alive = false; };
+    }, []);
+
+    const updateUser = useCallback((updatedData) => {
+        setUser((prev) => {
+            if (!prev) return prev;
+            const newUser = { ...prev, ...updatedData };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(newUser));
+            return newUser;
+        });
+    }, []);
 
     // ===== Legacy mock helpers (giữ lại để Login.jsx tương thích ngược) =====
     const checkCredentials = (email, password) =>

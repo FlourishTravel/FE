@@ -1,231 +1,253 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import styles from './GuideOperations.module.css';
+import { useGuideSessions, formatViDateRange } from '../hooks/useGuideSessions';
+import { getSessionSchedule, getGuideSessionGuests } from '../../../api/guideTours';
 
-const TIMELINE = [
-    {
-        id: 1,
-        type: 'food',
-        icon: 'restaurant',
-        title: 'Ăn sáng tại Khách sạn',
-        time: '07:00 AM',
-        desc: 'Nhà hàng tầng 2, tập trung hành lý tại sảnh.',
-        status: 'completed',
-    },
-    {
-        id: 2,
-        type: 'attraction',
-        icon: 'landscape',
-        title: 'Tham quan Grand Canyon',
-        time: '09:30 AM',
-        desc: 'South Rim. Điểm tập trung: Visitor Center. Yêu cầu nhắc nhở khách mang nước.',
-        status: 'current',
-    },
-    {
-        id: 3,
-        type: 'transport',
-        icon: 'directions_bus',
-        title: 'Di chuyển về Las Vegas',
-        time: '14:00 PM',
-        desc: 'Khoảng cách 4h di chuyển. Nghỉ giữa chặng tại Kingman.',
-        status: 'upcoming',
-    },
-];
+const ACTIVITY_ICONS = {
+  SIGHTSEEING: 'landscape',
+  DINING: 'restaurant',
+  TRANSPORT: 'directions_bus',
+  EXPERIENCE: 'celebration',
+  FREE_TIME: 'schedule',
+  SHOPPING: 'shopping_bag',
+  ACCOMMODATION: 'hotel',
+};
 
-const POLLS = [
-    {
-        id: 1,
-        question: 'Ăn tối nay tại Las Vegas?',
-        status: 'open',
-        options: [
-            { id: 'opt1', text: 'Buffet Hải sản (Tự túc)', votes: 17, total: 24 },
-            { id: 'opt2', text: 'Nhà hàng Châu Á (Theo đoàn)', votes: 7, total: 24 },
-        ],
-        closeTime: '16:00',
-    },
-    {
-        id: 2,
-        question: 'Giờ tập trung sáng mai?',
-        status: 'closed',
-        result: '07:30 AM (100% đồng ý)',
-    },
-];
+function formatTime(value) {
+  if (!value) return '';
+  const m = String(value).match(/^(\d{1,2}):(\d{2})/);
+  return m ? `${m[1].padStart(2, '0')}:${m[2]}` : String(value);
+}
 
 const GuideOperations = () => {
-    return (
-        <div className={styles.page}>
-            {/* Header */}
-            <div className={styles.pageHeader}>
-                <div className={styles.headerLeft}>
-                    <h1 className={styles.pageTitle}>Vận hành Tour: Bờ Tây Nước Mỹ</h1>
-                    <p className={styles.pageSubtitle}>
-                        <span className="material-icons-round" style={{ fontSize: '16px' }}>calendar_today</span>
-                        Ngày 3: Grand Canyon - Las Vegas (12/10/2023)
-                    </p>
-                </div>
-                <div className={styles.headerActions}>
-                    <button className={styles.btnOutline}>
-                        <span className="material-icons-round" style={{ fontSize: '18px' }}>groups</span>
-                        Đoàn 24 khách
-                    </button>
-                    <button className={styles.btnPrimary}>
-                        <span className="material-icons-round" style={{ fontSize: '18px' }}>check_circle_outline</span>
-                        Điểm danh nhanh
-                    </button>
-                </div>
-            </div>
+  const navigate = useNavigate();
+  const { sessions, loading, error, ongoing } = useGuideSessions();
+  const [selectedId, setSelectedId] = useState('');
+  const [schedule, setSchedule] = useState(null);
+  const [guestRoll, setGuestRoll] = useState(null);
+  const [activeDay, setActiveDay] = useState(1);
+  const [schedLoading, setSchedLoading] = useState(false);
 
-            {/* Main Grid */}
-            <div className={styles.mainGrid}>
-                {/* Left Column - Timeline */}
-                <div className={styles.timelineCard}>
-                    <div className={styles.cardHeader}>
-                        <h2 className={styles.cardTitle}>
-                            <span className="material-icons-round" style={{ color: '#059669' }}>route</span>
-                            Tiến độ Lịch trình
-                        </h2>
-                        <span className={styles.progressBadge}>2/5 Hoàn thành</span>
-                    </div>
+  const activeSessions = useMemo(
+    () => sessions.filter((s) => s.status === 'ongoing' || s.status === 'upcoming'),
+    [sessions],
+  );
 
-                    <div className={styles.timeline}>
-                        {TIMELINE.map((item, index) => (
-                            <div key={item.id} className={`${styles.timelineItem} ${styles[item.status]}`}>
-                                {/* Vertical Line and Icon */}
-                                <div className={styles.timelineLeft}>
-                                    <div className={styles.iconWrap}>
-                                        <span className="material-icons-round">{item.icon}</span>
-                                    </div>
-                                    {index < TIMELINE.length - 1 && <div className={styles.verticalLine}></div>}
-                                </div>
+  const selected = useMemo(
+    () => sessions.find((s) => s.sessionId === selectedId) || ongoing || activeSessions[0],
+    [sessions, selectedId, ongoing, activeSessions],
+  );
 
-                                {/* Content Box */}
-                                <div className={styles.contentBox}>
-                                    <div className={styles.itemHeader}>
-                                        <h3 className={styles.itemTitle}>{item.title}</h3>
-                                        <div className={styles.itemRight}>
-                                            <span className={styles.itemTime}>{item.time}</span>
-                                            {item.status === 'current' && (
-                                                <span className={styles.currentBadge}>Đang diễn ra</span>
-                                            )}
-                                        </div>
-                                    </div>
-                                    <p className={styles.itemDesc}>{item.desc}</p>
-                                    
-                                    <div className={styles.itemActions}>
-                                        {item.status === 'completed' && (
-                                            <span className={styles.completedText}>
-                                                <span className="material-icons-round" style={{ fontSize: '16px' }}>done_all</span>
-                                                Đã Check-out
-                                            </span>
-                                        )}
-                                        {item.status === 'current' && (
-                                            <div className={styles.actionGroup}>
-                                                <button className={styles.btnDisabled}>
-                                                    <span className="material-icons-round" style={{ fontSize: '16px' }}>person_remove</span>
-                                                    Đã Check-in
-                                                </button>
-                                                <button className={styles.btnAction}>
-                                                    <span className="material-icons-round" style={{ fontSize: '16px' }}>logout</span>
-                                                    Check-out
-                                                </button>
-                                            </div>
-                                        )}
-                                        {item.status === 'upcoming' && (
-                                            <button className={styles.btnUpcoming}>
-                                                <span className="material-icons-round" style={{ fontSize: '16px' }}>login</span>
-                                                Check-in (Sắp tới)
-                                            </button>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
+  useEffect(() => {
+    if (selected?.sessionId && !selectedId) {
+      setSelectedId(selected.sessionId);
+    }
+  }, [selected, selectedId]);
 
-                {/* Right Column */}
-                <div className={styles.rightColumn}>
-                    {/* SOS Card */}
-                    <div className={styles.sosCard}>
-                        <div className={styles.sosIcon}>
-                            <span className="material-icons-round">warning_amber</span>
-                        </div>
-                        <h2 className={styles.sosTitle}>Báo Cáo Khẩn Cấp (SOS)</h2>
-                        <p className={styles.sosDesc}>
-                            Gửi ngay thông báo tới bộ phận Điều hành nếu có sự cố về y tế, thời tiết hoặc tai nạn.
-                        </p>
-                        <button className={styles.sosBtn}>
-                            <span className="material-icons-round">send</span>
-                            GỬI SOS NGAY
-                        </button>
-                    </div>
+  useEffect(() => {
+    if (!selected?.sessionId) return;
+    let alive = true;
+    (async () => {
+      setSchedLoading(true);
+      try {
+        const [sched, roll] = await Promise.all([
+          getSessionSchedule(selected.sessionId),
+          getGuideSessionGuests(selected.sessionId).catch(() => null),
+        ]);
+        if (!alive) return;
+        setSchedule(sched);
+        setGuestRoll(roll);
+        if (sched?.days?.length) {
+          setActiveDay(sched.days[0].dayNumber || 1);
+        }
+      } catch {
+        if (alive) {
+          setSchedule(null);
+          setGuestRoll(null);
+        }
+      } finally {
+        if (alive) setSchedLoading(false);
+      }
+    })();
+    return () => { alive = false; };
+  }, [selected?.sessionId]);
 
-                    {/* Quick Polls */}
-                    <div className={styles.pollsCard}>
-                        <div className={styles.pollsHeader}>
-                            <h2 className={styles.pollsTitle}>
-                                <span className="material-icons-round" style={{ color: '#059669' }}>how_to_vote</span>
-                                Bình chọn nhanh
-                            </h2>
-                            <button className={styles.addPollBtn}>
-                                <span className="material-icons-round">add</span>
-                            </button>
-                        </div>
+  const dayRow = useMemo(
+    () => (schedule?.days || []).find((d) => d.dayNumber === activeDay),
+    [schedule, activeDay],
+  );
 
-                        <div className={styles.pollsList}>
-                            {POLLS.map(poll => (
-                                <div key={poll.id} className={styles.pollItem}>
-                                    <div className={styles.pollItemHeader}>
-                                        <h3 className={styles.pollQuestion}>{poll.question}</h3>
-                                        <span className={`${styles.pollBadge} ${poll.status === 'open' ? styles.badgeOpen : styles.badgeClosed}`}>
-                                            {poll.status === 'open' ? 'ĐANG MỞ' : 'ĐÃ ĐÓNG'}
-                                        </span>
-                                    </div>
+  const timeline = useMemo(() => {
+    const acts = dayRow?.activities || [];
+    return acts.map((row, index) => {
+      const t = row.template || row;
+      const title = t.title || t.activityTitle || 'Hoạt động';
+      const start = formatTime(t.startTime || row.startTime);
+      const end = formatTime(t.endTime || row.endTime);
+      const time = start && end ? `${start} – ${end}` : start || '—';
+      const type = (t.activityType || 'SIGHTSEEING').toUpperCase();
+      const status = row.scheduleStatus === 'CANCELLED'
+        ? 'upcoming'
+        : index === 0
+          ? 'current'
+          : 'upcoming';
+      return {
+        id: row.activityId || t.id || index,
+        icon: ACTIVITY_ICONS[type] || 'place',
+        title,
+        time,
+        desc: t.description || t.locationName || '',
+        status,
+      };
+    });
+  }, [dayRow]);
 
-                                    {poll.status === 'open' ? (
-                                        <div className={styles.pollOptions}>
-                                            {poll.options.map(opt => {
-                                                const percent = Math.round((opt.votes / opt.total) * 100);
-                                                return (
-                                                    <div key={opt.id} className={styles.optionRow}>
-                                                        <div className={styles.optionBg}>
-                                                            <div className={styles.optionFill} style={{ width: `${percent}%` }}></div>
-                                                        </div>
-                                                        <div className={styles.optionContent}>
-                                                            <span className={styles.optionText}>{opt.text}</span>
-                                                            <span className={styles.optionVotes}>{opt.votes} khách ({percent}%)</span>
-                                                        </div>
-                                                    </div>
-                                                );
-                                            })}
-                                            <div className={styles.pollFooter}>
-                                                <span className={styles.pollInfo}>Đã đóng bình chọn lúc {poll.closeTime}</span>
-                                                <button className={styles.closePollBtn}>Chốt kết quả</button>
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className={styles.pollResult}>
-                                            <span className={styles.resultLabel}>Kết quả:</span>
-                                            <span className={styles.resultValue}>{poll.result}</span>
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
+  const guestCount = guestRoll?.totalGuestSlots || selected?.currentParticipants || 0;
 
-                    {/* Weather Widget */}
-                    <div className={styles.weatherCard}>
-                        <div className={styles.weatherLabel}>THỜI TIẾT ĐIỂM ĐẾN</div>
-                        <div className={styles.weatherContent}>
-                            <span className="material-icons-round" style={{ fontSize: '42px', color: '#fbbf24' }}>light_mode</span>
-                            <span className={styles.temp}>28°C</span>
-                            <span className={styles.weatherDesc}>Nắng ráo, Grand Canyon</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  return (
+    <div className={styles.page}>
+      <div className={styles.pageHeader}>
+        <div className={styles.headerLeft}>
+          <h1 className={styles.pageTitle}>
+            Vận hành: {selected?.tourTitle || 'Chọn tour'}
+          </h1>
+          <p className={styles.pageSubtitle}>
+            <span className="material-icons-round" style={{ fontSize: '16px' }}>calendar_today</span>
+            {selected ? formatViDateRange(selected.startDate, selected.endDate) : '—'}
+          </p>
+          {activeSessions.length > 1 && (
+            <select
+              value={selected?.sessionId || ''}
+              onChange={(e) => setSelectedId(e.target.value)}
+              style={{ marginTop: 8, padding: '8px 12px', borderRadius: 8, border: '1px solid #e5e7eb' }}
+            >
+              {activeSessions.map((s) => (
+                <option key={s.sessionId} value={s.sessionId}>{s.tourTitle}</option>
+              ))}
+            </select>
+          )}
         </div>
-    );
+        <div className={styles.headerActions}>
+          <button type="button" className={styles.btnOutline} onClick={() => navigate('/guide/guests')}>
+            <span className="material-icons-round" style={{ fontSize: '18px' }}>groups</span>
+            Đoàn {guestCount} khách
+          </button>
+          {selected?.sessionId && (
+            <button
+              type="button"
+              className={styles.btnPrimary}
+              onClick={() => navigate(`/guide/tours/${selected.sessionId}`)}
+            >
+              <span className="material-icons-round" style={{ fontSize: '18px' }}>check_circle_outline</span>
+              Điểm danh & lịch trình
+            </button>
+          )}
+        </div>
+      </div>
+
+      {error && <p style={{ color: '#dc2626' }}>{error}</p>}
+      {loading && <p>Đang tải...</p>}
+
+      {!loading && !selected && (
+        <p>Chưa có tour để vận hành. <Link to="/guide/tours">Xem danh sách tour</Link></p>
+      )}
+
+      {selected && (
+        <div className={styles.mainGrid}>
+          <div className={styles.timelineCard}>
+            <div className={styles.cardHeader}>
+              <h2 className={styles.cardTitle}>
+                <span className="material-icons-round" style={{ color: '#059669' }}>route</span>
+                Lịch trình ngày {activeDay}
+              </h2>
+              <div style={{ display: 'flex', gap: 8 }}>
+                {(schedule?.days || []).map((d) => (
+                  <button
+                    key={d.dayNumber}
+                    type="button"
+                    onClick={() => setActiveDay(d.dayNumber)}
+                    style={{
+                      padding: '4px 10px',
+                      borderRadius: 6,
+                      border: 'none',
+                      background: d.dayNumber === activeDay ? '#059669' : '#f3f4f6',
+                      color: d.dayNumber === activeDay ? '#fff' : '#374151',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Ngày {d.dayNumber}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {schedLoading && <p>Đang tải lịch trình...</p>}
+            {!schedLoading && timeline.length === 0 && (
+              <p style={{ color: '#6b7280', padding: 16 }}>
+                Chưa có hoạt động cho ngày này. Chỉnh sửa tại{' '}
+                <Link to={`/guide/tours/${selected.sessionId}`}>chi tiết tour</Link>.
+              </p>
+            )}
+
+            <div className={styles.timeline}>
+              {timeline.map((item, index) => (
+                <div key={item.id} className={`${styles.timelineItem} ${styles[item.status]}`}>
+                  <div className={styles.timelineLeft}>
+                    <div className={styles.iconWrap}>
+                      <span className="material-icons-round">{item.icon}</span>
+                    </div>
+                    {index < timeline.length - 1 && <div className={styles.verticalLine} />}
+                  </div>
+                  <div className={styles.contentBox}>
+                    <div className={styles.itemHeader}>
+                      <h3 className={styles.itemTitle}>{item.title}</h3>
+                      <span className={styles.itemTime}>{item.time}</span>
+                    </div>
+                    {item.desc && <p className={styles.itemDesc}>{item.desc}</p>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className={styles.rightColumn}>
+            <div className={styles.sosCard}>
+              <div className={styles.sosIcon}>
+                <span className="material-icons-round">support_agent</span>
+              </div>
+              <h2 className={styles.sosTitle}>Hỗ trợ điều hành</h2>
+              <p className={styles.sosDesc}>
+                Liên hệ hotline điều hành Flourish khi cần hỗ trợ y tế, thay đổi lịch khẩn hoặc sự cố trên tour.
+              </p>
+              <a href="tel:+84901234567" className={styles.sosBtn} style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                <span className="material-icons-round">call</span>
+                GỌI ĐIỀU HÀNH
+              </a>
+            </div>
+
+            <div className={styles.pollsCard}>
+              <div className={styles.pollsHeader}>
+                <h2 className={styles.pollsTitle}>
+                  <span className="material-icons-round" style={{ color: '#059669' }}>how_to_vote</span>
+                  Bình chọn nhanh
+                </h2>
+              </div>
+              <p style={{ color: '#6b7280', fontSize: 14, padding: '0 16px 16px' }}>
+                Tính năng bình chọn đoàn sẽ được bổ sung. Hiện dùng chat đoàn để thăm dò ý khách.
+              </p>
+              <Link
+                to="/guide/communication"
+                style={{ display: 'block', padding: '0 16px 16px', color: '#059669', fontWeight: 600 }}
+              >
+                Mở giao tiếp đoàn →
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default GuideOperations;

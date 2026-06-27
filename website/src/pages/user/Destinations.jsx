@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, MapPin } from 'lucide-react';
 import styles from './Destinations.module.css';
+import { listDestinations } from '../../api/destinations';
+import { resolveMediaUrl } from '../../api/config';
 
-const DESTINATIONS = [
+const FALLBACK_DESTINATIONS = [
     {
         id: 1,
         title: 'Bangkok – Pattaya',
@@ -60,7 +62,50 @@ const DESTINATIONS = [
     },
 ];
 
+function formatDestinationDuration(destination) {
+    if (destination?.durationText) return destination.durationText;
+    if (destination?.durationDays && destination?.durationNights != null) {
+        return `${destination.durationDays} ngày ${destination.durationNights} đêm`;
+    }
+    if (destination?.durationDays) return `${destination.durationDays} ngày`;
+    return 'Nhiều lịch trình';
+}
+
 const Destinations = () => {
+    const [destinations, setDestinations] = useState([]);
+
+    useEffect(() => {
+        let alive = true;
+        (async () => {
+            try {
+                const list = await listDestinations();
+                if (!alive) return;
+                setDestinations(Array.isArray(list) ? list : []);
+            } catch {
+                if (!alive) return;
+                setDestinations([]);
+            }
+        })();
+        return () => {
+            alive = false;
+        };
+    }, []);
+
+    const viewData = useMemo(() => {
+        if (destinations.length > 0) {
+            return destinations.map((item, index) => ({
+                id: item.id || item.slug || index,
+                title: item.title || item.name || item.slug || 'Điểm đến',
+                country: item.country || item.region || 'Flourish',
+                duration: formatDestinationDuration(item),
+                description: item.description || 'Khám phá hành trình độc đáo cùng Flourish.',
+                image: resolveMediaUrl(item.thumbnailUrl || item.imageUrl) || FALLBACK_DESTINATIONS[0].image,
+                slug: item.slug || '',
+            }));
+        }
+        return FALLBACK_DESTINATIONS.map((item) => ({ ...item, slug: '' }));
+    }, [destinations]);
+
     return (
         <div className={styles.pageContainer}>
             <div className={styles.container}>
@@ -72,10 +117,10 @@ const Destinations = () => {
                 </div>
 
                 <div className={styles.grid}>
-                    {DESTINATIONS.map((dest) => (
+                    {viewData.map((dest) => (
                         <Link
                             key={dest.id}
-                            to={`/tours/${dest.tourId}`}
+                            to={`/tours?destination=${encodeURIComponent(dest.slug || dest.title)}`}
                             className={styles.cardLink}
                         >
                             <div className={styles.card}>

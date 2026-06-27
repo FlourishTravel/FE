@@ -1,11 +1,34 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import styles from './Footer.module.css';
 import logo from '../assets/flourish_touris.png';
+import { subscribeNewsletter } from '../api/contact';
 
 const Footer = () => {
+    const [email, setEmail] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [message, setMessage] = useState('');
+    const [error, setError] = useState('');
+
     const scrollToTop = () => {
         window.scrollTo(0, 0);
+    };
+
+    const handleSubscribe = async (e) => {
+        e.preventDefault();
+        if (!email.trim()) return;
+        setLoading(true);
+        setError('');
+        setMessage('');
+        try {
+            await subscribeNewsletter(email.trim());
+            setMessage('Đăng ký newsletter thành công. Cảm ơn bạn!');
+            setEmail('');
+        } catch (err) {
+            setError(err.message || 'Không thể đăng ký. Vui lòng thử lại.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -31,16 +54,22 @@ const Footer = () => {
                    Khám phá những điểm đến ít người biết, hành trình khác biệt và cảm hứng du lịch dành cho thế hệ trẻ năng động.
                 </p>
 
-                <div className={styles.subscribeContainer}>
+                <form className={styles.subscribeContainer} onSubmit={handleSubscribe}>
                     <input
                         type="email"
                         placeholder="Enter your email"
                         className={styles.emailInput}
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        disabled={loading}
+                        required
                     />
-                    <button className={styles.subscribeBtn}>
-                        Subscribe
+                    <button className={styles.subscribeBtn} disabled={loading}>
+                        {loading ? 'Đang gửi...' : 'Subscribe'}
                     </button>
-                </div>
+                </form>
+                {message ? <p className={styles.subscribeSuccess}>{message}</p> : null}
+                {error ? <p className={styles.subscribeError}>{error}</p> : null}
 
                 {/* Footer Links Grid */}
                 <div className={styles.footerGrid}>
@@ -50,8 +79,10 @@ const Footer = () => {
                         <ul className={styles.footerList}>
                             <li><Link to="/my-journey" onClick={scrollToTop} className={styles.footerLink}>Chuyến đi của tôi</Link></li>
                             <li><Link to="/destinations" onClick={scrollToTop} className={styles.footerLink}>Điểm đến</Link></li>
-                            <li><Link to="/guide" onClick={scrollToTop} className={styles.footerLink}>Cẩm nang</Link></li>
+                            <li><Link to="/travel-guide" onClick={scrollToTop} className={styles.footerLink}>Cẩm nang</Link></li>
                             <li><Link to="/tours" onClick={scrollToTop} className={styles.footerLink}>Tour trải nghiệm</Link></li>
+                            <li><Link to="/activities" onClick={scrollToTop} className={styles.footerLink}>Vé & hoạt động</Link></li>
+                            <li><Link to="/our-guides" onClick={scrollToTop} className={styles.footerLink}>Đội ngũ HDV</Link></li>
                         </ul>
                     </div>
 

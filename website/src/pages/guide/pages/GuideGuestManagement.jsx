@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import styles from './GuideGuestManagement.module.css';
 import {
     checkinSessionMember,
@@ -619,6 +620,13 @@ const GuideGuestManagement = () => {
                                                 ) : (
                                                     <span className={styles.partialPill}>Chưa đủ đơn</span>
                                                 )}
+                                                <Link
+                                                    to={`/guide/communication?sessionId=${encodeURIComponent(sessionId)}&bookingId=${encodeURIComponent(b.bookingId)}`}
+                                                    className={styles.chatLink}
+                                                    title="Mở chat đoàn"
+                                                >
+                                                    <span className="material-icons-round" style={{ fontSize: '18px' }}>chat</span>
+                                                </Link>
                                                 {(b.effectiveContactPhone || b.phone) && (
                                                     <a
                                                         className={styles.callLink}
@@ -631,6 +639,13 @@ const GuideGuestManagement = () => {
                                         ) : b.checkedInGathering ? (
                                             <div className={styles.checkedActions}>
                                                 <span className={styles.checkedPill}>Đã điểm danh</span>
+                                                <Link
+                                                    to={`/guide/communication?sessionId=${encodeURIComponent(sessionId)}&bookingId=${encodeURIComponent(b.bookingId)}`}
+                                                    className={styles.chatLink}
+                                                    title="Mở chat đoàn"
+                                                >
+                                                    <span className="material-icons-round" style={{ fontSize: '18px' }}>chat</span>
+                                                </Link>
                                                 {(b.effectiveContactPhone || b.phone) && (
                                                     <a
                                                         className={styles.callLink}
@@ -641,14 +656,23 @@ const GuideGuestManagement = () => {
                                                 )}
                                             </div>
                                         ) : (
-                                            <button
-                                                type="button"
-                                                className={styles.checkInBtn}
-                                                disabled={checkInBusyId === b.travelerUserId || !b.travelerUserId}
-                                                onClick={() => handleCheckIn(b.travelerUserId)}
-                                            >
-                                                {checkInBusyId === b.travelerUserId ? 'Đang xử lý…' : 'Điểm danh'}
-                                            </button>
+                                            <div className={styles.checkedActions}>
+                                                <button
+                                                    type="button"
+                                                    className={styles.checkInBtn}
+                                                    disabled={checkInBusyId === b.travelerUserId || !b.travelerUserId}
+                                                    onClick={() => handleCheckIn(b.travelerUserId)}
+                                                >
+                                                    {checkInBusyId === b.travelerUserId ? 'Đang xử lý…' : 'Điểm danh'}
+                                                </button>
+                                                <Link
+                                                    to={`/guide/communication?sessionId=${encodeURIComponent(sessionId)}&bookingId=${encodeURIComponent(b.bookingId)}`}
+                                                    className={styles.chatLink}
+                                                    title="Mở chat đoàn"
+                                                >
+                                                    <span className="material-icons-round" style={{ fontSize: '18px' }}>chat</span>
+                                                </Link>
+                                            </div>
                                         )}
                                     </div>
                                     </div>

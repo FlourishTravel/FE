@@ -178,3 +178,42 @@
 .backLink {
     @apply text-gray-600 hover:text-gray-900 hover:underline;
 }
+
+.contactFormSection {
+    @apply max-w-3xl mx-auto my-14 px-4 py-8 bg-white rounded-2xl shadow-sm;
+}
+
+.contactFormTitle {
+    @apply text-2xl font-bold text-gray-900 mb-2;
+}
+
+.contactFormSubtitle {
+    @apply text-sm text-gray-600 mb-6;
+}
+
+.contactForm {
+    @apply flex flex-col gap-3;
+}
+
+.contactInput,
+.contactTextarea {
+    @apply w-full border border-gray-200 rounded-lg px-4 py-3 text-sm text-gray-800;
+}
+
+.contactTextarea {
+    resize: vertical;
+}
+
+.contactSubmitBtn {
+    @apply self-start bg-emerald-500 text-white px-5 py-2.5 rounded-lg text-sm font-semibold;
+}
+
+.contactSuccess {
+    @apply text-sm mt-2;
+    color: #059669;
+}
+
+.contactError {
+    @apply text-sm mt-2;
+    color: #dc2626;
+}

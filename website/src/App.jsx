@@ -1,8 +1,9 @@
 import React from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import FeaturedDestinations from './components/FeaturedDestinations';
+import FeaturedReviews from './components/FeaturedReviews';
 import ValueProp from './components/ValueProp';
 import Mission from './components/Mission';
 import Footer from './components/Footer';
@@ -24,6 +25,8 @@ import MyJourney from './pages/user/MyJourney';
 import BookingDetail from './pages/user/BookingDetail';
 import Destinations from './pages/user/Destinations';
 import Guide from './pages/user/Guide';
+import OurGuides from './pages/user/OurGuides';
+import GuideDetail from './pages/user/GuideDetail';
 import About from './pages/user/About';
 import Careers from './pages/user/Careers';
 import News from './pages/user/News';
@@ -33,6 +36,10 @@ import Checkout from './pages/user/Checkout';
 import CheckoutPaymentResult from './pages/user/CheckoutPaymentResult';
 import GroupChat from './pages/user/GroupChat';
 import CancellationPolicy from './pages/user/CancellationPolicy';
+import Notifications from './pages/user/Notifications';
+import Activities from './pages/user/Activities';
+import ContentDetail from './pages/user/ContentDetail';
+import { useAuth } from './context/AuthContext';
 
 // Admin imports
 import AdminLayout from './pages/admin/AdminLayout';
@@ -46,6 +53,14 @@ import BookingManagement from './pages/admin/pages/BookingManagement';
 import CustomerManagement from './pages/admin/pages/CustomerManagement';
 import FinancialManagement from './pages/admin/pages/FinancialManagement';
 import StaffManagement from './pages/admin/pages/StaffManagement';
+import PromotionManagement from './pages/admin/pages/PromotionManagement';
+import ContactRequestManagement from './pages/admin/pages/ContactRequestManagement';
+import CatalogTicketManagement from './pages/admin/pages/CatalogTicketManagement';
+import NotificationBroadcast from './pages/admin/pages/NotificationBroadcast';
+import ReviewModeration from './pages/admin/pages/ReviewModeration';
+import ContentManagement from './pages/admin/pages/ContentManagement';
+import AdminSettings from './pages/admin/pages/AdminSettings';
+import GuideExpenseManagement from './pages/admin/pages/GuideExpenseManagement';
 
 // Guide imports
 import GuideLayout from './pages/guide/GuideLayout';
@@ -64,6 +79,7 @@ const HomePage = () => (
     <Navbar />
     <Hero />
     <FeaturedDestinations />
+    <FeaturedReviews />
     <ValueProp />
     <Mission />
     <Footer />
@@ -81,6 +97,7 @@ function FloraGlobalAssistant() {
 }
 
 function App() {
+  const { user } = useAuth();
   return (
     <>
       <ScrollToTop />
@@ -94,9 +111,12 @@ function App() {
         <Route path="/my-journey" element={<><Navbar /><MyJourney /><Footer /></>} />
         <Route path="/my-journey/booking/:bookingId" element={<><Navbar /><BookingDetail /><Footer /></>} />
         <Route path="/destinations" element={<><Navbar /><Destinations /><Footer /></>} />
-        <Route path="/guide" element={<><Navbar /><Guide /><Footer /></>} />
-        <Route path="/our-guides" element={<><Navbar /><Guide /><Footer /></>} />
+        <Route path="/travel-guide" element={<><Navbar /><Guide /><Footer /></>} />
+        <Route path="/our-guides" element={<><Navbar /><OurGuides /><Footer /></>} />
+        <Route path="/our-guides/:id" element={<><Navbar /><GuideDetail /><Footer /></>} />
+        <Route path="/notifications" element={user ? <><Navbar /><Notifications /><Footer /></> : <Navigate to="/login" replace />} />
         <Route path="/tours" element={<><Navbar /><TourListing /><Footer /></>} />
+        <Route path="/activities" element={<><Navbar /><Activities /><Footer /></>} />
         <Route path="/tours/:id" element={<><Navbar /><TourDetail /><Footer /></>} />
         <Route path="/checkout/result" element={<><Navbar /><CheckoutPaymentResult /><Footer /></>} />
         <Route path="/checkout/:tourId" element={<><Navbar /><Checkout /><Footer /></>} />
@@ -109,6 +129,7 @@ function App() {
         <Route path="/careers" element={<><Navbar /><Careers /><Footer /></>} />
         <Route path="/news" element={<><Navbar /><News /><Footer /></>} />
         <Route path="/stories" element={<><Navbar /><Stories /><Footer /></>} />
+        <Route path="/content/:slug" element={<><Navbar /><ContentDetail /><Footer /></>} />
         <Route path="/cancellation-policy" element={<><Navbar /><CancellationPolicy /><Footer /></>} />
 
         {/* Admin Routes */}
@@ -116,11 +137,19 @@ function App() {
           <Route index element={<Dashboard />} />
           <Route path="tours" element={<TourManagement />} />
           <Route path="categories" element={<CategoryManagement />} />
+          <Route path="promotions" element={<PromotionManagement />} />
+          <Route path="contact-requests" element={<ContactRequestManagement />} />
+          <Route path="catalog-tickets" element={<CatalogTicketManagement />} />
+          <Route path="notifications" element={<NotificationBroadcast />} />
+          <Route path="reviews" element={<ReviewModeration />} />
+          <Route path="content" element={<ContentManagement />} />
+          <Route path="settings" element={<AdminSettings />} />
           <Route path="tours/itinerary/:tourId" element={<TourItineraryBuilder />} />
           <Route path="dispatch" element={<TourDispatch />} />
           <Route path="bookings" element={<BookingManagement />} />
           <Route path="customers" element={<CustomerManagement />} />
           <Route path="financials" element={<FinancialManagement />} />
+          <Route path="guide-expenses" element={<GuideExpenseManagement />} />
           <Route path="staff" element={<StaffManagement />} />
         </Route>
 
