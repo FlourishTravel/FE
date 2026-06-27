@@ -798,6 +798,50 @@
     border-color: #10b981;
 }
 
+.geoFetchRow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.geoFetchBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid #a7f3d0;
+    background: #ecfdf5;
+    color: #047857;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.geoFetchBtn:hover:not(:disabled) {
+    background: #d1fae5;
+    border-color: #10b981;
+}
+
+.geoFetchBtn:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.geoFetchHintError {
+    font-size: 12px;
+    color: #b91c1c;
+}
+
+.geoFetchHintSuccess {
+    font-size: 12px;
+    color: #047857;
+}
+
 .actGridMedia {
     display: grid;
     grid-template-columns: 1.5fr 1fr;

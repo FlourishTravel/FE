@@ -6,6 +6,7 @@ import {
     saveTourItinerary,
     getAdminTourDetail,
 } from '../../../api/tours';
+import { resolveActivityCoordinates } from '../../../api/geocode';
 import AdminImageField from '../components/AdminImageField';
 
 const PLACEHOLDER_IMG =
@@ -211,6 +212,7 @@ const TourItineraryBuilder = () => {
     const [errorMsg, setErrorMsg] = useState('');
     const [successMsg, setSuccessMsg] = useState('');
     const [dirty, setDirty] = useState(false);
+    const [geoLookup, setGeoLookup] = useState(null);
 
     const load = useCallback(async () => {
         if (!tourId) return;
@@ -302,6 +304,50 @@ const TourItineraryBuilder = () => {
             )
         );
         markDirty();
+    };
+
+    const handleFetchCoords = async (dayKey, actKey, act) => {
+        const place = act.locationName?.trim();
+        const address = act.locationAddress?.trim();
+        if (!place && !address) {
+            setGeoLookup({
+                actKey,
+                error: 'Nhập tên địa điểm hoặc địa chỉ trước khi lấy tọa độ.',
+            });
+            return;
+        }
+
+        setGeoLookup({ actKey, loading: true, error: null, success: null });
+        try {
+            const hit = await resolveActivityCoordinates({
+                locationName: place,
+                locationAddress: address,
+                destinationCity: tour?.destinationCity,
+            });
+            if (!hit) {
+                setGeoLookup({
+                    actKey,
+                    error: 'Không tìm thấy tọa độ. Thử địa chỉ chi tiết hơn hoặc nhập thủ công.',
+                });
+                return;
+            }
+            updateActivity(dayKey, actKey, {
+                latitude: String(hit.latitude),
+                longitude: String(hit.longitude),
+            });
+            setGeoLookup({
+                actKey,
+                success: `Đã điền tọa độ (${hit.label}).`,
+            });
+            window.setTimeout(() => {
+                setGeoLookup((prev) => (prev?.actKey === actKey ? null : prev));
+            }, 3000);
+        } catch {
+            setGeoLookup({
+                actKey,
+                error: 'Lỗi khi tra cứu tọa độ. Kiểm tra mạng và thử lại.',
+            });
+        }
     };
 
     const updateActivity = (dayKey, actKey, patch) => {
@@ -818,6 +864,32 @@ const TourItineraryBuilder = () => {
                                                     })
                                                 }
                                             />
+                                        </div>
+
+                                        <div className={styles.geoFetchRow}>
+                                            <button
+                                                type="button"
+                                                className={styles.geoFetchBtn}
+                                                disabled={geoLookup?.actKey === act._key && geoLookup.loading}
+                                                onClick={() =>
+                                                    handleFetchCoords(activeDay._key, act._key, act)
+                                                }
+                                            >
+                                                <span className="material-icons-round" style={{ fontSize: 16 }}>
+                                                    {geoLookup?.actKey === act._key && geoLookup.loading
+                                                        ? 'hourglass_top'
+                                                        : 'my_location'}
+                                                </span>
+                                                {geoLookup?.actKey === act._key && geoLookup.loading
+                                                    ? 'Đang tra cứu...'
+                                                    : 'Lấy tọa độ tự động'}
+                                            </button>
+                                            {geoLookup?.actKey === act._key && geoLookup.error && (
+                                                <span className={styles.geoFetchHintError}>{geoLookup.error}</span>
+                                            )}
+                                            {geoLookup?.actKey === act._key && geoLookup.success && (
+                                                <span className={styles.geoFetchHintSuccess}>{geoLookup.success}</span>
+                                            )}
                                         </div>
 
                                         <div className={styles.actGridTop}>
