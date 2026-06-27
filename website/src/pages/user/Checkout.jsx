@@ -3,7 +3,7 @@ import { useParams, useSearchParams, useNavigate, Link } from 'react-router-dom'
 import {
     ChevronRight, User, Mail, Phone, MapPin, CreditCard,
     Building2, Wallet, Calendar, Users, CheckCircle,
-    ArrowRight, ArrowLeft, ShieldCheck, FileText, Minus, Plus, LogIn, Plane,
+    ArrowRight, ArrowLeft, ShieldCheck, FileText, Minus, Plus, LogIn, Plane, QrCode,
 } from 'lucide-react';
 import bangkokImg from '../../assets/di-chuyen-di-lai-thai-lan-2.webp';
 import styles from './Checkout.module.css';
@@ -50,9 +50,10 @@ const TOUR_DATA = {
 const DEFAULT_TOUR = TOUR_DATA[1];
 
 const PAYMENT_METHODS = [
+    { id: 'payos', name: 'PayOS (QR / Ngân hàng)', desc: 'Quét mã QR hoặc chuyển khoản nhanh qua PayOS', icon: QrCode },
+    { id: 'ewallet', name: 'Ví MoMo', desc: 'Thanh toán qua ứng dụng MoMo', icon: Wallet },
     { id: 'bank', name: 'Chuyển khoản ngân hàng', desc: 'Chuyển khoản qua tài khoản ngân hàng nội địa', icon: Building2 },
     { id: 'card', name: 'Thẻ tín dụng / Ghi nợ', desc: 'Visa, Mastercard, JCB', icon: CreditCard },
-    { id: 'ewallet', name: 'Ví điện tử', desc: 'MoMo, ZaloPay, VNPay', icon: Wallet },
 ];
 
 const SINGLE_ROOM_PRICE_VI = '4.500.000₫ / phòng';
@@ -164,7 +165,7 @@ const Checkout = () => {
     const [submitting, setSubmitting] = useState(false);
 
     const [step, setStep] = useState(1);
-    const [paymentMethod, setPaymentMethod] = useState('ewallet');
+    const [paymentMethod, setPaymentMethod] = useState('payos');
     const [paymentType, setPaymentType] = useState('full');
     const [errors, setErrors] = useState({});
 

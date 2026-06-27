@@ -143,6 +143,42 @@ export async function syncMomoFromReturn(orderId) {
 }
 
 /**
+ * Lấy lại payUrl PayOS cho đơn pending (/checkout/result?...&payos=1).
+ * @param {string} bookingId UUID
+ * @returns {Promise<{ paymentUrl?: string }>}
+ */
+export async function resumePayOSPayUrl(bookingId) {
+  const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+  const res = await fetch(`${API_BASE}/bookings/${encodeURIComponent(bookingId)}/payos-pay-url`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: '{}',
+  });
+  const json = await parseJson(res);
+  return json?.data ?? {};
+}
+
+/**
+ * Đồng bộ DB sau khi PayOS redirect về (code=00, status=PAID).
+ * @param {{ orderId?: string, orderCode?: string }} payload
+ */
+export async function syncPayOSFromReturn(payload) {
+  const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+  const res = await fetch(`${API_BASE}/bookings/payos/sync-from-return`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify(payload),
+  });
+  return parseJson(res);
+}
+
+/**
  * Kiểm tra lịch + chỗ (và trùng chuyến nếu đã đăng nhập) trước khi sang checkout.
  * @returns {Promise<{ valid: boolean, message?: string }>}
  */

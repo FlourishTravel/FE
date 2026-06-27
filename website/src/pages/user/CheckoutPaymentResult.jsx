@@ -1,12 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
-import { resumeMomoPayUrl, syncMomoFromReturn } from '../../api/bookings';
+import {
+    resumeMomoPayUrl,
+    resumePayOSPayUrl,
+    syncMomoFromReturn,
+    syncPayOSFromReturn,
+} from '../../api/bookings';
 import { getAccessToken } from '../../api/auth';
 
 /**
- * Trang MoMo redirect về (returnUrl) và luồng mở lại cổng MoMo (?momo=1).
- * Query: resultCode, orderId, bookingId, message, extra (MoMo), pending, method, momo, continue
+ * Trang redirect sau thanh toán MoMo / PayOS.
+ * MoMo: resultCode, orderId, momo=1
+ * PayOS: code, status, cancel, orderCode, payos=1
  */
 const CheckoutPaymentResult = () => {
     const [params] = useSearchParams();
@@ -18,22 +24,42 @@ const CheckoutPaymentResult = () => {
     const method = params.get('method');
     const extra = params.get('extra');
     const momoParam = params.get('momo');
+    const payosParam = params.get('payos');
     const continueParam = params.get('continue');
+
+    const payosCode = params.get('code');
+    const payosStatus = (params.get('status') || '').toUpperCase();
+    const payosCancel = params.get('cancel') === 'true';
+    const payosOrderCode = params.get('orderCode');
+
+    const isPayOSReturn = payosCode != null || payosStatus !== '' || payosOrderCode != null;
 
     const [redirectError, setRedirectError] = useState('');
     const [redirecting, setRedirecting] = useState(false);
     const [syncingPaid, setSyncingPaid] = useState(false);
     const [syncError, setSyncError] = useState('');
 
-    const momoOk = resultCode === '0';
-    const momoFail = resultCode != null && resultCode !== '' && resultCode !== '0';
+    const momoOk = !isPayOSReturn && resultCode === '0';
+    const momoFail = !isPayOSReturn && resultCode != null && resultCode !== '' && resultCode !== '0';
+
+    const payosOk = isPayOSReturn && payosCode === '00' && payosStatus === 'PAID' && !payosCancel;
+    const payosFail = isPayOSReturn && (
+        payosCancel || payosStatus === 'CANCELLED' || (payosCode != null && payosCode !== '00')
+    );
 
     const shouldOpenMomo =
         bookingId &&
         (momoParam === '1' || continueParam === '1') &&
         (resultCode == null || resultCode === '') &&
         pending !== '1' &&
-        !(method && method !== 'ewallet');
+        !(method && method !== 'ewallet') &&
+        !isPayOSReturn;
+
+    const shouldOpenPayos =
+        bookingId &&
+        (payosParam === '1' || (continueParam === '1' && method === 'payos')) &&
+        !isPayOSReturn &&
+        pending !== '1';
 
     useEffect(() => {
         if (!shouldOpenMomo) return undefined;
@@ -65,7 +91,36 @@ const CheckoutPaymentResult = () => {
         };
     }, [shouldOpenMomo, bookingId]);
 
-    /** IPN MoMo thường không tới localhost — gọi BE tra cứu MoMo + cập nhật paid. */
+    useEffect(() => {
+        if (!shouldOpenPayos) return undefined;
+        const token = getAccessToken();
+        if (!token) {
+            setRedirectError('Vui lòng đăng nhập để tiếp tục thanh toán PayOS.');
+            return undefined;
+        }
+        let cancelled = false;
+        setRedirecting(true);
+        setRedirectError('');
+        (async () => {
+            try {
+                const { paymentUrl } = await resumePayOSPayUrl(bookingId);
+                if (cancelled) return;
+                if (paymentUrl) {
+                    window.location.assign(paymentUrl);
+                    return;
+                }
+                setRedirectError('Không nhận được liên kết thanh toán từ máy chủ.');
+            } catch (e) {
+                if (!cancelled) setRedirectError(e.message || 'Không mở được cổng PayOS.');
+            } finally {
+                if (!cancelled) setRedirecting(false);
+            }
+        })();
+        return () => {
+            cancelled = true;
+        };
+    }, [shouldOpenPayos, bookingId]);
+
     useEffect(() => {
         if (!momoOk || !orderId) return undefined;
         const token = getAccessToken();
@@ -90,19 +145,53 @@ const CheckoutPaymentResult = () => {
         };
     }, [momoOk, orderId]);
 
+    useEffect(() => {
+        if (!payosOk || (!orderId && !payosOrderCode)) return undefined;
+        const token = getAccessToken();
+        if (!token) {
+            setSyncError('Vui lòng đăng nhập (cùng tài khoản đã đặt tour) để cập nhật trạng thái đơn trên hệ thống.');
+            return undefined;
+        }
+        let cancelled = false;
+        setSyncingPaid(true);
+        setSyncError('');
+        (async () => {
+            try {
+                await syncPayOSFromReturn({
+                    ...(orderId ? { orderId } : {}),
+                    ...(payosOrderCode ? { orderCode: payosOrderCode } : {}),
+                });
+            } catch (e) {
+                if (!cancelled) setSyncError(e.message || 'Không cập nhật được trạng thái đơn.');
+            } finally {
+                if (!cancelled) setSyncingPaid(false);
+            }
+        })();
+        return () => {
+            cancelled = true;
+        };
+    }, [payosOk, orderId, payosOrderCode]);
+
+    const paymentOk = momoOk || payosOk;
+    const paymentFail = momoFail || payosFail;
+    const openingGateway = redirecting || ((shouldOpenMomo || shouldOpenPayos) && !redirectError);
+    const gatewayLabel = shouldOpenPayos ? 'PayOS' : 'MoMo';
+
     let title = 'Kết quả thanh toán';
     let desc = '';
     let icon = <Loader2 className="animate-spin text-emerald-600" size={48} />;
 
-    if (redirectError && shouldOpenMomo) {
-        title = 'Không mở được trang thanh toán MoMo';
+    if (redirectError && (shouldOpenMomo || shouldOpenPayos)) {
+        title = `Không mở được trang thanh toán ${gatewayLabel}`;
         desc = redirectError;
         icon = <XCircle className="text-red-600" size={48} />;
-    } else if (redirecting || (shouldOpenMomo && !redirectError)) {
-        title = 'Đang chuyển đến MoMo';
-        desc = 'Vui lòng đợi, hệ thống đang mở trang thanh toán (QR / thẻ)...';
+    } else if (openingGateway) {
+        title = `Đang chuyển đến ${gatewayLabel}`;
+        desc = gatewayLabel === 'PayOS'
+            ? 'Vui lòng đợi, hệ thống đang mở trang thanh toán (QR / chuyển khoản)...'
+            : 'Vui lòng đợi, hệ thống đang mở trang thanh toán (QR / thẻ)...';
         icon = <Loader2 className="animate-spin text-emerald-600" size={48} />;
-    } else if (momoOk) {
+    } else if (paymentOk) {
         title = 'Thanh toán thành công';
         if (syncingPaid) {
             desc = 'Đang cập nhật trạng thái đơn trên hệ thống...';
@@ -112,24 +201,32 @@ const CheckoutPaymentResult = () => {
                 'Cảm ơn bạn! Đơn đặt tour đã được ghi nhận. Bạn có thể xem chi tiết trong mục Chuyến đi của tôi.';
             icon = <CheckCircle className="text-emerald-600" size={48} />;
         }
-    } else if (momoFail) {
+    } else if (paymentFail) {
         title = 'Thanh toán chưa hoàn tất';
-        desc = message || `Mã lỗi: ${resultCode}. Vui lòng thử lại hoặc chọn phương thức khác.`;
+        if (payosFail) {
+            desc = payosCancel || payosStatus === 'CANCELLED'
+                ? 'Bạn đã hủy hoặc chưa hoàn tất thanh toán PayOS. Vui lòng thử lại từ Chuyến đi của tôi.'
+                : `PayOS chưa xác nhận thanh toán (mã: ${payosCode || '—'}). Vui lòng thử lại hoặc chọn phương thức khác.`;
+        } else {
+            desc = message || `Mã lỗi: ${resultCode}. Vui lòng thử lại hoặc chọn phương thức khác.`;
+        }
         icon = <XCircle className="text-red-600" size={48} />;
     } else if (pending === '1') {
         title = 'Chờ cấu hình thanh toán';
         desc =
-            'Hệ thống chưa gắn đủ thông tin cổng MoMo (biến môi trường MOMO_* trên backend). Vui lòng liên hệ quản trị.';
-    } else if (method && method !== 'ewallet') {
+            'Hệ thống chưa gắn đủ thông tin cổng thanh toán (PayOS: PAYOS_* hoặc MoMo: MOMO_* trên backend). Vui lòng liên hệ quản trị.';
+    } else if (method && method !== 'ewallet' && method !== 'payos') {
         title = 'Đặt chỗ đã tạo';
         desc = `Phương thức bạn chọn (${method}) sẽ được hướng dẫn qua email hoặc nhân viên.`;
         icon = <CheckCircle className="text-emerald-600" size={48} />;
     } else if (bookingId) {
         title = 'Đang xử lý';
-        desc = 'Nếu bạn vừa hoàn tất trên MoMo, trạng thái đơn sẽ cập nhật trong vài phút.';
+        desc = 'Nếu bạn vừa hoàn tất thanh toán, trạng thái đơn sẽ cập nhật trong vài phút.';
     } else {
         desc = 'Không có thông tin giao dịch trong URL.';
     }
+
+    const syncRef = orderId || payosOrderCode;
 
     return (
         <div className="min-h-screen bg-gray-50 pt-24 pb-16 px-4">
@@ -137,16 +234,16 @@ const CheckoutPaymentResult = () => {
                 <div className="flex justify-center mb-4">{icon}</div>
                 <h1 className="text-2xl font-bold text-gray-900 mb-2">{title}</h1>
                 <p className="text-gray-600 text-sm leading-relaxed mb-6">{desc}</p>
-                {momoOk && syncError ? (
+                {paymentOk && syncError ? (
                     <div className="text-left text-sm text-amber-800 bg-amber-50 border border-amber-100 rounded-lg p-3 mb-6">
                         {syncError}
                         <p className="mt-2 text-xs text-amber-900/80">
-                            Nếu MoMo đã trừ tiền, vào &quot;Chuyến đi của tôi&quot; và làm mới sau vài giây, hoặc liên hệ hỗ trợ kèm mã{' '}
-                            <strong>{orderId || '—'}</strong>.
+                            Nếu tiền đã bị trừ, vào &quot;Chuyến đi của tôi&quot; và làm mới sau vài giây, hoặc liên hệ hỗ trợ kèm mã{' '}
+                            <strong>{syncRef || '—'}</strong>.
                         </p>
                     </div>
                 ) : null}
-                {redirectError && !shouldOpenMomo ? (
+                {redirectError && !shouldOpenMomo && !shouldOpenPayos ? (
                     <div className="text-left text-sm text-red-700 bg-red-50 border border-red-100 rounded-lg p-3 mb-6">
                         {redirectError}
                         <div className="mt-3">
@@ -156,10 +253,11 @@ const CheckoutPaymentResult = () => {
                         </div>
                     </div>
                 ) : null}
-                {(orderId || bookingId) && (
+                {(orderId || bookingId || payosOrderCode) && (
                     <div className="text-left text-xs text-gray-500 space-y-1 mb-6 bg-gray-50 rounded-lg p-3">
                         {bookingId ? <div>Mã đặt chỗ: {bookingId}</div> : null}
                         {orderId ? <div>Mã giao dịch: {orderId}</div> : null}
+                        {payosOrderCode ? <div>Mã PayOS: {payosOrderCode}</div> : null}
                         {extra ? <div>Extra: {extra}</div> : null}
                     </div>
                 )}
