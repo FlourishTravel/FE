@@ -342,10 +342,10 @@ const TourItineraryBuilder = () => {
             window.setTimeout(() => {
                 setGeoLookup((prev) => (prev?.actKey === actKey ? null : prev));
             }, 3000);
-        } catch {
+        } catch (err) {
             setGeoLookup({
                 actKey,
-                error: 'Lỗi khi tra cứu tọa độ. Kiểm tra mạng và thử lại.',
+                error: err?.message || 'Lỗi khi tra cứu tọa độ. Kiểm tra mạng và thử lại.',
             });
         }
     };
