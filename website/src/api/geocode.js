@@ -1,41 +1,54 @@
-const OPEN_METEO_GEO = 'https://geocoding-api.open-meteo.com/v1/search';
+import { API_BASE } from './config';
 
-/**
- * Tra cứu tọa độ qua Open-Meteo (cùng nguồn BE Flora dùng). Không cần API key.
- * @param {string} query
- * @returns {Promise<{ latitude: number, longitude: number, label: string } | null>}
- */
-export async function geocodePlace(query) {
-    if (!query?.trim()) return null;
-    const name = encodeURIComponent(query.trim());
-    const res = await fetch(`${OPEN_METEO_GEO}?name=${name}&count=1&language=vi`);
-    if (!res.ok) return null;
-    const body = await res.json();
-    const first = body?.results?.[0];
-    if (first?.latitude == null || first?.longitude == null) return null;
-    return {
-        latitude: first.latitude,
-        longitude: first.longitude,
-        label: first.name || query.trim(),
-    };
+const TOKEN_STORAGE_KEY = 'flourish_token';
+
+function authHeaders() {
+    const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+    return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+async function parseJson(res) {
+    let json = null;
+    try {
+        json = await res.json();
+    } catch {
+        json = null;
+    }
+    if (!res.ok) {
+        const message = (json && json.message) || `Yêu cầu thất bại (HTTP ${res.status})`;
+        const err = new Error(message);
+        err.status = res.status;
+        err.payload = json;
+        throw err;
+    }
+    return json;
 }
 
 /**
- * Suy luận tọa độ hoạt động: ưu tiên địa chỉ chi tiết → tên địa điểm → thành phố đích tour.
+ * Tra cứu tọa độ qua VietMap (BE proxy, dùng VIETMAP_API_KEY server-side).
+ * @returns {Promise<{ latitude: number, longitude: number, label: string, provider?: string } | null>}
  */
 export async function resolveActivityCoordinates({
     locationName,
     locationAddress,
     destinationCity,
 }) {
-    const tries = [];
-    if (locationAddress?.trim()) tries.push(`${locationAddress.trim()} Vietnam`);
-    if (locationName?.trim()) tries.push(`${locationName.trim()} Vietnam`);
-    if (destinationCity?.trim()) tries.push(`${destinationCity.trim()} Vietnam`);
+    const params = new URLSearchParams();
+    if (locationName?.trim()) params.set('locationName', locationName.trim());
+    if (locationAddress?.trim()) params.set('locationAddress', locationAddress.trim());
+    if (destinationCity?.trim()) params.set('destinationCity', destinationCity.trim());
 
-    for (const q of tries) {
-        const hit = await geocodePlace(q);
-        if (hit) return hit;
-    }
-    return null;
+    const res = await fetch(`${API_BASE}/tours/admin/geocode?${params.toString()}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    });
+    const json = await parseJson(res);
+    const data = json?.data;
+    if (data?.latitude == null || data?.longitude == null) return null;
+    return {
+        latitude: data.latitude,
+        longitude: data.longitude,
+        label: data.label || locationName || locationAddress || destinationCity,
+        provider: data.provider,
+    };
 }
