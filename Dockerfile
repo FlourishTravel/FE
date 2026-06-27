@@ -6,7 +6,7 @@ COPY website/package.json website/package-lock.json ./
 RUN npm ci --include=dev
 
 COPY website/ .
-ARG VITE_API_URL=https://flourishtravel-rtdye.ondigitalocean.app/api
+ARG VITE_API_URL=https://flourishtravel.khanhtn45.id.vn/api
 ARG VITE_BASE=/
 ENV VITE_API_URL=$VITE_API_URL VITE_BASE=$VITE_BASE
 RUN npm run build

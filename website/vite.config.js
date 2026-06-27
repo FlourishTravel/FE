@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url'
 import { dirname } from 'node:path'
 
 const rootDir = dirname(fileURLToPath(import.meta.url))
-const DEFAULT_API_URL = 'https://flourishtravel-rtdye.ondigitalocean.app/api'
+const DEFAULT_API_URL = 'https://flourishtravel.khanhtn45.id.vn/api'
 
 function normalizeApiUrl(url) {
   let base = (url || DEFAULT_API_URL).trim().replace(/\/+$/, '')

@@ -24,7 +24,7 @@ jobs:
 
       - name: Install & Build
         env:
-          VITE_API_URL: https://flourishtravel-rtdye.ondigitalocean.app/api
+          VITE_API_URL: https://flourishtravel.khanhtn45.id.vn/api
           VITE_BASE: /FE/
         run: |
           cd website && npm ci && npm run build && touch dist/.nojekyll
