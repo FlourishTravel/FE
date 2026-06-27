@@ -9,4 +9,4 @@ if [ ! -f dist/index.html ]; then
 fi
 
 echo "Serving dist/ on port ${PORT:-8080}"
-exec serve dist -s --listen "tcp://0.0.0.0:${PORT:-8080}"
+exec npx --yes serve dist -s --listen "tcp://0.0.0.0:${PORT:-8080}"
