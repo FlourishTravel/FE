@@ -1,8 +1,5 @@
-# DigitalOcean App Platform — repo GitHub "FE" (Vite/React + nginx)
-#
-# QUAN TRỌNG: Component phải dùng Dockerfile, KHÔNG dùng Buildpack.
-# Apps → Settings → App Spec → Save (hoặc Edit component → Dockerfile path: Dockerfile)
-#
+# DigitalOcean App Platform — repo GitHub "FE"
+# App ở root có package.json + Procfile → DO buildpack Node tự nhận diện.
 # Chỉ giữ env BUILD_TIME: VITE_API_URL, VITE_BASE — xóa env BE (DB_*, JWT_*, MOMO_*, ...).
 name: flourish-travel-fe
 region: sgp
@@ -15,14 +12,15 @@ ingress:
           prefix: /
 services:
   - name: web
-    dockerfile_path: Dockerfile
-    source_dir: /
+    environment_slug: node-js
+    build_command: npm run build
+    run_command: npm start
     http_port: 8080
     instance_count: 1
     instance_size_slug: apps-s-1vcpu-0.5gb
     health_check:
       http_path: /
-      initial_delay_seconds: 10
+      initial_delay_seconds: 15
       period_seconds: 10
       timeout_seconds: 5
       failure_threshold: 3
@@ -33,3 +31,6 @@ services:
       - key: VITE_BASE
         scope: BUILD_TIME
         value: /
+      - key: NODE_OPTIONS
+        scope: BUILD_TIME
+        value: --max-old-space-size=2048

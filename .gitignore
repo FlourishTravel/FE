@@ -3,6 +3,9 @@
 credentials.json
 token.json
 
+# Node
+node_modules/
+
 # Temporary/intermediate files
 .tmp/
 .commit-msg.tmp
