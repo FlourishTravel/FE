@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getMe, updateMe } from '../../api/users';
+import { uploadMedia } from '../../api/upload';
 import { clearAuthSession } from '../../api/http';
 import { resolveMediaUrl } from '../../api/config';
 import {
@@ -44,6 +45,8 @@ const Profile = () => {
     const [loadError, setLoadError] = useState('');
     const [saveLoading, setSaveLoading] = useState(false);
     const [saveError, setSaveError] = useState('');
+    const [pendingAvatarFile, setPendingAvatarFile] = useState(null);
+    const [avatarPreview, setAvatarPreview] = useState('');
 
     useEffect(() => {
         if (!user) return undefined;
@@ -85,6 +88,12 @@ const Profile = () => {
         };
     }, [user?.id, updateUser]);
 
+    useEffect(() => () => {
+        if (avatarPreview.startsWith('blob:')) {
+            URL.revokeObjectURL(avatarPreview);
+        }
+    }, [avatarPreview]);
+
     if (!user) {
         return <Navigate to="/login" replace />;
     }
@@ -94,13 +103,22 @@ const Profile = () => {
         navigate('/');
     };
 
+    const clearAvatarPreview = () => {
+        if (avatarPreview.startsWith('blob:')) {
+            URL.revokeObjectURL(avatarPreview);
+        }
+        setAvatarPreview('');
+        setPendingAvatarFile(null);
+    };
+
     const startEditing = () => {
+        clearAvatarPreview();
         setEditData({
             fullName: user.fullName || user.name || '',
             phone: user.phone || '',
             address: user.address || '',
             gender: user.gender || 'Nam',
-            avatarUrl: user.avatarUrl || user.avatar || '',
+            avatarUrl: user.avatarUrl || '',
         });
         setIsEditing(true);
         setSaveSuccess(false);
@@ -108,6 +126,7 @@ const Profile = () => {
     };
 
     const cancelEditing = () => {
+        clearAvatarPreview();
         setIsEditing(false);
         setSaveSuccess(false);
         setSaveError('');
@@ -121,10 +140,12 @@ const Profile = () => {
             const payload = {
                 fullName: editData.fullName.trim(),
                 phone: editData.phone.trim(),
-                avatarUrl: editData.avatarUrl.trim(),
                 gender: mapGenderUiToBe(editData.gender),
                 address: editData.address.trim(),
             };
+            if (pendingAvatarFile) {
+                payload.avatarUrl = await uploadMedia(pendingAvatarFile);
+            }
             const res = await updateMe(payload);
             const updated = extractUserPayload(res);
             updateUser({
@@ -136,6 +157,7 @@ const Profile = () => {
                 avatarUrl: updated.avatarUrl ?? payload.avatarUrl,
                 avatar: resolveMediaUrl(updated.avatarUrl ?? payload.avatarUrl),
             });
+            clearAvatarPreview();
             setIsEditing(false);
             setSaveSuccess(true);
             setTimeout(() => setSaveSuccess(false), 3000);
@@ -160,17 +182,16 @@ const Profile = () => {
             alert('Ảnh tối đa 2MB');
             return;
         }
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-            const value = ev.target?.result || '';
-            setEditData((prev) => ({ ...prev, avatarUrl: String(value) }));
-        };
-        reader.readAsDataURL(file);
+        if (avatarPreview.startsWith('blob:')) {
+            URL.revokeObjectURL(avatarPreview);
+        }
+        setPendingAvatarFile(file);
+        setAvatarPreview(URL.createObjectURL(file));
     };
 
-    const avatarSrc = resolveMediaUrl(
-        (isEditing ? editData.avatarUrl : (user.avatarUrl || user.avatar)) || '',
-    );
+    const avatarSrc = isEditing && avatarPreview
+        ? avatarPreview
+        : resolveMediaUrl((user.avatarUrl || user.avatar) || '');
 
     if (loadingProfile) {
         return (
