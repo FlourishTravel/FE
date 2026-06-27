@@ -919,6 +919,74 @@
     font-weight: 600;
 }
 
+.placesHint {
+    margin: -6px 0 12px;
+    font-size: 12px;
+    color: #6b7280;
+    line-height: 1.45;
+}
+
+.placesList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.placeItem {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    background: #f9fafb;
+}
+
+.placeIndex {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #d1fae5;
+    color: #047857;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 6px;
+}
+
+.placeFields {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.placeAddBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    align-self: flex-start;
+    padding: 8px 14px;
+    border: 1px dashed #10b981;
+    border-radius: 8px;
+    background: #ecfdf5;
+    color: #047857;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+
+.placeAddBtn:hover {
+    background: #d1fae5;
+}
+
 @media (max-width: 1024px) {
     .builderLayout {
         grid-template-columns: 1fr;

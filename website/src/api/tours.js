@@ -140,6 +140,17 @@ export async function saveTourItinerary(tourId, days) {
   return Array.isArray(json?.data) ? json.data : [];
 }
 
+/** Lưu toàn bộ địa điểm tour (bulk replace, gắn theo ngày lịch trình). */
+export async function saveTourLocations(tourId, locations) {
+  const res = await fetch(`${API_BASE}/tours/admin/${tourId}/locations`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify(locations),
+  });
+  const json = await parseJson(res);
+  return Array.isArray(json?.data) ? json.data : [];
+}
+
 /**
  * Danh sách tour công khai (còn chỗ theo backend) — dùng trang Tour trải nghiệm.
  * @param {{ destination?: string, minPrice?: number, maxPrice?: number, categoryId?: string, startDate?: string, page?: number, size?: number }} params
