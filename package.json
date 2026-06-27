@@ -5,8 +5,8 @@
     "node": "20.x"
   },
   "scripts": {
-    "build": "cd website && npm ci --include=dev && npm run build",
-    "start": "serve website/dist -s -l tcp://0.0.0.0:${PORT:-8080}"
+    "build": "sh scripts/build.sh",
+    "start": "sh scripts/start.sh"
   },
   "dependencies": {
     "serve": "^14.2.4"

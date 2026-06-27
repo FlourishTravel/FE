@@ -5,6 +5,7 @@ token.json
 
 # Node
 node_modules/
+dist/
 
 # Temporary/intermediate files
 .tmp/
