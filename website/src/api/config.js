@@ -5,7 +5,16 @@
  */
 const DEFAULT_API_URL = 'https://flourishtravel-rtdye.ondigitalocean.app/api';
 
-export const API_BASE = (import.meta.env.VITE_API_URL || DEFAULT_API_URL).replace(/\/$/, '');
+/** Collapse accidental `/api/api` from misconfigured VITE_API_URL on deploy. */
+export function normalizeApiBase(url) {
+  let base = (url || DEFAULT_API_URL).trim().replace(/\/+$/, '');
+  while (base.endsWith('/api/api')) {
+    base = base.slice(0, -4);
+  }
+  return base;
+}
+
+export const API_BASE = normalizeApiBase(import.meta.env.VITE_API_URL);
 
 /** Origin gốc (không có /api) — dùng ghép URL ảnh tĩnh `/uploads/...`. */
 export const ORIGIN_BASE = API_BASE.replace(/\/?api\/?$/, '') || 'https://flourishtravel-rtdye.ondigitalocean.app';

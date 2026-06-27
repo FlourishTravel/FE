@@ -7,10 +7,18 @@ import { dirname } from 'node:path'
 const rootDir = dirname(fileURLToPath(import.meta.url))
 const DEFAULT_API_URL = 'https://flourishtravel-rtdye.ondigitalocean.app/api'
 
+function normalizeApiUrl(url) {
+  let base = (url || DEFAULT_API_URL).trim().replace(/\/+$/, '')
+  while (base.endsWith('/api/api')) {
+    base = base.slice(0, -4)
+  }
+  return base
+}
+
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, rootDir, 'VITE_')
-  const apiUrl = (env.VITE_API_URL || DEFAULT_API_URL).trim()
+  const apiUrl = normalizeApiUrl(env.VITE_API_URL || DEFAULT_API_URL)
   const base = (env.VITE_BASE || (mode === 'production' ? '/FE/' : '/')).trim()
 
   return {
