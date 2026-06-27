@@ -24,7 +24,7 @@ static_sites:
     envs:
       - key: VITE_API_URL
         scope: BUILD_TIME
-        value: https://flourishtravel-rtdye.ondigitalocean.app/api
+        value: https://flourishtravel-rtdye.ondigitalocean.app
       - key: VITE_BASE
         scope: BUILD_TIME
         value: /
