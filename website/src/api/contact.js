@@ -14,7 +14,7 @@ async function parseJsonSafe(res) {
 }
 
 export async function subscribeNewsletter(email) {
-  const res = await fetch(`${API_BASE}/contact/newsletter/subscribe`, {
+  const res = await fetch(`${API_BASE}/contact-requests/newsletter`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email }),
@@ -23,11 +23,19 @@ export async function subscribeNewsletter(email) {
   return json?.data || json;
 }
 
+/** Gửi form liên hệ / hỗ trợ (Help, Footer). */
 export async function submitContact(form) {
-  const res = await fetch(`${API_BASE}/contact/submit`, {
+  const payload = {
+    name: (form.name || form.fullName || '').trim(),
+    email: (form.email || '').trim(),
+    phone: form.phone?.trim() || null,
+    message: (form.message || '').trim(),
+    tourId: form.tourId || null,
+  };
+  const res = await fetch(`${API_BASE}/contact-requests`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(form),
+    body: JSON.stringify(payload),
   });
   const json = await parseJsonSafe(res);
   return json?.data || json;
