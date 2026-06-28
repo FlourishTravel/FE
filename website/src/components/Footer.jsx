@@ -3,13 +3,15 @@ import { Link } from 'react-router-dom';
 import styles from './Footer.module.css';
 import logo from '../assets/flourish_touris.png';
 import { subscribeNewsletter } from '../api/contact';
-import { EXPLORE_MENU, TOUR_MENU, EXPERIENCE_MENU } from '../config/navConfig';
+import { EXPLORE_MENU, EXPERIENCE_MENU } from '../config/navConfig';
+import { useTourCategoryMenu } from '../hooks/useTourCategoryMenu';
 
 const Footer = () => {
     const [email, setEmail] = useState('');
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
+    const { items: tourMenuItems } = useTourCategoryMenu();
 
     const scrollToTop = () => {
         window.scrollTo(0, 0);
@@ -88,7 +90,7 @@ const Footer = () => {
                     <div className={styles.footerColumn}>
                         <h3 className={styles.footerTitle} style={{ color: '#0099ff', letterSpacing: '2px' }}>TOUR</h3>
                         <ul className={styles.footerList}>
-                            {TOUR_MENU.map((item) => (
+                            {tourMenuItems.map((item) => (
                                 <li key={item.href}>
                                     <Link to={item.href} onClick={scrollToTop} className={styles.footerLink}>{item.label}</Link>
                                 </li>

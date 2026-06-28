@@ -43,6 +43,10 @@
     @apply text-xs text-gray-500;
 }
 
+.dropdownLoading {
+    @apply block px-4 py-3 text-sm text-gray-500;
+}
+
 .dropdownDivider {
     @apply my-1 border-t border-gray-100;
 }

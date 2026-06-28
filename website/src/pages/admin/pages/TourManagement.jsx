@@ -10,6 +10,8 @@ import styles from './TourManagement.module.css';
 const STATUS_CONFIG = {
     active: { label: 'Đang hoạt động', className: 'statusActive' },
     upcoming: { label: 'Sắp khởi hành', className: 'statusUpcoming' },
+    ongoing: { label: 'Đang diễn ra', className: 'statusOngoing' },
+    completed: { label: 'Đã kết thúc', className: 'statusCompleted' },
     full: { label: 'Đã hết chỗ', className: 'statusFull' },
     draft: { label: 'Nháp', className: 'statusDraft' },
 };
@@ -99,7 +101,7 @@ const TourManagement = () => {
     }, [tours, filterStatus, searchQuery]);
 
     const stats = useMemo(() => {
-        const counts = { active: 0, upcoming: 0, full: 0, draft: 0 };
+        const counts = { active: 0, upcoming: 0, ongoing: 0, completed: 0, full: 0, draft: 0 };
         tours.forEach((t) => {
             if (counts[t.status] !== undefined) counts[t.status] += 1;
         });
@@ -389,7 +391,9 @@ const TourManagement = () => {
                     {[
                         { key: 'all', label: 'Tất cả' },
                         { key: 'active', label: 'Đang hoạt động' },
+                        { key: 'ongoing', label: 'Đang diễn ra' },
                         { key: 'upcoming', label: 'Sắp khởi hành' },
+                        { key: 'completed', label: 'Đã kết thúc' },
                         { key: 'full', label: 'Đã hết chỗ' },
                         { key: 'draft', label: 'Nháp' },
                     ].map((tab) => (

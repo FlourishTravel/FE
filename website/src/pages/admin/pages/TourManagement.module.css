@@ -200,6 +200,16 @@
     background: #fffbeb;
 }
 
+.statusOngoing {
+    color: #2563eb;
+    background: #eff6ff;
+}
+
+.statusCompleted {
+    color: #64748b;
+    background: #f1f5f9;
+}
+
 .statusFull {
     color: #dc2626;
     background: #fef2f2;

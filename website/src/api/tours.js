@@ -171,7 +171,20 @@ export async function listPublicTours(params = {}) {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
   });
-  const json = await parseJson(res);
+
+  if (!res.ok) {
+    if (res.status === 400 || res.status === 404 || res.status === 500) {
+      return { content: [], totalElements: 0, totalPages: 0, number: 0, size: params.size ?? 12 };
+    }
+    const json = await res.json().catch(() => null);
+    const message = (json && json.message) || `Yêu cầu thất bại (HTTP ${res.status})`;
+    const err = new Error(message);
+    err.status = res.status;
+    err.payload = json;
+    throw err;
+  }
+
+  const json = await res.json();
   const page = json?.data || {};
   return {
     content: Array.isArray(page.content) ? page.content : [],

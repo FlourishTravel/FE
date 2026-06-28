@@ -553,18 +553,13 @@
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
     .layout {
         flex-direction: column;
     }
+}
 
-    .sidebar {
-        width: 100%;
-        position: static;
-        @apply bg-white rounded-xl p-4;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-    }
-
+@media (max-width: 768px) {
     .mainHeader {
         flex-direction: column;
         gap: 12px;

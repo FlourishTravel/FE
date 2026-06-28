@@ -18,7 +18,8 @@ import styles from './TourDispatch.module.css';
 const VIEW_MODES = { CALENDAR: 'calendar', LIST: 'list' };
 
 const STATUS_LABELS = {
-    scheduled: { label: 'Đã lên lịch', cls: 'badgeScheduled' },
+    scheduled: { label: 'Sắp khởi hành', cls: 'badgeScheduled' },
+    ongoing: { label: 'Đang diễn ra', cls: 'badgeOngoing' },
     full: { label: 'Đã đầy', cls: 'badgeFull' },
     completed: { label: 'Đã hoàn thành', cls: 'badgeCompleted' },
     cancelled: { label: 'Đã huỷ', cls: 'badgeCancelled' },
@@ -27,7 +28,8 @@ const STATUS_LABELS = {
 const STATUS_TABS = [
     { key: 'all', label: 'Tất cả' },
     { key: 'issue', label: 'Cần điều phối' },
-    { key: 'scheduled', label: 'Đã lên lịch' },
+    { key: 'scheduled', label: 'Sắp khởi hành' },
+    { key: 'ongoing', label: 'Đang diễn ra' },
     { key: 'completed', label: 'Đã hoàn thành' },
     { key: 'cancelled', label: 'Đã huỷ' },
 ];

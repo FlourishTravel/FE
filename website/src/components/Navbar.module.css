@@ -198,3 +198,7 @@
 .mobileSubLink {
     @apply px-3 py-2 text-sm text-gray-600 hover:text-primary-600 hover:bg-gray-50 rounded-md no-underline;
 }
+
+.mobileSubLoading {
+    @apply px-3 py-2 text-sm text-gray-500;
+}

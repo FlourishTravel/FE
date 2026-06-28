@@ -1,35 +1,40 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { MapPin, Heart, Clock, Users, ChevronLeft, ChevronRight, ChevronDown, RotateCcw, Calendar } from 'lucide-react';
+import {
+    MapPin,
+    Heart,
+    Clock,
+    Users,
+    ChevronLeft,
+    ChevronRight,
+    Calendar,
+    SlidersHorizontal,
+} from 'lucide-react';
 import styles from './TourListing.module.css';
+import filterStyles from '../../components/tourFilters/tourFilters.module.css';
 import { listPublicTours } from '../../api/tours';
 import { listCategories } from '../../api/categories';
 import { resolveMediaUrl } from '../../api/config';
 import { addFavorite, listFavorites, removeFavorite } from '../../api/favorites';
 import { useAuth } from '../../context/AuthContext';
+import {
+    TourFilterSidebar,
+    ActiveFilterChips,
+    CategoryDropdown,
+    useTourFilters,
+} from '../../components/tourFilters';
+import {
+    applyClientFilters,
+    filtersToApiParams,
+    isValidUuid,
+    needsClientFiltering,
+    sortTours,
+} from '../../components/tourFilters/tourFilterUtils';
 
 const PLACEHOLDER_IMG =
     'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=800&q=80';
 
-const BUDGET_OPTIONS = [
-    { key: 'all', label: 'Tất cả' },
-    { key: '500k', label: '≤ 500k' },
-    { key: 'dưới 3tr', label: 'Dưới 3tr' },
-    { key: '10tr+', label: 'Từ 10tr' },
-];
-
-function budgetToApiRange(key) {
-    switch (key) {
-        case '500k':
-            return { minPrice: undefined, maxPrice: 500_000 };
-        case 'dưới 3tr':
-            return { minPrice: undefined, maxPrice: 3_000_000 };
-        case '10tr+':
-            return { minPrice: 10_000_000, maxPrice: undefined };
-        default:
-            return { minPrice: undefined, maxPrice: undefined };
-    }
-}
+const PAGE_SIZE = 12;
 
 function categoryTagClass(name) {
     if (!name) return 'green';
@@ -42,12 +47,6 @@ function formatDuration(t) {
     if (d && n != null) return `${d} ngày / ${n} đêm`;
     if (d) return `${d} ngày`;
     return '—';
-}
-
-function formatGroupHint(t) {
-    const es = t?.earliestSession;
-    if (es?.maxParticipants != null) return `Tối đa ${es.maxParticipants} khách/đợt`;
-    return 'Nhóm theo lịch khởi hành';
 }
 
 function remainingSlots(t) {
@@ -99,38 +98,53 @@ const TourListing = () => {
     const [searchParams] = useSearchParams();
     const destinationFromQuery = searchParams.get('destination') || '';
     const segmentFromQuery = searchParams.get('segment') || '';
+    const categoryIdFromQuery = searchParams.get('categoryId') || '';
     const wishlistOnly = searchParams.get('wishlist') === '1';
-    const [destinationInput, setDestinationInput] = useState('');
-    const [selectedCategoryId, setSelectedCategoryId] = useState(null);
-    const [selectedBudget, setSelectedBudget] = useState('all');
+
+    const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+    const [categories, setCategories] = useState([]);
+    const [categoriesLoading, setCategoriesLoading] = useState(true);
+
+    const {
+        draft,
+        applied,
+        patchDraft,
+        apply,
+        reset,
+        syncFilters,
+        activeCount,
+        draftCount,
+        chips,
+    } = useTourFilters(destinationFromQuery, categories);
+
     const [savedTours, setSavedTours] = useState([]);
     const [favoriteLoadingIds, setFavoriteLoadingIds] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const [sortBy, setSortBy] = useState('Đề xuất');
-    const [categories, setCategories] = useState([]);
     const [tours, setTours] = useState([]);
     const [totalPages, setTotalPages] = useState(1);
     const [totalElements, setTotalElements] = useState(0);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
 
-    const [applied, setApplied] = useState({
-        destination: destinationFromQuery,
-        categoryId: null,
-        budget: 'all',
-    });
+    const clientFilterMode = useMemo(() => needsClientFiltering(applied), [applied]);
 
     useEffect(() => {
-        if (!destinationFromQuery) return;
-        setDestinationInput(destinationFromQuery);
-        setApplied((prev) => ({ ...prev, destination: destinationFromQuery }));
-        setCurrentPage(1);
-    }, [destinationFromQuery]);
-
-    useEffect(() => {
+        let alive = true;
+        setCategoriesLoading(true);
         listCategories()
-            .then((list) => setCategories(Array.isArray(list) ? list : []))
-            .catch(() => setCategories([]));
+            .then((list) => {
+                if (!alive) return;
+                setCategories(Array.isArray(list) ? list : []);
+            })
+            .catch(() => {
+                if (!alive) return;
+                setCategories([]);
+            })
+            .finally(() => {
+                if (alive) setCategoriesLoading(false);
+            });
+        return () => {
+            alive = false;
+        };
     }, []);
 
     useEffect(() => {
@@ -155,29 +169,43 @@ const TourListing = () => {
     }, [user]);
 
     useEffect(() => {
+        syncFilters({
+            ...(destinationFromQuery ? { search: destinationFromQuery } : {}),
+            categories:
+                categoryIdFromQuery && isValidUuid(categoryIdFromQuery)
+                    ? [categoryIdFromQuery]
+                    : [],
+        });
+        setCurrentPage(1);
+    }, [destinationFromQuery, categoryIdFromQuery, syncFilters]);
+
+    useEffect(() => {
         let alive = true;
         (async () => {
             setLoading(true);
-            setError('');
-            const { minPrice, maxPrice } = budgetToApiRange(applied.budget);
+            const apiBase = filtersToApiParams(applied, segmentFromQuery);
             try {
                 const res = await listPublicTours({
-                    destination: applied.destination || undefined,
-                    categoryId: applied.categoryId || undefined,
-                    segment: segmentFromQuery || undefined,
-                    minPrice,
-                    maxPrice,
-                    page: currentPage - 1,
-                    size: 12,
+                    ...apiBase,
+                    page: clientFilterMode ? 0 : currentPage - 1,
+                    size: clientFilterMode ? 60 : PAGE_SIZE,
                 });
                 if (!alive) return;
                 setTours(res.content);
-                setTotalPages(Math.max(1, res.totalPages || 1));
-                setTotalElements(res.totalElements ?? 0);
+                if (clientFilterMode) {
+                    const filtered = sortTours(applyClientFilters(res.content, applied), applied.sort);
+                    setTotalElements(filtered.length);
+                    setTotalPages(Math.max(1, Math.ceil(filtered.length / PAGE_SIZE) || 1));
+                } else {
+                    setTotalPages(Math.max(1, res.totalPages || 1));
+                    setTotalElements(res.totalElements ?? 0);
+                }
             } catch (e) {
                 if (!alive) return;
+                console.warn('Tour listing fetch failed:', e);
                 setTours([]);
-                setError(e.message || 'Không tải được danh sách tour.');
+                setTotalElements(0);
+                setTotalPages(1);
             } finally {
                 if (alive) setLoading(false);
             }
@@ -185,22 +213,22 @@ const TourListing = () => {
         return () => {
             alive = false;
         };
-    }, [applied, currentPage, segmentFromQuery]);
+    }, [applied, currentPage, segmentFromQuery, clientFilterMode]);
 
     const displayTours = useMemo(() => {
-        let arr = [...tours];
+        let arr = clientFilterMode
+            ? applyClientFilters(tours, applied)
+            : [...tours];
         if (wishlistOnly) {
             arr = arr.filter((t) => savedTours.includes(String(t.id)));
         }
-        if (sortBy === 'Giá: Thấp đến Cao') {
-            arr.sort((a, b) => (Number(a.basePrice) || 0) - (Number(b.basePrice) || 0));
-        } else if (sortBy === 'Giá: Cao đến Thấp') {
-            arr.sort((a, b) => (Number(b.basePrice) || 0) - (Number(a.basePrice) || 0));
-        } else if (sortBy === 'Thời gian') {
-            arr.sort((a, b) => (a.durationDays || 0) - (b.durationDays || 0));
+        arr = sortTours(arr, applied.sort);
+        if (clientFilterMode) {
+            const start = (currentPage - 1) * PAGE_SIZE;
+            arr = arr.slice(start, start + PAGE_SIZE);
         }
         return arr;
-    }, [tours, sortBy, wishlistOnly, savedTours]);
+    }, [tours, applied, wishlistOnly, savedTours, clientFilterMode, currentPage]);
 
     const toggleSave = async (tourId) => {
         if (!user) {
@@ -226,20 +254,14 @@ const TourListing = () => {
         }
     };
 
-    const resetFilters = () => {
-        setDestinationInput('');
-        setSelectedCategoryId(null);
-        setSelectedBudget('all');
+    const handleApply = () => {
+        apply();
         setCurrentPage(1);
-        setApplied({ destination: '', categoryId: null, budget: 'all' });
+        setMobileFilterOpen(false);
     };
 
-    const applyFilters = () => {
-        setApplied({
-            destination: destinationInput.trim(),
-            categoryId: selectedCategoryId,
-            budget: selectedBudget,
-        });
+    const handleReset = () => {
+        reset();
         setCurrentPage(1);
     };
 
@@ -256,6 +278,14 @@ const TourListing = () => {
         }
     };
 
+    const handleCategoryDropdown = (categoryId) => {
+        syncFilters({ categories: categoryId ? [categoryId] : [] });
+        setCurrentPage(1);
+    };
+
+    const dropdownCategoryValue =
+        applied.categories?.length === 1 ? String(applied.categories[0]) : null;
+
     const pageTitle = wishlistOnly
         ? 'Tour yêu thích'
         : SEGMENT_TITLES[segmentFromQuery] || 'Khám Phá Trải Nghiệm Độc Đáo';
@@ -263,72 +293,18 @@ const TourListing = () => {
     return (
         <div className={styles.pageContainer}>
             <div className={styles.layout}>
-                <aside className={styles.sidebar}>
-                    <div className={styles.sidebarHeader}>
-                        <h2 className={styles.sidebarTitle}>Bộ lọc</h2>
-                        <button type="button" className={styles.resetBtn} onClick={resetFilters}>
-                            <RotateCcw className={styles.resetIcon} /> Đặt lại
-                        </button>
-                    </div>
-
-                    <div className={styles.filterSection}>
-                        <h3 className={styles.filterLabel}>TÌM THEO TÊN / ĐIỂM ĐẾN</h3>
-                        <input
-                            type="search"
-                            value={destinationInput}
-                            onChange={(e) => setDestinationInput(e.target.value)}
-                            placeholder="Ví dụ: Đà Nẵng, Bali..."
-                            className={styles.sortSelect}
-                            style={{ width: '100%', padding: '10px 12px' }}
-                        />
-                    </div>
-
-                    <div className={styles.filterSection}>
-                        <h3 className={styles.filterLabel}>DANH MỤC</h3>
-                        <div className={styles.sustainPills}>
-                            <button
-                                type="button"
-                                className={`${styles.sustainPill} ${selectedCategoryId == null ? styles.sustainActive : ''}`}
-                                onClick={() => setSelectedCategoryId(null)}
-                            >
-                                Tất cả
-                            </button>
-                            {categories.map((c) => (
-                                <button
-                                    type="button"
-                                    key={c.id}
-                                    className={`${styles.sustainPill} ${selectedCategoryId === c.id ? styles.sustainActive : ''}`}
-                                    onClick={() => setSelectedCategoryId(c.id)}
-                                >
-                                    {c.name}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    <div className={styles.filterSection}>
-                        <h3 className={styles.filterLabel}>NGÂN SÁCH (GIÁ TOUR)</h3>
-                        <div className={styles.budgetRow}>
-                            {BUDGET_OPTIONS.map((b) => (
-                                <button
-                                    type="button"
-                                    key={b.key}
-                                    className={`${styles.budgetBtn} ${selectedBudget === b.key ? styles.budgetActive : ''}`}
-                                    onClick={() => setSelectedBudget(b.key)}
-                                >
-                                    {b.label}
-                                </button>
-                            ))}
-                        </div>
-                        <div className={styles.budgetBar}>
-                            <div className={styles.budgetFill}></div>
-                        </div>
-                    </div>
-
-                    <button type="button" className={styles.applyBtn} onClick={applyFilters}>
-                        Áp dụng bộ lọc
-                    </button>
-                </aside>
+                <TourFilterSidebar
+                    draft={draft}
+                    patchDraft={patchDraft}
+                    onApply={handleApply}
+                    onReset={handleReset}
+                    activeCount={activeCount}
+                    draftCount={draftCount}
+                    mobileOpen={mobileFilterOpen}
+                    onMobileClose={() => setMobileFilterOpen(false)}
+                    categories={categories}
+                    categoriesLoading={categoriesLoading}
+                />
 
                 <main className={styles.mainContent}>
                     <div className={styles.mainHeader}>
@@ -337,29 +313,31 @@ const TourListing = () => {
                             <p className={styles.mainSubtitle}>
                                 {loading
                                     ? 'Đang tải hành trình từ FlourishTravel...'
-                                    : `Hiển thị ${displayTours.length} / ${totalElements} tour còn chỗ (trang ${currentPage} / ${totalPages}).`}
+                                    : displayTours.length === 0
+                                      ? 'Không tìm thấy tour phù hợp với bộ lọc hiện tại.'
+                                      : `Hiển thị ${displayTours.length} / ${totalElements} tour (trang ${currentPage} / ${totalPages}).`}
                             </p>
-                            {error ? (
-                                <p style={{ color: '#c0392b', marginTop: 8 }}>{error}</p>
-                            ) : null}
                         </div>
-                        <div className={styles.sortContainer}>
-                            <span className={styles.sortLabel}>Sắp xếp:</span>
-                            <div className={styles.sortDropdown}>
-                                <select
-                                    value={sortBy}
-                                    onChange={(e) => setSortBy(e.target.value)}
-                                    className={styles.sortSelect}
-                                >
-                                    <option>Đề xuất</option>
-                                    <option>Giá: Thấp đến Cao</option>
-                                    <option>Giá: Cao đến Thấp</option>
-                                    <option>Thời gian</option>
-                                </select>
-                                <ChevronDown className={styles.sortIcon} />
-                            </div>
+                        <div className={filterStyles.headerActions}>
+                            <CategoryDropdown
+                                categories={categories}
+                                loading={categoriesLoading}
+                                value={dropdownCategoryValue}
+                                multipleSelected={(applied.categories?.length || 0) > 1}
+                                onChange={handleCategoryDropdown}
+                            />
+                            <button
+                                type="button"
+                                className={filterStyles.mobileToggle}
+                                onClick={() => setMobileFilterOpen(true)}
+                            >
+                                <SlidersHorizontal size={18} />
+                                Bộ lọc{activeCount > 0 ? ` (${activeCount})` : ''}
+                            </button>
                         </div>
                     </div>
+
+                    <ActiveFilterChips chips={chips} onClearAll={handleReset} />
 
                     {loading ? (
                         <div style={{ display: 'flex', justifyContent: 'center', padding: '48px' }}>
@@ -375,7 +353,6 @@ const TourListing = () => {
                                 const tourId = String(tour.id);
                                 return (
                                     <div key={tour.id} className={styles.tourCard}>
-                                        {/* Left Image Section */}
                                         <div className={styles.cardImageContainer}>
                                             <Link to={`/tours/${tour.id}`} className={styles.imageLink}>
                                                 <img src={img} alt={tour.title} className={styles.cardImage} />
@@ -397,20 +374,16 @@ const TourListing = () => {
                                             </button>
                                         </div>
 
-                                        {/* Right Details Section */}
                                         <div className={styles.cardContent}>
-                                            {/* Tag & Code Row */}
                                             <div className={styles.cardHeaderRow}>
                                                 <span className={styles.tagLabel}>{catName.toUpperCase()}</span>
                                                 <span className={styles.tourCode}>Mã tour: {getTourCode(tour)}</span>
                                             </div>
 
-                                            {/* Title */}
                                             <Link to={`/tours/${tour.id}`} className={styles.titleLink}>
                                                 <h3 className={styles.cardTitle}>{tour.title}</h3>
                                             </Link>
 
-                                            {/* Info Grid */}
                                             <div className={styles.infoGrid}>
                                                 <div className={styles.infoItem}>
                                                     <MapPin className={styles.infoIcon} />
@@ -436,8 +409,7 @@ const TourListing = () => {
                                                 </div>
                                             </div>
 
-                                            {/* Bottom Separator & Pricing/CTA */}
-                                            <div className={styles.cardFooterDivider}></div>
+                                            <div className={styles.cardFooterDivider} />
                                             <div className={styles.cardFooter}>
                                                 <div className={styles.priceContainer}>
                                                     <span className={styles.priceLabel}>Giá trọn gói từ</span>
@@ -461,10 +433,19 @@ const TourListing = () => {
                         </div>
                     )}
 
-                    {!loading && displayTours.length === 0 && !error ? (
+                    {!loading && displayTours.length === 0 ? (
                         <p style={{ textAlign: 'center', padding: 32, color: '#555' }}>
-                            Chưa có tour phù hợp bộ lọc. Thử đổi ngân sách hoặc danh mục — hoặc{' '}
-                            <button type="button" style={{ textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer' }} onClick={resetFilters}>
+                            Chưa có tour phù hợp bộ lọc. Thử đổi điều kiện — hoặc{' '}
+                            <button
+                                type="button"
+                                style={{
+                                    textDecoration: 'underline',
+                                    background: 'none',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                }}
+                                onClick={handleReset}
+                            >
                                 xóa bộ lọc
                             </button>
                             .

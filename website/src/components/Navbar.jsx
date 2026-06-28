@@ -7,10 +7,10 @@ import { useAuth } from '../context/AuthContext';
 import NavDropdown from './nav/NavDropdown';
 import ProfileDropdown from './nav/ProfileDropdown';
 import NotificationDropdown from './nav/NotificationDropdown';
+import { useTourCategoryMenu } from '../hooks/useTourCategoryMenu';
 import {
     MAIN_NAV,
     EXPLORE_MENU,
-    TOUR_MENU,
     EXPERIENCE_MENU,
     isNavGroupActive,
     openFloraChat,
@@ -22,6 +22,7 @@ const Navbar = () => {
     const location = useLocation();
     const pathname = location.pathname;
     const { user } = useAuth();
+    const { items: tourMenuItems, loading: tourMenuLoading } = useTourCategoryMenu();
 
     const closeMobile = () => {
         setIsOpen(false);
@@ -34,11 +35,14 @@ const Navbar = () => {
 
     const renderDesktopNavItem = (item) => {
         if (item.type === 'dropdown') {
+            const items = item.dynamic === 'categories' ? tourMenuItems : item.items;
+            const loading = item.dynamic === 'categories' ? tourMenuLoading : false;
             return (
                 <NavDropdown
                     key={item.id}
                     label={item.label}
-                    items={item.items}
+                    items={items}
+                    loading={loading}
                     isActive={isNavGroupActive(pathname, item.id)}
                 />
             );
@@ -74,7 +78,7 @@ const Navbar = () => {
 
     const mobileSections = [
         { id: 'explore', label: 'Khám phá', items: EXPLORE_MENU },
-        { id: 'tours', label: 'Tour', items: TOUR_MENU },
+        { id: 'tours', label: 'Tour', items: tourMenuItems, loading: tourMenuLoading },
         { id: 'experience', label: 'Trải nghiệm', items: EXPERIENCE_MENU },
     ];
 
@@ -159,16 +163,20 @@ const Navbar = () => {
                                 </button>
                                 {mobileExpanded === section.id && (
                                     <div className={styles.mobileSubmenu}>
-                                        {section.items.map((item) => (
-                                            <Link
-                                                key={item.href}
-                                                to={item.href}
-                                                className={styles.mobileSubLink}
-                                                onClick={closeMobile}
-                                            >
-                                                {item.label}
-                                            </Link>
-                                        ))}
+                                        {section.loading ? (
+                                            <span className={styles.mobileSubLoading}>Đang tải danh mục...</span>
+                                        ) : (
+                                            section.items.map((item) => (
+                                                <Link
+                                                    key={item.href}
+                                                    to={item.href}
+                                                    className={styles.mobileSubLink}
+                                                    onClick={closeMobile}
+                                                >
+                                                    {item.label}
+                                                </Link>
+                                            ))
+                                        )}
                                     </div>
                                 )}
                             </div>

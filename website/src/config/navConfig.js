@@ -7,13 +7,26 @@ export const EXPLORE_MENU = [
     { label: 'Gợi ý theo mùa', href: '/stories', description: 'Hành trình theo mùa trong năm' },
 ];
 
-export const TOUR_MENU = [
-    { label: 'Tour trong nước', href: '/tours?segment=domestic' },
-    { label: 'Tour quốc tế', href: '/tours?segment=international' },
-    { label: 'Tour trường học', href: '/tours?segment=school' },
-    { label: 'Tour doanh nghiệp', href: '/tours?segment=corporate' },
+/** Menu Tour — fallback khi chưa tải được danh mục từ DB. */
+export const TOUR_MENU_FALLBACK = [
+    { label: 'Tất cả tour', href: '/tours' },
     { label: 'Tour yêu thích', href: '/tours?wishlist=1' },
 ];
+
+/** @deprecated Dùng buildTourNavMenu(categories) — giữ alias cho tương thích. */
+export const TOUR_MENU = TOUR_MENU_FALLBACK;
+
+/** Tạo menu Tour từ danh mục API (categories). */
+export function buildTourNavMenu(categories = []) {
+    return [
+        { label: 'Tất cả tour', href: '/tours' },
+        ...categories.map((cat) => ({
+            label: cat.name,
+            href: `/tours?categoryId=${encodeURIComponent(cat.id)}`,
+        })),
+        { label: 'Tour yêu thích', href: '/tours?wishlist=1' },
+    ];
+}
 
 export const EXPERIENCE_MENU = [
     { label: 'Vé tham quan', href: '/activities?type=ticket' },
@@ -25,7 +38,7 @@ export const EXPERIENCE_MENU = [
 /** Menu chính desktop — dropdown hoặc link trực tiếp. */
 export const MAIN_NAV = [
     { id: 'explore', label: 'Khám phá', type: 'dropdown', items: EXPLORE_MENU },
-    { id: 'tours', label: 'Tour', type: 'dropdown', items: TOUR_MENU },
+    { id: 'tours', label: 'Tour', type: 'dropdown', dynamic: 'categories' },
     { id: 'experience', label: 'Trải nghiệm', type: 'dropdown', items: EXPERIENCE_MENU },
     { id: 'my-trips', label: 'Chuyến đi của tôi', type: 'link', href: '/my-journey' },
     { id: 'flora', label: 'Flora AI', type: 'flora' },
