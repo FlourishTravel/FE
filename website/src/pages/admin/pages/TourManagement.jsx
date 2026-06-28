@@ -9,7 +9,8 @@ import styles from './TourManagement.module.css';
 
 const STATUS_CONFIG = {
     active: { label: 'Đang hoạt động', className: 'statusActive' },
-    upcoming: { label: 'Sắp khởi hành', className: 'statusUpcoming' },
+    departing_soon: { label: 'Sắp khởi hành', className: 'statusDepartingSoon' },
+    upcoming: { label: 'Mở bán xa', className: 'statusUpcoming' },
     ongoing: { label: 'Đang diễn ra', className: 'statusOngoing' },
     completed: { label: 'Đã kết thúc', className: 'statusCompleted' },
     full: { label: 'Đã hết chỗ', className: 'statusFull' },
@@ -101,7 +102,15 @@ const TourManagement = () => {
     }, [tours, filterStatus, searchQuery]);
 
     const stats = useMemo(() => {
-        const counts = { active: 0, upcoming: 0, ongoing: 0, completed: 0, full: 0, draft: 0 };
+        const counts = {
+            active: 0,
+            departing_soon: 0,
+            upcoming: 0,
+            ongoing: 0,
+            completed: 0,
+            full: 0,
+            draft: 0,
+        };
         tours.forEach((t) => {
             if (counts[t.status] !== undefined) counts[t.status] += 1;
         });
@@ -328,16 +337,22 @@ const TourManagement = () => {
             <div className={styles.statsGrid}>
                 <StatCard icon="travel_explore" label="Tổng số Tour" value={String(stats.total)} color="green" />
                 <StatCard
+                    icon="schedule"
+                    label="Sắp khởi hành"
+                    value={String(stats.departing_soon)}
+                    color="orange"
+                />
+                <StatCard
                     icon="check_circle"
                     label="Đang hoạt động"
                     value={String(stats.active)}
                     color="blue"
                 />
                 <StatCard
-                    icon="schedule"
-                    label="Sắp khởi hành"
+                    icon="event_available"
+                    label="Mở bán xa"
                     value={String(stats.upcoming)}
-                    color="orange"
+                    color="purple"
                 />
                 <StatCard icon="block" label="Đã hết chỗ" value={String(stats.full)} color="red" />
             </div>
@@ -390,9 +405,10 @@ const TourManagement = () => {
                 <div className={styles.filterTabs}>
                     {[
                         { key: 'all', label: 'Tất cả' },
+                        { key: 'departing_soon', label: 'Sắp khởi hành' },
                         { key: 'active', label: 'Đang hoạt động' },
+                        { key: 'upcoming', label: 'Mở bán xa' },
                         { key: 'ongoing', label: 'Đang diễn ra' },
-                        { key: 'upcoming', label: 'Sắp khởi hành' },
                         { key: 'completed', label: 'Đã kết thúc' },
                         { key: 'full', label: 'Đã hết chỗ' },
                         { key: 'draft', label: 'Nháp' },

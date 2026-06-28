@@ -6,13 +6,17 @@ import styles from './TourDetailModal.module.css';
 const STATUS_LABELS = {
     draft: { label: 'Nháp', cls: 'badgeDraft' },
     active: { label: 'Đang hoạt động', cls: 'badgeActive' },
-    upcoming: { label: 'Sắp khởi hành', cls: 'badgeUpcoming' },
+    departing_soon: { label: 'Sắp khởi hành', cls: 'badgeDepartingSoon' },
+    upcoming: { label: 'Mở bán xa', cls: 'badgeUpcoming' },
+    ongoing: { label: 'Đang diễn ra', cls: 'badgeOngoing' },
+    completed: { label: 'Đã kết thúc', cls: 'badgeCompleted' },
     full: { label: 'Đã hết chỗ', cls: 'badgeFull' },
 };
 
 const SESSION_STATUS_LABELS = {
-    scheduled: { label: 'Đã lên lịch', cls: 'badgeActive' },
-    in_progress: { label: 'Đang chạy', cls: 'badgeActive' },
+    scheduled: { label: 'Sắp khởi hành', cls: 'badgeDepartingSoon' },
+    ongoing: { label: 'Đang diễn ra', cls: 'badgeOngoing' },
+    in_progress: { label: 'Đang diễn ra', cls: 'badgeOngoing' },
     completed: { label: 'Hoàn tất', cls: 'badgeDraft' },
     cancelled: { label: 'Đã huỷ', cls: 'badgeFull' },
 };

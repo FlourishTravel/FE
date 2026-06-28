@@ -51,7 +51,7 @@
 
 .statsGrid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 16px;
 }
 
@@ -195,9 +195,14 @@
     background: #ecfdf5;
 }
 
+.statusDepartingSoon {
+    color: #c2410c;
+    background: #ffedd5;
+}
+
 .statusUpcoming {
-    color: #d97706;
-    background: #fffbeb;
+    color: #7c3aed;
+    background: #f5f3ff;
 }
 
 .statusOngoing {
