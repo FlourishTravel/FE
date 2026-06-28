@@ -562,10 +562,18 @@ const TourItineraryBuilder = () => {
         try {
             const payload = toServer(days);
             const locPayload = buildPlacesPayload(days);
-            const [fresh, freshLocs] = await Promise.all([
-                saveTourItinerary(tourId, payload),
-                saveTourLocations(tourId, locPayload),
-            ]);
+            const fresh = await saveTourItinerary(tourId, payload);
+            let freshLocs = tour?.locations ?? [];
+            try {
+                freshLocs = await saveTourLocations(tourId, locPayload);
+            } catch (locErr) {
+                if (locErr?.status !== 404) {
+                    throw new Error(
+                        locErr?.message ||
+                            'Đã lưu lịch trình nhưng không lưu được địa điểm. Thử Lưu lại.'
+                    );
+                }
+            }
             setDays(fromServer(fresh, freshLocs));
             setTour((prev) => (prev ? { ...prev, locations: freshLocs } : prev));
             setDirty(false);
