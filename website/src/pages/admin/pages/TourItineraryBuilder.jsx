@@ -104,6 +104,13 @@ const newActivity = (sortOrder = 0) => ({
     scheduleStatus: 'ESTIMATED',
 });
 
+const fmtCoord = (v) => {
+    if (v === '' || v == null) return '';
+    const n = Number(v);
+    if (!Number.isFinite(n)) return String(v);
+    return n.toFixed(7).replace(/\.?0+$/, '');
+};
+
 const newPlace = (visitOrder = 0) => ({
     _key: tempId(),
     locationName: '',
@@ -119,8 +126,8 @@ const mapPlacesForDay = (tourLocations, dayNumber) =>
         .map((loc, idx) => ({
             _key: tempId(),
             locationName: loc.locationName ?? '',
-            latitude: loc.latitude ?? '',
-            longitude: loc.longitude ?? '',
+            latitude: fmtCoord(loc.latitude),
+            longitude: fmtCoord(loc.longitude),
             visitOrder: loc.visitOrder ?? idx,
         }));
 
@@ -149,7 +156,10 @@ const newDay = (dayNumber, tourLocations = []) => ({
     transport: '',
     meals: [], // array of meal keys
     highlights: '',
-    places: mapPlacesForDay(tourLocations, dayNumber),
+    places: (() => {
+        const mapped = mapPlacesForDay(tourLocations, dayNumber);
+        return mapped.length ? mapped : [newPlace(0)];
+    })(),
     activities: [],
 });
 
@@ -165,7 +175,10 @@ const fromServer = (serverList, tourLocations = []) =>
         transport: d.transport ?? '',
         meals: parseCsv(d.mealsIncluded),
         highlights: d.highlights ?? '',
-        places: mapPlacesForDay(tourLocations, d.dayNumber ?? idx + 1),
+        places: (() => {
+            const mapped = mapPlacesForDay(tourLocations, d.dayNumber ?? idx + 1);
+            return mapped.length ? mapped : [newPlace(0)];
+        })(),
         activities: (d.activities ?? []).map((a, aidx) => ({
             _key: tempId(),
             sortOrder: a.sortOrder ?? aidx,
@@ -370,8 +383,8 @@ const TourItineraryBuilder = () => {
                 return;
             }
             updatePlace(dayKey, placeKey, {
-                latitude: String(hit.latitude),
-                longitude: String(hit.longitude),
+                latitude: fmtCoord(hit.latitude),
+                longitude: fmtCoord(hit.longitude),
             });
             setGeoLookup({ placeKey, success: `Đã điền tọa độ (${hit.label}).` });
             window.setTimeout(() => {
@@ -417,11 +430,11 @@ const TourItineraryBuilder = () => {
 
     const deletePlace = (dayKey, placeKey) => {
         setDays((prev) =>
-            prev.map((d) =>
-                d._key === dayKey
-                    ? { ...d, places: (d.places || []).filter((p) => p._key !== placeKey) }
-                    : d
-            )
+            prev.map((d) => {
+                if (d._key !== dayKey) return d;
+                const next = (d.places || []).filter((p) => p._key !== placeKey);
+                return { ...d, places: next.length ? next : [newPlace(0)] };
+            })
         );
         markDirty();
     };
@@ -733,6 +746,131 @@ const TourItineraryBuilder = () => {
                                 )}
                             </div>
 
+                            <div className={styles.placesSection}>
+                                <div className={styles.sectionDivider}>
+                                    <span>Địa điểm trong ngày</span>
+                                </div>
+                                <p className={styles.placesHint}>
+                                    Nhập <strong>tên địa điểm chính</strong> của ngày — hiển thị trên portal HDV
+                                    (thay &quot;Đang cập nhật&quot;). Tọa độ là tuỳ chọn.
+                                </p>
+                                <div className={styles.placesList}>
+                                    {(activeDay.places || []).map((place, pidx) => (
+                                        <div key={place._key} className={styles.placeItem}>
+                                            <div className={styles.placeIndex}>{pidx + 1}</div>
+                                            <div className={styles.placeFields}>
+                                                <label className={styles.placeFieldLabel}>
+                                                    Tên địa điểm
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    className={styles.activityInput}
+                                                    placeholder="VD: Bến xe Cần Thơ, Trường GTVT TP.HCM..."
+                                                    value={place.locationName}
+                                                    onChange={(e) =>
+                                                        updatePlace(activeDay._key, place._key, {
+                                                            locationName: e.target.value,
+                                                        })
+                                                    }
+                                                />
+                                                <div className={styles.coordRow}>
+                                                    <div className={styles.coordField}>
+                                                        <label className={styles.placeFieldLabel}>Vĩ độ (Lat)</label>
+                                                        <input
+                                                            type="text"
+                                                            inputMode="decimal"
+                                                            className={styles.geoInput}
+                                                            placeholder="10.024"
+                                                            value={place.latitude}
+                                                            onChange={(e) =>
+                                                                updatePlace(activeDay._key, place._key, {
+                                                                    latitude: e.target.value,
+                                                                })
+                                                            }
+                                                        />
+                                                    </div>
+                                                    <div className={styles.coordField}>
+                                                        <label className={styles.placeFieldLabel}>Kinh độ (Lng)</label>
+                                                        <input
+                                                            type="text"
+                                                            inputMode="decimal"
+                                                            className={styles.geoInput}
+                                                            placeholder="105.762"
+                                                            value={place.longitude}
+                                                            onChange={(e) =>
+                                                                updatePlace(activeDay._key, place._key, {
+                                                                    longitude: e.target.value,
+                                                                })
+                                                            }
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div className={styles.geoFetchRow}>
+                                                    <button
+                                                        type="button"
+                                                        className={styles.geoFetchBtn}
+                                                        disabled={
+                                                            geoLookup?.placeKey === place._key &&
+                                                            geoLookup.loading
+                                                        }
+                                                        onClick={() =>
+                                                            handleFetchPlaceCoords(
+                                                                activeDay._key,
+                                                                place._key,
+                                                                place
+                                                            )
+                                                        }
+                                                    >
+                                                        <span
+                                                            className="material-icons-round"
+                                                            style={{ fontSize: 16 }}
+                                                        >
+                                                            {geoLookup?.placeKey === place._key &&
+                                                            geoLookup.loading
+                                                                ? 'hourglass_top'
+                                                                : 'my_location'}
+                                                        </span>
+                                                        Lấy tọa độ tự động
+                                                    </button>
+                                                    {geoLookup?.placeKey === place._key && geoLookup.error && (
+                                                        <span className={styles.geoFetchHintError}>
+                                                            {geoLookup.error}
+                                                        </span>
+                                                    )}
+                                                    {geoLookup?.placeKey === place._key && geoLookup.success && (
+                                                        <span className={styles.geoFetchHintSuccess}>
+                                                            {geoLookup.success}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            {(activeDay.places || []).length > 1 && (
+                                                <button
+                                                    type="button"
+                                                    className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
+                                                    onClick={() => deletePlace(activeDay._key, place._key)}
+                                                    title="Xoá địa điểm"
+                                                >
+                                                    <span className="material-icons-round" style={{ fontSize: 16 }}>
+                                                        close
+                                                    </span>
+                                                </button>
+                                            )}
+                                        </div>
+                                    ))}
+                                    <button
+                                        type="button"
+                                        className={styles.placeAddBtn}
+                                        onClick={() => handleAddPlace(activeDay._key)}
+                                    >
+                                        <span className="material-icons-round" style={{ fontSize: 18 }}>
+                                            add_location_alt
+                                        </span>
+                                        Thêm địa điểm khác
+                                    </button>
+                                </div>
+                            </div>
+
                             {/* Summary + meta */}
                             <div className={styles.metaGrid}>
                                 <div className={styles.formField}>
@@ -833,118 +971,6 @@ const TourItineraryBuilder = () => {
                                         updateDay(activeDay._key, { description: e.target.value })
                                     }
                                 />
-                            </div>
-
-                            <div className={styles.sectionDivider}>
-                                <span>Địa điểm trong ngày</span>
-                            </div>
-                            <p className={styles.placesHint}>
-                                Hiển thị trên portal HDV (thay cho &quot;Đang cập nhật&quot;). Khác với địa điểm
-                                từng hoạt động bên dưới.
-                            </p>
-                            <div className={styles.placesList}>
-                                {(activeDay.places || []).map((place, pidx) => (
-                                    <div key={place._key} className={styles.placeItem}>
-                                        <div className={styles.placeIndex}>{pidx + 1}</div>
-                                        <div className={styles.placeFields}>
-                                            <input
-                                                type="text"
-                                                className={styles.activityInput}
-                                                placeholder="Tên địa điểm (VD: Bến xe Cần Thơ, Trường GTVT...)"
-                                                value={place.locationName}
-                                                onChange={(e) =>
-                                                    updatePlace(activeDay._key, place._key, {
-                                                        locationName: e.target.value,
-                                                    })
-                                                }
-                                            />
-                                            <div className={styles.actGridGeo}>
-                                                <input
-                                                    type="number"
-                                                    className={styles.geoInput}
-                                                    placeholder="Lat"
-                                                    step="0.0000001"
-                                                    value={place.latitude}
-                                                    onChange={(e) =>
-                                                        updatePlace(activeDay._key, place._key, {
-                                                            latitude: e.target.value,
-                                                        })
-                                                    }
-                                                />
-                                                <input
-                                                    type="number"
-                                                    className={styles.geoInput}
-                                                    placeholder="Lng"
-                                                    step="0.0000001"
-                                                    value={place.longitude}
-                                                    onChange={(e) =>
-                                                        updatePlace(activeDay._key, place._key, {
-                                                            longitude: e.target.value,
-                                                        })
-                                                    }
-                                                />
-                                            </div>
-                                            <div className={styles.geoFetchRow}>
-                                                <button
-                                                    type="button"
-                                                    className={styles.geoFetchBtn}
-                                                    disabled={
-                                                        geoLookup?.placeKey === place._key &&
-                                                        geoLookup.loading
-                                                    }
-                                                    onClick={() =>
-                                                        handleFetchPlaceCoords(
-                                                            activeDay._key,
-                                                            place._key,
-                                                            place
-                                                        )
-                                                    }
-                                                >
-                                                    <span
-                                                        className="material-icons-round"
-                                                        style={{ fontSize: 16 }}
-                                                    >
-                                                        {geoLookup?.placeKey === place._key &&
-                                                        geoLookup.loading
-                                                            ? 'hourglass_top'
-                                                            : 'my_location'}
-                                                    </span>
-                                                    Lấy tọa độ tự động
-                                                </button>
-                                                {geoLookup?.placeKey === place._key && geoLookup.error && (
-                                                    <span className={styles.geoFetchHintError}>
-                                                        {geoLookup.error}
-                                                    </span>
-                                                )}
-                                                {geoLookup?.placeKey === place._key && geoLookup.success && (
-                                                    <span className={styles.geoFetchHintSuccess}>
-                                                        {geoLookup.success}
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </div>
-                                        <button
-                                            type="button"
-                                            className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
-                                            onClick={() => deletePlace(activeDay._key, place._key)}
-                                            title="Xoá địa điểm"
-                                        >
-                                            <span className="material-icons-round" style={{ fontSize: 16 }}>
-                                                close
-                                            </span>
-                                        </button>
-                                    </div>
-                                ))}
-                                <button
-                                    type="button"
-                                    className={styles.placeAddBtn}
-                                    onClick={() => handleAddPlace(activeDay._key)}
-                                >
-                                    <span className="material-icons-round" style={{ fontSize: 18 }}>
-                                        add_location_alt
-                                    </span>
-                                    Thêm địa điểm
-                                </button>
                             </div>
 
                             <div className={styles.sectionDivider}>

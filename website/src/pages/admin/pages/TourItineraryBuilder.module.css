@@ -919,6 +919,34 @@
     font-weight: 600;
 }
 
+.placesSection {
+    margin-bottom: 8px;
+    padding: 14px 16px;
+    border: 1px solid #bbf7d0;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%);
+}
+
+.placeFieldLabel {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #047857;
+    margin-bottom: 4px;
+}
+
+.coordRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.coordField {
+    min-width: 0;
+}
+
 .placesHint {
     margin: -6px 0 12px;
     font-size: 12px;
