@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import styles from './CreateTourModal.module.css';
 import { listCategories } from '../../../api/categories';
 import { createAdminSession, createTour } from '../../../api/tours';
-import AdminImageField from './AdminImageField';
+import AdminImageListField from './AdminImageListField';
+import AdminVideoListField from './AdminVideoListField';
 
 const EMPTY_FORM = {
     title: '',
@@ -14,6 +15,8 @@ const EMPTY_FORM = {
     durationNights: '',
     categoryId: '',
     thumbnailUrl: '',
+    imageUrls: [],
+    videos: [],
     departureDate: '',
     maxParticipants: '20',
     marketSegment: '',
@@ -64,6 +67,21 @@ const CreateTourModal = ({ isOpen, onClose, onCreated }) => {
         setErrorMsg('');
         setSubmitting(true);
         try {
+            const imageUrls = (formData.imageUrls || [])
+                .map((u) => String(u || '').trim())
+                .filter(Boolean);
+            const videos = (formData.videos || [])
+                .filter((v) => v?.videoUrl?.trim())
+                .map((v) => ({
+                    videoUrl: v.videoUrl.trim(),
+                    title: v.title?.trim() || null,
+                    thumbnailUrl: v.thumbnailUrl?.trim() || null,
+                    durationSeconds:
+                        v.durationSeconds === '' || v.durationSeconds == null
+                            ? null
+                            : Number(v.durationSeconds),
+                }));
+
             const payload = {
                 title: formData.title.trim(),
                 slug: formData.slug.trim() || null,
@@ -75,7 +93,9 @@ const CreateTourModal = ({ isOpen, onClose, onCreated }) => {
                 durationNights:
                     formData.durationNights === '' ? null : Number(formData.durationNights),
                 categoryId: formData.categoryId || null,
-                thumbnailUrl: formData.thumbnailUrl.trim() || null,
+                thumbnailUrl: imageUrls[0] || formData.thumbnailUrl.trim() || null,
+                imageUrls: imageUrls.length ? imageUrls : null,
+                videos: videos.length ? videos : null,
                 marketSegment: formData.marketSegment || null,
                 destinationCity: formData.destinationCity.trim() || null,
             };
@@ -269,13 +289,22 @@ const CreateTourModal = ({ isOpen, onClose, onCreated }) => {
                         </div>
 
                         <div className={styles.formGroup}>
-                            <AdminImageField
-                                label="Hình ảnh thu nhỏ"
-                                value={formData.thumbnailUrl}
-                                onChange={(v) =>
-                                    setFormData((prev) => ({ ...prev, thumbnailUrl: v }))
+                            <AdminImageListField
+                                label="Ảnh tour (gallery)"
+                                urls={formData.imageUrls}
+                                onChange={(urls) =>
+                                    setFormData((prev) => ({ ...prev, imageUrls: urls }))
                                 }
-                                placeholder="https://... hoặc tải ảnh lên"
+                            />
+                        </div>
+
+                        <div className={styles.formGroup}>
+                            <AdminVideoListField
+                                label="Video giới thiệu"
+                                videos={formData.videos}
+                                onChange={(videos) =>
+                                    setFormData((prev) => ({ ...prev, videos }))
+                                }
                             />
                         </div>
 

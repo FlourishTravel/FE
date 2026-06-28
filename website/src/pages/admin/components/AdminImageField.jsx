@@ -18,6 +18,7 @@ const AdminImageField = ({
     onChange,
     placeholder = 'https://... hoặc tải ảnh lên',
     accept = 'image/*',
+    uploadLabel = 'Tải ảnh',
 }) => {
     const inputRef = useRef(null);
     const [uploading, setUploading] = useState(false);
@@ -70,7 +71,7 @@ const AdminImageField = ({
                     <span className="material-icons-round" style={{ fontSize: '18px' }}>
                         {uploading ? 'hourglass_top' : 'cloud_upload'}
                     </span>
-                    {uploading ? 'Đang tải...' : 'Tải ảnh'}
+                    {uploading ? 'Đang tải...' : uploadLabel}
                 </button>
             </div>
             <span className={styles.hint}>Upload lưu URL vào DB (S3 hoặc /uploads). Có thể chỉnh URL sau.</span>
