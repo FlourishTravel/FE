@@ -111,6 +111,47 @@ const fmtCoord = (v) => {
     return n.toFixed(7).replace(/\.?0+$/, '');
 };
 
+const parseCoord = (v) => {
+    if (v === '' || v == null) return null;
+    const n = Number(v);
+    return Number.isFinite(n) ? n : null;
+};
+
+const validateDaysBeforeSave = (days) => {
+    for (const [idx, d] of days.entries()) {
+        const dayLabel = d.title?.trim() || `Ngày ${d.dayNumber ?? idx + 1}`;
+        if ((d.coverImageUrl?.trim() || '').length > 2000) {
+            return `${dayLabel}: URL ảnh cover quá dài (tối đa 2000 ký tự).`;
+        }
+        for (const p of d.places || []) {
+            if (!p.locationName?.trim()) continue;
+            const lat = parseCoord(p.latitude);
+            const lng = parseCoord(p.longitude);
+            if ((lat != null) !== (lng != null)) {
+                return `Địa điểm "${p.locationName.trim()}": nhập cả Vĩ độ và Kinh độ, hoặc để trống cả hai.`;
+            }
+        }
+        for (const a of d.activities || []) {
+            const label = a.title?.trim() || 'Hoạt động';
+            if ((a.imageUrl?.trim() || '').length > 2000) {
+                return `${label}: URL ảnh hoạt động quá dài (tối đa 2000 ký tự).`;
+            }
+            if ((a.locationAddress?.trim() || '').length > 2000) {
+                return `${label}: Địa chỉ quá dài (tối đa 2000 ký tự).`;
+            }
+            const lat = parseCoord(a.latitude);
+            const lng = parseCoord(a.longitude);
+            if ((lat != null) !== (lng != null)) {
+                return `${label}: nhập cả Vĩ độ và Kinh độ, hoặc để trống cả hai.`;
+            }
+            if (a.startTime && a.endTime && a.endTime <= a.startTime) {
+                return `${label}: giờ kết thúc phải sau giờ bắt đầu.`;
+            }
+        }
+    }
+    return null;
+};
+
 const newPlace = (visitOrder = 0) => ({
     _key: tempId(),
     locationName: '',
@@ -139,8 +180,8 @@ const buildPlacesPayload = (days) =>
                 dayNumber,
                 visitOrder: pidx,
                 locationName: p.locationName?.trim() || null,
-                latitude: p.latitude === '' || p.latitude == null ? null : Number(p.latitude),
-                longitude: p.longitude === '' || p.longitude == null ? null : Number(p.longitude),
+                latitude: parseCoord(p.latitude),
+                longitude: parseCoord(p.longitude),
             }))
             .filter((p) => p.locationName);
     });
@@ -189,8 +230,8 @@ const fromServer = (serverList, tourLocations = []) =>
             description: a.description ?? '',
             activityType: a.activityType ?? '',
             locationName: a.locationName ?? '',
-            latitude: a.latitude ?? '',
-            longitude: a.longitude ?? '',
+            latitude: fmtCoord(a.latitude),
+            longitude: fmtCoord(a.longitude),
             imageUrl: a.imageUrl ?? '',
             costEstimate: a.costEstimate ?? '',
             costIncluded: a.costIncluded ?? true,
@@ -223,8 +264,8 @@ const toServer = (days) =>
             description: a.description?.trim() || null,
             activityType: a.activityType || null,
             locationName: a.locationName?.trim() || null,
-            latitude: a.latitude === '' || a.latitude === null ? null : Number(a.latitude),
-            longitude: a.longitude === '' || a.longitude === null ? null : Number(a.longitude),
+            latitude: parseCoord(a.latitude),
+            longitude: parseCoord(a.longitude),
             imageUrl: a.imageUrl?.trim() || null,
             costEstimate:
                 a.costEstimate === '' || a.costEstimate === null ? null : Number(a.costEstimate),
@@ -465,8 +506,8 @@ const TourItineraryBuilder = () => {
                 return;
             }
             updateActivity(dayKey, actKey, {
-                latitude: String(hit.latitude),
-                longitude: String(hit.longitude),
+                latitude: fmtCoord(hit.latitude),
+                longitude: fmtCoord(hit.longitude),
             });
             setGeoLookup({
                 actKey,
@@ -557,6 +598,11 @@ const TourItineraryBuilder = () => {
 
     const handleSave = async () => {
         if (!tourId) return;
+        const validationError = validateDaysBeforeSave(days);
+        if (validationError) {
+            setErrorMsg(validationError);
+            return;
+        }
         setSaving(true);
         setErrorMsg('');
         try {
@@ -579,7 +625,13 @@ const TourItineraryBuilder = () => {
             setDirty(false);
             setSuccessMsg('Đã lưu lịch trình và địa điểm');
         } catch (err) {
-            setErrorMsg(err?.message || 'Không lưu được lịch trình');
+            const fieldErrors = err?.payload?.data;
+            if (fieldErrors && typeof fieldErrors === 'object') {
+                const first = Object.values(fieldErrors)[0];
+                setErrorMsg(first || err?.message || 'Không lưu được lịch trình');
+            } else {
+                setErrorMsg(err?.message || 'Không lưu được lịch trình');
+            }
         } finally {
             setSaving(false);
         }
