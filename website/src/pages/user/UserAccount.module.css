@@ -1,0 +1,72 @@
+@import "tailwindcss";
+@reference "../../index.css";
+
+.page {
+    @apply min-h-screen bg-gray-50;
+    padding-top: 88px;
+    padding-bottom: 48px;
+}
+
+.container {
+    @apply container-custom px-4 sm:px-6 max-w-4xl mx-auto;
+}
+
+.header {
+    @apply mb-8;
+}
+
+.title {
+    @apply text-2xl md:text-3xl font-serif font-bold text-gray-900 mb-2;
+}
+
+.subtitle {
+    @apply text-gray-600;
+}
+
+.state {
+    @apply text-center text-gray-500 py-12;
+}
+
+.stateError {
+    @apply text-red-600;
+}
+
+.card {
+    @apply bg-white rounded-xl border border-gray-100 shadow-sm p-5 mb-4;
+}
+
+.cardTitle {
+    @apply font-semibold text-gray-900 mb-1;
+}
+
+.cardMeta {
+    @apply text-sm text-gray-500 flex flex-wrap gap-3;
+}
+
+.badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700;
+}
+
+.badgeMuted {
+    @apply bg-gray-100 text-gray-600;
+}
+
+.amount {
+    @apply text-lg font-bold text-emerald-700;
+}
+
+.empty {
+    @apply text-center py-16 text-gray-500;
+}
+
+.linkBtn {
+    @apply inline-flex items-center gap-1 text-emerald-700 font-medium hover:underline mt-3;
+}
+
+.stars {
+    @apply text-amber-500 text-sm;
+}
+
+.codeBox {
+    @apply font-mono text-sm bg-gray-50 border border-dashed border-gray-300 rounded-lg px-3 py-2 inline-block;
+}

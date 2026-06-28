@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { MessageCircle, X, Send, Bot } from 'lucide-react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { MessageCircle, X, Send, Bot, Sparkles } from 'lucide-react';
 import { sendChatbotMessage } from '../api/chatbot';
 import { useAuth } from '../context/AuthContext';
+import { FLORA_OPEN_EVENT, FLORA_QUICK_ACTIONS } from '../config/navConfig';
 import styles from './FloatingChatbot.module.css';
 
 const WELCOME_MSG = {
@@ -17,8 +18,10 @@ function formatPrice(n) {
 
 const FloatingChatbot = ({ bookingId: bookingIdProp, pageSource = 'flora' }) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const { bookingId: routeBookingId } = useParams();
   const bookingId = bookingIdProp || routeBookingId || undefined;
+  const [menuOpen, setMenuOpen] = useState(false);
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([WELCOME_MSG]);
   const [input, setInput] = useState('');
@@ -30,6 +33,19 @@ const FloatingChatbot = ({ bookingId: bookingIdProp, pageSource = 'flora' }) => 
 
   const scrollToBottom = () => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   useEffect(() => { scrollToBottom(); }, [messages]);
+
+  useEffect(() => {
+    const onOpenFlora = (e) => {
+      const prompt = e.detail?.prompt;
+      setMenuOpen(false);
+      setOpen(true);
+      if (prompt) {
+        window.setTimeout(() => handleSend(prompt), 100);
+      }
+    };
+    window.addEventListener(FLORA_OPEN_EVENT, onOpenFlora);
+    return () => window.removeEventListener(FLORA_OPEN_EVENT, onOpenFlora);
+  }, []);
 
   const handleSend = async (textToSend = null) => {
     const content = (textToSend ?? input).trim();
@@ -92,17 +108,67 @@ const FloatingChatbot = ({ bookingId: bookingIdProp, pageSource = 'flora' }) => 
     handleSend(payload);
   };
 
+  const handleQuickAction = (action) => {
+    setMenuOpen(false);
+    if (action.href) {
+      navigate(action.href);
+      return;
+    }
+    setOpen(true);
+    if (action.prompt) {
+      window.setTimeout(() => handleSend(action.prompt), 100);
+    }
+  };
+
   return (
     <>
       <button
         type="button"
         className={styles.fab}
-        onClick={() => setOpen(true)}
-        aria-label="Mở AI Chatbot"
+        onClick={() => setMenuOpen((v) => !v)}
+        aria-label="Mở Flora AI"
+        aria-expanded={menuOpen}
       >
         <MessageCircle className={styles.fabIcon} />
-        <span className={styles.fabLabel}>AI Gợi ý tour</span>
+        <span className={styles.fabLabel}>Flora AI</span>
       </button>
+
+      {menuOpen && !open && (
+        <>
+          <button
+            type="button"
+            className={styles.menuBackdrop}
+            aria-label="Đóng menu Flora"
+            onClick={() => setMenuOpen(false)}
+          />
+          <div className={styles.quickMenu}>
+            <div className={styles.quickMenuHeader}>
+              <Sparkles className={styles.quickMenuIcon} />
+              <span>Flora AI</span>
+            </div>
+            {FLORA_QUICK_ACTIONS.map((action) => (
+              <button
+                key={action.id}
+                type="button"
+                className={styles.quickMenuItem}
+                onClick={() => handleQuickAction(action)}
+              >
+                {action.label}
+              </button>
+            ))}
+            <button
+              type="button"
+              className={styles.quickMenuChat}
+              onClick={() => {
+                setMenuOpen(false);
+                setOpen(true);
+              }}
+            >
+              Mở chat đầy đủ
+            </button>
+          </div>
+        </>
+      )}
 
       {open && (
         <div className={styles.panel}>

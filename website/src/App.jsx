@@ -39,6 +39,12 @@ import CancellationPolicy from './pages/user/CancellationPolicy';
 import Notifications from './pages/user/Notifications';
 import Activities from './pages/user/Activities';
 import ContentDetail from './pages/user/ContentDetail';
+import MyWallet from './pages/user/MyWallet';
+import MyVouchers from './pages/user/MyVouchers';
+import MyReviews from './pages/user/MyReviews';
+import MyPoints from './pages/user/MyPoints';
+import DestinationDetail from './pages/user/DestinationDetail';
+import TicketDetail from './pages/user/TicketDetail';
 import { useAuth } from './context/AuthContext';
 
 // Admin imports
@@ -61,6 +67,7 @@ import ReviewModeration from './pages/admin/pages/ReviewModeration';
 import ContentManagement from './pages/admin/pages/ContentManagement';
 import AdminSettings from './pages/admin/pages/AdminSettings';
 import GuideExpenseManagement from './pages/admin/pages/GuideExpenseManagement';
+import DestinationManagement from './pages/admin/pages/DestinationManagement';
 
 // Guide imports
 import GuideLayout from './pages/guide/GuideLayout';
@@ -109,14 +116,20 @@ function App() {
         <Route path="/register" element={<><Navbar /><Register /></>} />
         <Route path="/profile" element={<><Navbar /><Profile /><Footer /></>} />
         <Route path="/my-journey" element={<><Navbar /><MyJourney /><Footer /></>} />
+        <Route path="/my-wallet" element={user ? <><Navbar /><MyWallet /><Footer /></> : <Navigate to="/login" replace />} />
+        <Route path="/my-vouchers" element={<><Navbar /><MyVouchers /><Footer /></>} />
+        <Route path="/my-reviews" element={user ? <><Navbar /><MyReviews /><Footer /></> : <Navigate to="/login" replace />} />
+        <Route path="/my-points" element={user ? <><Navbar /><MyPoints /><Footer /></> : <Navigate to="/login" replace />} />
         <Route path="/my-journey/booking/:bookingId" element={<><Navbar /><BookingDetail /><Footer /></>} />
         <Route path="/destinations" element={<><Navbar /><Destinations /><Footer /></>} />
+        <Route path="/destinations/:slug" element={<><Navbar /><DestinationDetail /><Footer /></>} />
         <Route path="/travel-guide" element={<><Navbar /><Guide /><Footer /></>} />
         <Route path="/our-guides" element={<><Navbar /><OurGuides /><Footer /></>} />
         <Route path="/our-guides/:id" element={<><Navbar /><GuideDetail /><Footer /></>} />
         <Route path="/notifications" element={user ? <><Navbar /><Notifications /><Footer /></> : <Navigate to="/login" replace />} />
         <Route path="/tours" element={<><Navbar /><TourListing /><Footer /></>} />
         <Route path="/activities" element={<><Navbar /><Activities /><Footer /></>} />
+        <Route path="/activities/:slug" element={<><Navbar /><TicketDetail /><Footer /></>} />
         <Route path="/tours/:id" element={<><Navbar /><TourDetail /><Footer /></>} />
         <Route path="/checkout/result" element={<><Navbar /><CheckoutPaymentResult /><Footer /></>} />
         <Route path="/checkout/:tourId" element={<><Navbar /><Checkout /><Footer /></>} />
@@ -140,6 +153,7 @@ function App() {
           <Route path="promotions" element={<PromotionManagement />} />
           <Route path="contact-requests" element={<ContactRequestManagement />} />
           <Route path="catalog-tickets" element={<CatalogTicketManagement />} />
+          <Route path="destinations" element={<DestinationManagement />} />
           <Route path="notifications" element={<NotificationBroadcast />} />
           <Route path="reviews" element={<ReviewModeration />} />
           <Route path="content" element={<ContentManagement />} />

@@ -1,0 +1,160 @@
+@import "tailwindcss";
+@reference "../../index.css";
+
+.dropdownWrap {
+    @apply relative;
+}
+
+.dropdownTrigger {
+    @apply text-gray-700 hover:text-primary-600 font-medium transition-colors flex items-center gap-1 pb-1 border-b-2 border-transparent text-xs xl:text-sm bg-transparent border-0 cursor-pointer;
+    white-space: nowrap;
+}
+
+.dropdownTriggerActive {
+    @apply text-primary-600 border-primary-600;
+}
+
+.chevron {
+    @apply w-3.5 h-3.5 opacity-70 transition-transform;
+}
+
+.chevronOpen {
+    @apply rotate-180;
+}
+
+.dropdownPanel {
+    @apply absolute top-full left-1/2 -translate-x-1/2 mt-2 min-w-[220px] bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-[60];
+    animation: dropIn 0.15s ease-out;
+}
+
+.dropdownPanelRight {
+    @apply left-auto right-0 translate-x-0;
+}
+
+.dropdownItem {
+    @apply flex flex-col gap-0.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-700 no-underline transition-colors;
+}
+
+.dropdownItemTitle {
+    @apply font-medium;
+}
+
+.dropdownItemDesc {
+    @apply text-xs text-gray-500;
+}
+
+.dropdownDivider {
+    @apply my-1 border-t border-gray-100;
+}
+
+.dropdownFooter {
+    @apply px-4 py-2 border-t border-gray-100 mt-1;
+}
+
+.dropdownFooterLink {
+    @apply text-sm font-semibold text-primary-600 hover:text-primary-700 no-underline;
+}
+
+@keyframes dropIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -4px);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+
+/* Profile / notification panels */
+.iconDropdownPanel {
+    @apply absolute top-full right-0 mt-2 w-[320px] max-w-[calc(100vw-24px)] bg-white rounded-xl shadow-lg border border-gray-100 z-[60] overflow-hidden;
+    animation: dropInRight 0.15s ease-out;
+}
+
+@keyframes dropInRight {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.panelHeader {
+    @apply flex items-center justify-between px-4 py-3 border-b border-gray-100;
+}
+
+.panelTitle {
+    @apply text-sm font-semibold text-gray-900;
+}
+
+.panelAction {
+    @apply text-xs font-medium text-primary-600 hover:text-primary-700 bg-transparent border-0 cursor-pointer;
+}
+
+.notifList {
+    @apply max-h-[320px] overflow-y-auto;
+}
+
+.notifItem {
+    @apply flex gap-3 px-4 py-3 border-b border-gray-50 hover:bg-gray-50 transition-colors cursor-pointer text-left w-full bg-transparent border-x-0 border-t-0;
+}
+
+.notifItemUnread {
+    @apply bg-primary-50/40;
+}
+
+.notifDot {
+    @apply w-2 h-2 rounded-full bg-primary-500 flex-shrink-0 mt-2;
+}
+
+.notifDotRead {
+    @apply bg-transparent;
+}
+
+.notifBody {
+    @apply flex-1 min-w-0;
+}
+
+.notifTitle {
+    @apply text-sm font-medium text-gray-900 truncate;
+}
+
+.notifMessage {
+    @apply text-xs text-gray-500 line-clamp-2 mt-0.5;
+}
+
+.notifTime {
+    @apply text-[10px] text-gray-400 mt-1;
+}
+
+.emptyNotif {
+    @apply px-4 py-8 text-center text-sm text-gray-500;
+}
+
+.profileItem {
+    @apply flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-700 no-underline transition-colors w-full text-left bg-transparent border-0 cursor-pointer;
+}
+
+.profileItemDanger {
+    @apply text-red-600 hover:bg-red-50 hover:text-red-700;
+}
+
+.profileIcon {
+    @apply text-gray-400 text-[20px];
+}
+
+.profileUserHeader {
+    @apply px-4 py-3 border-b border-gray-100;
+}
+
+.profileUserName {
+    @apply text-sm font-semibold text-gray-900 truncate;
+}
+
+.profileUserEmail {
+    @apply text-xs text-gray-500 truncate;
+}

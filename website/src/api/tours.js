@@ -161,6 +161,7 @@ export async function listPublicTours(params = {}) {
   if (params.minPrice != null && params.minPrice !== '') search.set('minPrice', String(params.minPrice));
   if (params.maxPrice != null && params.maxPrice !== '') search.set('maxPrice', String(params.maxPrice));
   if (params.categoryId) search.set('categoryId', params.categoryId);
+  if (params.segment) search.set('segment', params.segment);
   if (params.startDate) search.set('startDate', params.startDate);
   if (params.page != null) search.set('page', String(params.page));
   if (params.size != null) search.set('size', String(params.size));

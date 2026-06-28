@@ -99,7 +99,7 @@ const Destinations = () => {
                 country: item.country || item.region || 'Flourish',
                 duration: formatDestinationDuration(item),
                 description: item.description || 'Khám phá hành trình độc đáo cùng Flourish.',
-                image: resolveMediaUrl(item.thumbnailUrl || item.imageUrl) || FALLBACK_DESTINATIONS[0].image,
+                image: resolveMediaUrl(item.heroImageUrl || item.thumbnailUrl || item.imageUrl) || FALLBACK_DESTINATIONS[0].image,
                 slug: item.slug || '',
             }));
         }
@@ -120,7 +120,7 @@ const Destinations = () => {
                     {viewData.map((dest) => (
                         <Link
                             key={dest.id}
-                            to={`/tours?destination=${encodeURIComponent(dest.slug || dest.title)}`}
+                            to={dest.slug ? `/destinations/${encodeURIComponent(dest.slug)}` : `/tours?destination=${encodeURIComponent(dest.title)}`}
                             className={styles.cardLink}
                         >
                             <div className={styles.card}>

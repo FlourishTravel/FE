@@ -45,6 +45,18 @@
     border-radius: 999px;
 }
 
+.statusFilters {
+    @apply flex flex-wrap gap-2 mb-6;
+}
+
+.filterChip {
+    @apply px-4 py-2 rounded-full text-sm font-medium border border-gray-200 bg-white text-gray-600 hover:border-primary-300 hover:text-primary-600 transition-colors cursor-pointer;
+}
+
+.filterChipActive {
+    @apply bg-primary-500 text-white border-primary-500 hover:text-white hover:border-primary-500 shadow-sm;
+}
+
 /* ===== BOOKING CARDS ===== */
 .bookingList {
     display: flex;

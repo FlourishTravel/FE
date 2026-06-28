@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import styles from './Footer.module.css';
 import logo from '../assets/flourish_touris.png';
 import { subscribeNewsletter } from '../api/contact';
+import { EXPLORE_MENU, TOUR_MENU, EXPERIENCE_MENU } from '../config/navConfig';
 
 const Footer = () => {
     const [email, setEmail] = useState('');
@@ -73,20 +74,40 @@ const Footer = () => {
 
                 {/* Footer Links Grid */}
                 <div className={styles.footerGrid}>
-                    {/* Column 1: Các mục trong header */}
                     <div className={styles.footerColumn}>
-                        <h3 className={styles.footerTitle} style={{ color: '#0099ff', letterSpacing: '2px' }}>TRẢI NGHIỆM</h3>
+                        <h3 className={styles.footerTitle} style={{ color: '#0099ff', letterSpacing: '2px' }}>KHÁM PHÁ</h3>
                         <ul className={styles.footerList}>
-                            <li><Link to="/my-journey" onClick={scrollToTop} className={styles.footerLink}>Chuyến đi của tôi</Link></li>
-                            <li><Link to="/destinations" onClick={scrollToTop} className={styles.footerLink}>Điểm đến</Link></li>
-                            <li><Link to="/travel-guide" onClick={scrollToTop} className={styles.footerLink}>Cẩm nang</Link></li>
-                            <li><Link to="/tours" onClick={scrollToTop} className={styles.footerLink}>Tour trải nghiệm</Link></li>
-                            <li><Link to="/activities" onClick={scrollToTop} className={styles.footerLink}>Vé & hoạt động</Link></li>
-                            <li><Link to="/our-guides" onClick={scrollToTop} className={styles.footerLink}>Đội ngũ HDV</Link></li>
+                            {EXPLORE_MENU.map((item) => (
+                                <li key={item.href}>
+                                    <Link to={item.href} onClick={scrollToTop} className={styles.footerLink}>{item.label}</Link>
+                                </li>
+                            ))}
                         </ul>
                     </div>
 
-                    {/* Column 2: GET STARTED */}
+                    <div className={styles.footerColumn}>
+                        <h3 className={styles.footerTitle} style={{ color: '#0099ff', letterSpacing: '2px' }}>TOUR</h3>
+                        <ul className={styles.footerList}>
+                            {TOUR_MENU.map((item) => (
+                                <li key={item.href}>
+                                    <Link to={item.href} onClick={scrollToTop} className={styles.footerLink}>{item.label}</Link>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+
+                    <div className={styles.footerColumn}>
+                        <h3 className={styles.footerTitle} style={{ color: '#0099ff', letterSpacing: '2px' }}>TRẢI NGHIỆM</h3>
+                        <ul className={styles.footerList}>
+                            {EXPERIENCE_MENU.map((item) => (
+                                <li key={item.href}>
+                                    <Link to={item.href} onClick={scrollToTop} className={styles.footerLink}>{item.label}</Link>
+                                </li>
+                            ))}
+                            <li><Link to="/my-journey" onClick={scrollToTop} className={styles.footerLink}>Chuyến đi của tôi</Link></li>
+                        </ul>
+                    </div>
+
                     <div className={styles.footerColumn}>
                         <h3 className={styles.footerTitle} style={{ color: '#0099ff', letterSpacing: '2px' }}>GET STARTED</h3>
                         <ul className={styles.footerList}>
@@ -95,32 +116,22 @@ const Footer = () => {
                         </ul>
                     </div>
 
-                    {/* Column 3: ABOUT */}
                     <div className={styles.footerColumn}>
                         <h3 className={styles.footerTitle} style={{ color: '#0099ff', letterSpacing: '2px' }}>ABOUT</h3>
                         <ul className={styles.footerList}>
                             <li><Link to="/about" onClick={scrollToTop} className={styles.footerLink}>About us</Link></li>
+                            <li><Link to="/our-guides" onClick={scrollToTop} className={styles.footerLink}>Đội ngũ HDV</Link></li>
                             <li><Link to="/careers" onClick={scrollToTop} className={styles.footerLink}>Careers</Link></li>
                             <li><Link to="/news" onClick={scrollToTop} className={styles.footerLink}>News & press</Link></li>
                             <li><Link to="/stories" onClick={scrollToTop} className={styles.footerLink}>Stories</Link></li>
                         </ul>
                     </div>
 
-                    {/* Column 4: HELP & SUPPORT */}
                     <div className={styles.footerColumn}>
                         <h3 className={styles.footerTitle} style={{ color: '#0099ff', letterSpacing: '2px' }}>HỖ TRỢ</h3>
                         <ul className={styles.footerList}>
                             <li><Link to="/help" onClick={scrollToTop} className={styles.footerLink}>Trung tâm trợ giúp</Link></li>
                             <li><Link to="/company-details" onClick={scrollToTop} className={styles.footerLink}>Liên hệ</Link></li>
-                        </ul>
-                    </div>
-
-                    {/* Column 5: PARTNERS */}
-                    <div className={styles.footerColumn}>
-                        <h3 className={styles.footerTitle} style={{ color: '#0099ff', letterSpacing: '2px' }}>PARTNERS</h3>
-                        <ul className={styles.footerList}>
-                            <li><span className={styles.footerLink}>Mixpanel</span></li>
-                            <li><span className={styles.footerLink}>Location IQ</span></li>
                         </ul>
                     </div>
                 </div>

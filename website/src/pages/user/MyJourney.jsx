@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
     MapPin, Calendar, Users, CheckCircle, Eye,
@@ -9,6 +9,7 @@ import styles from './MyJourney.module.css';
 import { listMyBookings } from '../../api/bookings';
 import { getAccessToken } from '../../api/auth';
 import { resolveMediaUrl } from '../../api/config';
+import { TRIP_STATUS_FILTERS, getTripFilterPhase } from '../../config/navConfig';
 
 function formatInstantVi(iso) {
     if (!iso) return '';
@@ -72,6 +73,12 @@ const MyJourney = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [needLogin, setNeedLogin] = useState(false);
+    const [statusFilter, setStatusFilter] = useState('all');
+
+    const filteredBookings = useMemo(() => {
+        if (statusFilter === 'all') return bookings;
+        return bookings.filter((b) => getTripFilterPhase(b) === statusFilter);
+    }, [bookings, statusFilter]);
 
     const load = useCallback(async () => {
         const token = getAccessToken();
@@ -135,10 +142,27 @@ const MyJourney = () => {
                     </div>
                     {!loading && bookings.length > 0 && (
                         <span className={styles.bookingCount}>
-                            {bookings.length} đặt chỗ
+                            {filteredBookings.length} / {bookings.length} đặt chỗ
                         </span>
                     )}
                 </div>
+
+                {!loading && !needLogin && !error && bookings.length > 0 && (
+                    <div className={styles.statusFilters}>
+                        {TRIP_STATUS_FILTERS.map((f) => (
+                            <button
+                                key={f.id}
+                                type="button"
+                                className={`${styles.filterChip} ${
+                                    statusFilter === f.id ? styles.filterChipActive : ''
+                                }`}
+                                onClick={() => setStatusFilter(f.id)}
+                            >
+                                {f.label}
+                            </button>
+                        ))}
+                    </div>
+                )}
 
                 {loading ? (
                     <div className={styles.emptyState} style={{ padding: 48 }}>
@@ -170,8 +194,9 @@ const MyJourney = () => {
                         </button>
                     </div>
                 ) : bookings.length > 0 ? (
+                    filteredBookings.length > 0 ? (
                     <div className={styles.bookingList}>
-                        {bookings.map((booking, idx) => {
+                        {filteredBookings.map((booking, idx) => {
                             const st = statusUi(booking);
                             const duration = formatTourDuration(booking.tourDurationDays, booking.tourDurationNights);
                             return (
@@ -283,6 +308,22 @@ const MyJourney = () => {
                             );
                         })}
                     </div>
+                    ) : (
+                    <div className={styles.emptyState}>
+                        <p className={styles.emptyText}>
+                            Không có chuyến đi nào trong trạng thái &quot;
+                            {TRIP_STATUS_FILTERS.find((f) => f.id === statusFilter)?.label}
+                            &quot;.
+                        </p>
+                        <button
+                            type="button"
+                            className={styles.emptyBtn}
+                            onClick={() => setStatusFilter('all')}
+                        >
+                            Xem tất cả
+                        </button>
+                    </div>
+                    )
                 ) : (
                     <div className={styles.emptyState}>
                         <div className={styles.emptyIconCircle}>

@@ -15,7 +15,17 @@ const EMPTY_FORM = {
     categoryId: '',
     thumbnailUrl: '',
     departureDate: '',
+    marketSegment: '',
+    destinationCity: '',
 };
+
+const MARKET_SEGMENTS = [
+    { value: '', label: '— Không gắn —' },
+    { value: 'domestic', label: 'Trong nước' },
+    { value: 'international', label: 'Quốc tế' },
+    { value: 'school', label: 'Trường học' },
+    { value: 'corporate', label: 'Doanh nghiệp' },
+];
 
 const CreateTourModal = ({ isOpen, onClose, onCreated }) => {
     const navigate = useNavigate();
@@ -65,6 +75,8 @@ const CreateTourModal = ({ isOpen, onClose, onCreated }) => {
                     formData.durationNights === '' ? null : Number(formData.durationNights),
                 categoryId: formData.categoryId || null,
                 thumbnailUrl: formData.thumbnailUrl.trim() || null,
+                marketSegment: formData.marketSegment || null,
+                destinationCity: formData.destinationCity.trim() || null,
             };
             const created = await createTour(payload);
 
@@ -154,6 +166,34 @@ const CreateTourModal = ({ isOpen, onClose, onCreated }) => {
                                         </option>
                                     ))}
                                 </select>
+                            </div>
+                        </div>
+
+                        <div className={styles.formRow}>
+                            <div className={styles.formGroup}>
+                                <label htmlFor="tour-segment">Phân khúc</label>
+                                <select
+                                    id="tour-segment"
+                                    name="marketSegment"
+                                    value={formData.marketSegment}
+                                    onChange={handleChange}
+                                >
+                                    {MARKET_SEGMENTS.map((s) => (
+                                        <option key={s.value || 'none'} value={s.value}>{s.label}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className={styles.formGroup}>
+                                <label htmlFor="tour-dest-city">Thành phố đích</label>
+                                <input
+                                    type="text"
+                                    id="tour-dest-city"
+                                    name="destinationCity"
+                                    placeholder="VD: Bangkok, Đà Nẵng"
+                                    value={formData.destinationCity}
+                                    onChange={handleChange}
+                                    maxLength={80}
+                                />
                             </div>
                         </div>
 

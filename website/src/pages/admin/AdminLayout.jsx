@@ -8,6 +8,7 @@ const NAV_ITEMS = [
     { path: '/admin', icon: 'dashboard', label: 'Dashboard', end: true },
     { path: '/admin/tours', icon: 'explore', label: 'Quản Lý Tour' },
     { path: '/admin/categories', icon: 'category', label: 'Danh Mục' },
+    { path: '/admin/destinations', icon: 'place', label: 'Điểm Đến' },
     { path: '/admin/promotions', icon: 'sell', label: 'Khuyến Mãi' },
     { path: '/admin/contact-requests', icon: 'contact_mail', label: 'Liên Hệ' },
     { path: '/admin/catalog-tickets', icon: 'confirmation_number', label: 'Danh Mục Vé' },

@@ -2,25 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import styles from './Notifications.module.css';
 import { getNotifications, markAllNotificationsRead, markNotificationRead } from '../../api/flora';
 import { notifyNotificationsChanged } from '../../hooks/useNotificationUnreadCount';
-
-function normalizeNotifications(payload) {
-    const rows = Array.isArray(payload)
-        ? payload
-        : Array.isArray(payload?.data?.content)
-                ? payload.data.content
-                : Array.isArray(payload?.data)
-            ? payload.data
-            : Array.isArray(payload?.content)
-                ? payload.content
-                : [];
-    return rows.map((item, index) => ({
-        id: item.id || `notification-${index}`,
-        title: item.title || 'Thông báo',
-        message: item.message || item.body || '',
-        read: Boolean(item.read || item.isRead),
-        createdAt: item.createdAt || item.created_at || '',
-    }));
-}
+import { normalizeNotifications } from '../../utils/notificationUtils';
 
 const Notifications = () => {
     const [notifications, setNotifications] = useState([]);

@@ -92,6 +92,24 @@ function refundStatusLabel(s) {
     return s || '—';
 }
 
+function todayIsoLocal() {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+}
+
+function canRequestRefund(row) {
+    if (row?.refundEligible === false) return false;
+    if (row?.refundEligible === true) return true;
+    const st = (row?.bookingStatus || '').toLowerCase();
+    if (st !== 'paid' || row?.refundPending) return false;
+    const start = row?.sessionStartDate;
+    if (!start) return false;
+    return todayIsoLocal() < start;
+}
+
 function canOpenTourChat(row) {
     const st = (row?.bookingStatus || '').toLowerCase();
     return ['paid', 'confirmed', 'completed'].includes(st);
@@ -221,8 +239,7 @@ const BookingDetail = () => {
 
     const showPay = Boolean(detail.continuePaymentUrl);
     const canCancel = (detail.bookingStatus || '').toLowerCase() === 'pending';
-    const canRefund =
-        (detail.bookingStatus || '').toLowerCase() === 'paid' && !detail.refundPending;
+    const canRefund = canRequestRefund(detail);
 
     return (
         <div className={styles.page}>

@@ -80,6 +80,13 @@ function getTourCode(t) {
     return 'FL-TOUR-GEN';
 }
 
+const SEGMENT_TITLES = {
+    domestic: 'Tour trong nước',
+    international: 'Tour quốc tế',
+    school: 'Tour trường học',
+    corporate: 'Tour doanh nghiệp',
+};
+
 function getDeparturePoint(t) {
     if (t?.locations && t.locations[0]?.locationName) {
         return t.locations[0].locationName;
@@ -91,6 +98,8 @@ const TourListing = () => {
     const { user } = useAuth();
     const [searchParams] = useSearchParams();
     const destinationFromQuery = searchParams.get('destination') || '';
+    const segmentFromQuery = searchParams.get('segment') || '';
+    const wishlistOnly = searchParams.get('wishlist') === '1';
     const [destinationInput, setDestinationInput] = useState('');
     const [selectedCategoryId, setSelectedCategoryId] = useState(null);
     const [selectedBudget, setSelectedBudget] = useState('all');
@@ -155,6 +164,7 @@ const TourListing = () => {
                 const res = await listPublicTours({
                     destination: applied.destination || undefined,
                     categoryId: applied.categoryId || undefined,
+                    segment: segmentFromQuery || undefined,
                     minPrice,
                     maxPrice,
                     page: currentPage - 1,
@@ -175,10 +185,13 @@ const TourListing = () => {
         return () => {
             alive = false;
         };
-    }, [applied, currentPage]);
+    }, [applied, currentPage, segmentFromQuery]);
 
     const displayTours = useMemo(() => {
-        const arr = [...tours];
+        let arr = [...tours];
+        if (wishlistOnly) {
+            arr = arr.filter((t) => savedTours.includes(String(t.id)));
+        }
         if (sortBy === 'Giá: Thấp đến Cao') {
             arr.sort((a, b) => (Number(a.basePrice) || 0) - (Number(b.basePrice) || 0));
         } else if (sortBy === 'Giá: Cao đến Thấp') {
@@ -187,7 +200,7 @@ const TourListing = () => {
             arr.sort((a, b) => (a.durationDays || 0) - (b.durationDays || 0));
         }
         return arr;
-    }, [tours, sortBy]);
+    }, [tours, sortBy, wishlistOnly, savedTours]);
 
     const toggleSave = async (tourId) => {
         if (!user) {
@@ -242,6 +255,10 @@ const TourListing = () => {
                 return styles.tagGreen;
         }
     };
+
+    const pageTitle = wishlistOnly
+        ? 'Tour yêu thích'
+        : SEGMENT_TITLES[segmentFromQuery] || 'Khám Phá Trải Nghiệm Độc Đáo';
 
     return (
         <div className={styles.pageContainer}>
@@ -316,7 +333,7 @@ const TourListing = () => {
                 <main className={styles.mainContent}>
                     <div className={styles.mainHeader}>
                         <div>
-                            <h1 className={styles.mainTitle}>Khám Phá Trải Nghiệm Độc Đáo</h1>
+                            <h1 className={styles.mainTitle}>{pageTitle}</h1>
                             <p className={styles.mainSubtitle}>
                                 {loading
                                     ? 'Đang tải hành trình từ FlourishTravel...'

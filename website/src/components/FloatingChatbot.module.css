@@ -134,6 +134,30 @@
     @apply w-5 h-5;
 }
 
+.menuBackdrop {
+    @apply fixed inset-0 z-30 bg-transparent border-0 cursor-default;
+}
+
+.quickMenu {
+    @apply fixed bottom-20 right-6 z-40 w-[240px] max-w-[calc(100vw-32px)] bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden;
+}
+
+.quickMenuHeader {
+    @apply flex items-center gap-2 px-4 py-3 bg-primary-500 text-white text-sm font-semibold;
+}
+
+.quickMenuIcon {
+    @apply w-4 h-4;
+}
+
+.quickMenuItem {
+    @apply w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-700 border-0 border-b border-gray-50 bg-white cursor-pointer transition-colors;
+}
+
+.quickMenuChat {
+    @apply w-full text-center px-4 py-3 text-sm font-semibold text-primary-600 hover:bg-primary-50 border-0 bg-white cursor-pointer;
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 640px) {
     .fab {

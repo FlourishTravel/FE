@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { MapPin, Star, Ticket, Sparkles } from 'lucide-react';
 import { listCatalogTickets } from '../../api/catalog';
 import { resolveMediaUrl } from '../../api/config';
@@ -8,18 +8,33 @@ import styles from './Activities.module.css';
 const PLACEHOLDER =
   'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=800&q=80';
 
+const TYPE_TO_CATEGORY = {
+  ticket: 'attraction',
+  event: 'show',
+  combo: 'combo',
+};
+
 const CATEGORIES = [
   { key: '', label: 'Tất cả' },
   { key: 'attraction', label: 'Điểm tham quan' },
   { key: 'show', label: 'Show & vui chơi' },
   { key: 'transport', label: 'Di chuyển' },
+  { key: 'combo', label: 'Combo' },
 ];
 
 const Activities = () => {
-  const [category, setCategory] = useState('');
+  const [searchParams] = useSearchParams();
+  const typeFromQuery = searchParams.get('type') || '';
+  const initialCategory = TYPE_TO_CATEGORY[typeFromQuery] ?? '';
+  const [category, setCategory] = useState(initialCategory);
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    const mapped = TYPE_TO_CATEGORY[typeFromQuery] ?? '';
+    setCategory(mapped);
+  }, [typeFromQuery]);
 
   useEffect(() => {
     let alive = true;
@@ -71,7 +86,12 @@ const Activities = () => {
       {!loading && !error && (
         <div className={styles.grid}>
           {tickets.map((t) => (
-            <article key={t.id || t.slug} className={styles.card}>
+            <Link
+              key={t.id || t.slug}
+              to={t.slug ? `/activities/${encodeURIComponent(t.slug)}` : '/activities'}
+              className={styles.cardLink}
+            >
+            <article className={styles.card}>
               <div className={styles.imageWrap}>
                 <img
                   src={resolveMediaUrl(t.imageUrl) || PLACEHOLDER}
@@ -104,6 +124,7 @@ const Activities = () => {
                 </div>
               </div>
             </article>
+            </Link>
           ))}
         </div>
       )}

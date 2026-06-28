@@ -65,6 +65,12 @@
   gap: 1.25rem;
 }
 
+.cardLink {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
 .card {
   background: #fff;
   border-radius: 16px;

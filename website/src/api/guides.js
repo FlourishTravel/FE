@@ -21,7 +21,7 @@ function unwrapArray(payload) {
 }
 
 export async function listPublicGuides() {
-  const res = await fetch(`${API_BASE}/guides/public`, {
+  const res = await fetch(`${API_BASE}/guides`, {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
   });
@@ -31,7 +31,7 @@ export async function listPublicGuides() {
 
 export async function getPublicGuide(id) {
   const encoded = encodeURIComponent(id);
-  const res = await fetch(`${API_BASE}/guides/public/${encoded}`, {
+  const res = await fetch(`${API_BASE}/guides/${encoded}`, {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
   });

@@ -41,7 +41,7 @@
 }
 
 .navLink {
-    @apply text-gray-700 hover:text-primary-600 font-medium transition-colors flex items-center gap-1 no-underline pb-1 border-b-2 border-transparent text-xs xl:text-sm;
+    @apply text-gray-700 hover:text-primary-600 font-medium transition-colors flex items-center gap-1 no-underline pb-1 border-b-2 border-transparent text-xs xl:text-sm bg-transparent border-0 cursor-pointer;
     white-space: nowrap;
 }
 
@@ -169,4 +169,32 @@
 
 .mobileJoinBtn {
     @apply w-full bg-primary-500 text-white py-2.5 rounded-full font-medium shadow-md text-center no-underline;
+}
+
+.mobileSection {
+    @apply border-b border-gray-50;
+}
+
+.mobileSectionBtn {
+    @apply w-full flex items-center justify-between px-3 py-2.5 text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50 rounded-md bg-transparent border-0 cursor-pointer;
+}
+
+.mobileSectionBtnActive {
+    @apply text-primary-600 bg-primary-50;
+}
+
+.mobileChevron {
+    @apply w-4 h-4 transition-transform opacity-70;
+}
+
+.mobileChevronOpen {
+    @apply rotate-180;
+}
+
+.mobileSubmenu {
+    @apply pl-4 pb-2 flex flex-col gap-0.5;
+}
+
+.mobileSubLink {
+    @apply px-3 py-2 text-sm text-gray-600 hover:text-primary-600 hover:bg-gray-50 rounded-md no-underline;
 }
