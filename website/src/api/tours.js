@@ -21,7 +21,14 @@ async function parseJson(res) {
     json = null;
   }
   if (!res.ok) {
-    const message = (json && json.message) || `Yêu cầu thất bại (HTTP ${res.status})`;
+    let message = (json && json.message) || `Yêu cầu thất bại (HTTP ${res.status})`;
+    const fieldErrors = json && json.data && typeof json.data === 'object' ? json.data : null;
+    if (fieldErrors && !Array.isArray(fieldErrors)) {
+      const details = Object.entries(fieldErrors)
+        .map(([field, msg]) => `${field}: ${msg}`)
+        .join('; ');
+      if (details) message = `${message} (${details})`;
+    }
     const err = new Error(message);
     err.status = res.status;
     err.payload = json;
@@ -130,12 +137,16 @@ export async function deleteAdminSession(id) {
   await parseJson(res);
 }
 
-/** Cộng ngày theo lịch (YYYY-MM-DD), không bị lệch timezone. */
+/** Cộng ngày theo lịch (YYYY-MM-DD), không dùng UTC để tránh lùi 1 ngày (GMT+7). */
 export function addDaysIso(isoDate, daysToAdd) {
-  const d = new Date(`${isoDate}T00:00:00`);
-  if (Number.isNaN(d.getTime())) return isoDate;
-  d.setDate(d.getDate() + daysToAdd);
-  return d.toISOString().slice(0, 10);
+  const parts = String(isoDate || '').split('-').map(Number);
+  if (parts.length < 3 || parts.some((n) => Number.isNaN(n))) return isoDate;
+  const date = new Date(parts[0], parts[1] - 1, parts[2]);
+  date.setDate(date.getDate() + (Number(daysToAdd) || 0));
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
 }
 
 /**

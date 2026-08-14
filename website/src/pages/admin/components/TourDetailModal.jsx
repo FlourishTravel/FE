@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { resolveMediaUrl } from '../../../api/config';
-import { createAdminSession, deleteAdminSession, getAdminTourDetail, addDaysIso } from '../../../api/tours';
+import { createAdminSession, deleteAdminSession, getAdminTourDetail } from '../../../api/tours';
 import styles from './TourDetailModal.module.css';
 
 const STATUS_LABELS = {
@@ -137,14 +137,9 @@ const TourDetailModal = ({ isOpen, tourId, onClose, onEdit }) => {
         setSessionBusy(true);
         setSessionMsg('');
         try {
-            const tripDays = Number(detail.durationDays);
             await createAdminSession({
                 tourId: detail.id,
                 startDate: newStartDate,
-                endDate: addDaysIso(
-                    newStartDate,
-                    Number.isFinite(tripDays) && tripDays > 1 ? tripDays - 1 : 0
-                ),
                 maxParticipants: Number(newMaxPax) > 0 ? Number(newMaxPax) : 20,
             });
             setNewStartDate('');

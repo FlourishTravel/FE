@@ -8,7 +8,6 @@ import {
     getAdminTourDetail,
     createAdminSession,
     deleteAdminSession,
-    addDaysIso,
 } from '../../../api/tours';
 import { resolveActivityCoordinates } from '../../../api/geocode';
 import AdminImageField from '../components/AdminImageField';
@@ -376,14 +375,9 @@ const TourItineraryBuilder = () => {
         setSessionBusy(true);
         setErrorMsg('');
         try {
-            const tripDays = Number(tour.durationDays);
             await createAdminSession({
                 tourId: tour.id,
                 startDate: newStartDate,
-                endDate: addDaysIso(
-                    newStartDate,
-                    Number.isFinite(tripDays) && tripDays > 1 ? tripDays - 1 : 0
-                ),
                 maxParticipants: Number(newMaxPax) > 0 ? Number(newMaxPax) : 20,
             });
             setNewStartDate('');

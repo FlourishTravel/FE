@@ -39,13 +39,6 @@ const CreateTourModal = ({ isOpen, onClose, onCreated }) => {
     const [submitting, setSubmitting] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
 
-    const addDays = (isoDate, daysToAdd) => {
-        const d = new Date(`${isoDate}T00:00:00`);
-        if (Number.isNaN(d.getTime())) return isoDate;
-        d.setDate(d.getDate() + daysToAdd);
-        return d.toISOString().slice(0, 10);
-    };
-
     useEffect(() => {
         if (!isOpen) return;
         setFormData({ ...EMPTY_FORM, departures: [{ ...EMPTY_DEPARTURE }] });
@@ -106,13 +99,8 @@ const CreateTourModal = ({ isOpen, onClose, onCreated }) => {
                 startDates.add(row.startDate);
             }
 
-            const tripDays = Number(formData.durationDays);
             const sessions = departures.map((row) => ({
                 startDate: row.startDate,
-                endDate: addDays(
-                    row.startDate,
-                    Number.isFinite(tripDays) && tripDays > 1 ? tripDays - 1 : 0
-                ),
                 maxParticipants:
                     Number.isFinite(row.maxParticipants) && row.maxParticipants > 0
                         ? row.maxParticipants
