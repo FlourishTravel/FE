@@ -339,6 +339,12 @@
     margin-top: 6px;
 }
 
+.notifyHint {
+    margin: 4px 0 0 28px;
+    font-size: 0.78rem;
+    color: #6b7280;
+}
+
 .errorBanner {
     display: flex;
     align-items: center;

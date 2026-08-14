@@ -238,8 +238,11 @@ const GuideAssignmentModal = ({ isOpen, session, onClose, onAssigned }) => {
                             <span className="material-icons-round" style={{ fontSize: 16, color: '#3b82f6' }}>
                                 forward_to_inbox
                             </span>
-                            Gửi email thông báo cho HDV được phân công
+                            Gửi email + chuông portal cho HDV được phân công
                         </label>
+                        <p className={styles.notifyHint}>
+                            Mail tới địa chỉ trên hồ sơ HDV. Cần bật SMTP trên server (MAIL_ENABLED).
+                        </p>
 
                         {errorMsg && (
                             <div className={styles.errorBanner}>
