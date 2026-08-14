@@ -25,7 +25,7 @@ async function parseJson(res) {
 }
 
 /**
- * Tra cứu tọa độ qua VietMap (BE proxy, dùng VIETMAP_API_KEY server-side).
+ * Tra cứu tọa độ qua Goong.io (BE proxy, dùng GOONG_API_KEY server-side).
  * @returns {Promise<{ latitude: number, longitude: number, label: string, provider?: string } | null>}
  */
 export async function resolveActivityCoordinates({
