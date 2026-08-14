@@ -2,13 +2,15 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import StatCard from '../components/StatCard';
 import DataTable from '../components/DataTable';
 import { broadcastAdminNotification, listAdminNotifications } from '../../../api/adminNotifications';
+import { listAdminPromotions } from '../../../api/adminPromotions';
+import { listPublicTours } from '../../../api/tours';
 import styles from './PromotionManagement.module.css';
 
 const EMPTY_FORM = {
   title: '',
   message: '',
   type: 'general',
-  audience: 'ALL_USERS',
+  audience: 'TRAVELERS',
 };
 
 const TYPE_LABELS = {
@@ -36,10 +38,122 @@ function truncate(text, max = 80) {
   return value.length > max ? `${value.slice(0, max)}…` : value;
 }
 
+function formatMoney(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n) || n <= 0) return '';
+  return `${n.toLocaleString('vi-VN')}đ`;
+}
+
+function formatDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return String(iso).slice(0, 10);
+  return d.toLocaleDateString('vi-VN');
+}
+
+function formatDiscount(promo) {
+  const n = Number(promo.discountValue ?? 0);
+  if (String(promo.discountType || '').toLowerCase() === 'percent') {
+    return `giảm ${n}%`;
+  }
+  return `giảm ${formatMoney(n)}`;
+}
+
+function buildPromoTemplate(promo) {
+  const code = promo.code || '';
+  const name = promo.name || promo.title || code;
+  const until = formatDate(promo.validTo);
+  const min = promo.minOrderAmount ? `, đơn từ ${formatMoney(promo.minOrderAmount)}` : '';
+  return {
+    id: `promo-${promo.id || code}`,
+    kind: 'Khuyến mãi',
+    title: `${name} — mã ${code}`,
+    message:
+      `Flourish gửi bạn mã ${code} (${formatDiscount(promo)}) cho chương trình ${name}${min}. `
+      + `Nhập mã khi thanh toán tour${until ? `, hạn dùng đến ${until}` : ''}. `
+      + 'Xem lại mã trong mục Voucher của tôi.',
+    type: 'promotion',
+    audience: 'TRAVELERS',
+  };
+}
+
+function buildTourTemplate(tour) {
+  const title = tour.title || 'Tour Flourish';
+  const price = formatMoney(tour.basePrice);
+  const city = tour.destinationCity ? ` tại ${tour.destinationCity}` : '';
+  const session = tour.earliestSession;
+  const start = session?.startDate ? formatDate(session.startDate) : '';
+  const end = session?.endDate && session.endDate !== session.startDate ? `–${formatDate(session.endDate)}` : '';
+  const duration = tour.durationDays
+    ? `${tour.durationDays} ngày${tour.durationNights ? ` ${tour.durationNights} đêm` : ''}`
+    : '';
+  return {
+    id: `tour-${tour.id || tour.slug}`,
+    kind: 'Tour',
+    title: start ? `${title} — khởi hành ${start}` : `Mở đặt: ${title}`,
+    message:
+      `Tour ${title}${city}${duration ? `, ${duration}` : ''}`
+      + `${price ? `, giá ${price}/khách` : ''}`
+      + `${start ? `. Lịch gần nhất ${start}${end}` : ''}. `
+      + 'Đặt trên website Flourish, nhập mã khuyến mãi (nếu có) lúc thanh toán để giữ giá tốt.',
+    type: 'booking',
+    audience: 'TRAVELERS',
+  };
+}
+
+function buildComboTemplates(promos, tours) {
+  const bangkokPromo = promos.find((p) => String(p.code || '').toUpperCase() === 'BANGKOK500');
+  const saigonPromo = promos.find((p) => String(p.code || '').toUpperCase() === 'SAIGON50K');
+  const bangkokTour = tours.find((t) => String(t.slug || '').includes('bangkok'));
+  const saigonTour = tours.find((t) => String(t.slug || '').includes('sai-gon') || String(t.slug || '').includes('cho-lon'));
+  const combos = [];
+  if (bangkokPromo && bangkokTour) {
+    combos.push({
+      id: 'combo-bangkok',
+      kind: 'Combo',
+      title: 'Bangkok 4N3Đ + mã giảm 500.000đ',
+      message:
+        `Tour ${bangkokTour.title} khởi hành ${formatDate(bangkokTour.earliestSession?.startDate) || '30/08'}, `
+        + `giá ${formatMoney(bangkokTour.basePrice)}/khách. Nhập mã ${bangkokPromo.code} để ${formatDiscount(bangkokPromo)} `
+        + `(đơn từ ${formatMoney(bangkokPromo.minOrderAmount)}), hạn ${formatDate(bangkokPromo.validTo)}. `
+        + 'Vào trang tour hoặc Voucher của tôi để đặt ngay.',
+      type: 'promotion',
+      audience: 'TRAVELERS',
+    });
+  }
+  if (saigonPromo && saigonTour) {
+    combos.push({
+      id: 'combo-saigon',
+      kind: 'Combo',
+      title: 'Chợ Lớn 1 ngày + mã giảm 50.000đ',
+      message:
+        `Tour ${saigonTour.title} giá ${formatMoney(saigonTour.basePrice)}, `
+        + `khởi hành ${formatDate(saigonTour.earliestSession?.startDate) || '16/08'}. `
+        + `Áp dụng mã ${saigonPromo.code} ${formatDiscount(saigonPromo)}, hạn ${formatDate(saigonPromo.validTo)}. `
+        + 'Chỗ có hạn — đặt sớm trên Flourish Travel.',
+      type: 'promotion',
+      audience: 'TRAVELERS',
+    });
+  }
+  combos.push({
+    id: 'voucher-reminder',
+    kind: 'Nhắc mã',
+    title: 'Bạn có mã giảm giá đang chờ dùng',
+    message:
+      'Vào Voucher của tôi để xem mã công khai và voucher được tặng riêng. '
+      + 'Sao chép mã rồi nhập khi thanh toán tour. Một số mã chỉ hiện với tài khoản được tặng.',
+    type: 'promotion',
+    audience: 'TRAVELERS',
+  });
+  return combos;
+}
+
 const NotificationBroadcast = () => {
   const [formData, setFormData] = useState(EMPTY_FORM);
   const [sending, setSending] = useState(false);
   const [history, setHistory] = useState([]);
+  const [templates, setTemplates] = useState([]);
+  const [activeTemplateId, setActiveTemplateId] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
@@ -56,9 +170,36 @@ const NotificationBroadcast = () => {
     }
   }, []);
 
+  const fetchTemplates = useCallback(async () => {
+    try {
+      const [promoRes, tourRes] = await Promise.all([
+        listAdminPromotions({ size: 50 }),
+        listPublicTours({ size: 20 }),
+      ]);
+      const promos = (promoRes.content || []).filter((p) => p.isActive !== false && p.active !== false);
+      const tours = tourRes.content || [];
+      const promoTpls = promos.filter((p) => p.isPublic !== false).map(buildPromoTemplate);
+      const tourTpls = tours.map(buildTourTemplate);
+      setTemplates([...buildComboTemplates(promos, tours), ...promoTpls, ...tourTpls]);
+    } catch {
+      setTemplates(buildComboTemplates([], []));
+    }
+  }, []);
+
   useEffect(() => {
     fetchHistory();
-  }, [fetchHistory]);
+    fetchTemplates();
+  }, [fetchHistory, fetchTemplates]);
+
+  const applyTemplate = (tpl) => {
+    setActiveTemplateId(tpl.id);
+    setFormData({
+      title: tpl.title,
+      message: tpl.message,
+      type: tpl.type,
+      audience: tpl.audience,
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -79,6 +220,7 @@ const NotificationBroadcast = () => {
           : 'Đã gửi thông báo thành công.',
       );
       setFormData(EMPTY_FORM);
+      setActiveTemplateId('');
       fetchHistory();
     } catch (err) {
       setErrorMsg(err?.message || 'Không gửi được thông báo.');
@@ -129,7 +271,7 @@ const NotificationBroadcast = () => {
         <div>
           <h1 className={styles.pageTitle}>Gửi thông báo hàng loạt</h1>
           <p className={styles.pageSubtitle}>
-            Soạn và gửi thông báo trong ứng dụng tới khách, hướng dẫn viên hoặc quản trị viên.
+            Chọn mẫu khuyến mãi / tour có sẵn, chỉnh nội dung rồi gửi tới khách.
           </p>
         </div>
         <button className={styles.refreshBtn} onClick={fetchHistory} disabled={loading}>
@@ -150,6 +292,29 @@ const NotificationBroadcast = () => {
           <button className={styles.bannerClose} type="button" onClick={() => { setErrorMsg(''); setSuccessMsg(''); }}>
             <span className="material-icons-round">close</span>
           </button>
+        </div>
+      )}
+
+      {templates.length > 0 && (
+        <div>
+          <h2 className={styles.sectionTitle}>Mẫu sẵn — khuyến mãi và tour</h2>
+          <p className={styles.formHint} style={{ marginBottom: 10 }}>
+            Bấm một mẫu để điền form. Kiểm tra rồi bấm Gửi thông báo.
+          </p>
+          <div className={styles.templateGrid}>
+            {templates.map((tpl) => (
+              <button
+                key={tpl.id}
+                type="button"
+                className={`${styles.templateCard} ${activeTemplateId === tpl.id ? styles.templateCardActive : ''}`}
+                onClick={() => applyTemplate(tpl)}
+              >
+                <span className={styles.templateKind}>{tpl.kind}</span>
+                <span className={styles.templateTitle}>{tpl.title}</span>
+                <span className={styles.templateBody}>{truncate(tpl.message, 110)}</span>
+              </button>
+            ))}
+          </div>
         </div>
       )}
 
@@ -193,7 +358,7 @@ const NotificationBroadcast = () => {
                 <option key={value} value={value}>{label}</option>
               ))}
             </select>
-            <span className={styles.formHint}>Thông báo hiện trong chuông và trang Thông báo của tài khoản được chọn.</span>
+            <span className={styles.formHint}>Mặc định gửi khách du lịch. Thông báo hiện trong chuông và trang Thông báo.</span>
           </div>
           <div className={styles.formGroup}>
             <label className={styles.formLabel}>Nội dung</label>
