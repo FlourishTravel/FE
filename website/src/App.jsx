@@ -29,6 +29,7 @@ import Guide from './pages/user/Guide';
 import OurGuides from './pages/user/OurGuides';
 import GuideDetail from './pages/user/GuideDetail';
 import About from './pages/user/About';
+import DownloadApp from './pages/user/DownloadApp';
 import Careers from './pages/user/Careers';
 import News from './pages/user/News';
 import Stories from './pages/user/Stories';
@@ -114,6 +115,7 @@ function App() {
       <ScrollToTop />
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/download" element={<><Navbar /><DownloadApp /><Footer /></>} />
         <Route path="/help" element={<><Navbar /><Help /><Footer /></>} />
         <Route path="/privacy-settings" element={<><Navbar /><PrivacySettings /><Footer /></>} />
         <Route path="/login" element={<><Navbar /><Login /></>} />

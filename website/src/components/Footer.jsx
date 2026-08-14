@@ -115,6 +115,7 @@ const Footer = () => {
                         <ul className={styles.footerList}>
                             <li><Link to="/login" onClick={scrollToTop} className={styles.footerLink}>Đăng nhập</Link></li>
                             <li><Link to="/register" onClick={scrollToTop} className={styles.footerLink}>Đăng ký</Link></li>
+                            <li><Link to="/download" onClick={scrollToTop} className={styles.footerLink}>Tải app Android</Link></li>
                         </ul>
                     </div>
 

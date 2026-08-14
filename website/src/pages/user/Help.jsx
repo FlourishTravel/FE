@@ -240,11 +240,11 @@ const Help = () => {
                         </div>
                         <h3 className={styles.communityTitle}>Join the Community</h3>
                         <p className={styles.communityDesc}>
-                            Connect with thousands of student travelers sharing their experiences.
+                            Tải app Android để đặt tour và theo dõi chuyến đi trên điện thoại.
                         </p>
-                        <button className={styles.communityButton}>
-                            Join Forum
-                        </button>
+                        <Link to="/download" className={styles.communityButton}>
+                            Tải app
+                        </Link>
                     </div>
                 </div>
             </div>
