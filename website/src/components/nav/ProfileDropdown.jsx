@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { resolveMediaUrl } from '../../api/config';
 import { PROFILE_MENU, openFloraChat } from '../../config/navConfig';
+import FloraAvatar from '../FloraAvatar';
 import shared from './navShared.module.css';
 
 function getInitials(label) {
@@ -82,7 +83,11 @@ const ProfileDropdown = ({ onNavigate }) => {
                     {PROFILE_MENU.map((item) => {
                         const content = (
                             <>
-                                <span className={`material-icons-round ${shared.profileIcon}`}>{item.icon}</span>
+                                {item.action === 'flora' ? (
+                                    <FloraAvatar className={shared.profileFlora} alt="" />
+                                ) : (
+                                    <span className={`material-icons-round ${shared.profileIcon}`}>{item.icon}</span>
+                                )}
                                 <span>{item.label}</span>
                             </>
                         );

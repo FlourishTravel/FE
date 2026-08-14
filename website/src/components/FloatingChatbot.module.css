@@ -10,6 +10,33 @@
     @apply w-6 h-6;
 }
 
+.fabAvatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: contain;
+    background: #0a0a0a;
+    flex-shrink: 0;
+}
+
+.headerAvatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: contain;
+    background: #0a0a0a;
+    flex-shrink: 0;
+}
+
+.quickMenuAvatar {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    object-fit: contain;
+    background: #0a0a0a;
+    flex-shrink: 0;
+}
+
 .fabLabel {
     @apply font-medium text-sm hidden sm:inline;
 }
@@ -51,7 +78,13 @@
 }
 
 .msgBotAvatar {
-    @apply w-8 h-8 text-primary-500 flex-shrink-0 mt-1;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: contain;
+    background: #0a0a0a;
+    flex-shrink: 0;
+    margin-top: 4px;
 }
 
 .bubbleUser {

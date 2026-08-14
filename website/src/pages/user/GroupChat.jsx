@@ -204,7 +204,12 @@ const GroupChat = () => {
                   return (
                     <div key={m.id} className={isMe ? styles.msgRowMe : styles.msgRow}>
                       {!isMe && (
-                        <ChatAvatar name={m.senderName} url={m.senderAvatarUrl} className={styles.avatar} />
+                        <ChatAvatar
+                          name={m.senderName}
+                          url={m.senderAvatarUrl}
+                          flora={isFlora}
+                          className={`${styles.avatar} ${isFlora ? styles.avatarFlora : ''}`}
+                        />
                       )}
                       <div className={bubbleClass}>
                         <span className={styles.bubbleSender}>

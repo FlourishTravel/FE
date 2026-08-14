@@ -320,6 +320,11 @@
     overflow: hidden;
 }
 
+.msgAvatarFlora {
+    object-fit: contain;
+    background: #0a0a0a;
+}
+
 .msgBubble {
     max-width: 70%;
     padding: 10px 14px;

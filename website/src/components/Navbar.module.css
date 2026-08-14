@@ -53,6 +53,24 @@
     @apply w-4 h-4 flex-shrink-0;
 }
 
+.navFlora {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    object-fit: contain;
+    background: #0a0a0a;
+    flex-shrink: 0;
+}
+
+.mobileFlora {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: contain;
+    background: #0a0a0a;
+    flex-shrink: 0;
+}
+
 .authContainer {
     @apply hidden lg:flex items-center gap-2 xl:gap-3 flex-shrink-0;
 }

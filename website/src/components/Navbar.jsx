@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, MapPin, ChevronDown, Shield, LayoutDashboard, Bot } from 'lucide-react';
+import { Menu, X, MapPin, ChevronDown, Shield, LayoutDashboard } from 'lucide-react';
 import styles from './Navbar.module.css';
 import logo from '../assets/LogoFlourish\'.jpg';
+import FloraAvatar from './FloraAvatar';
 import { useAuth } from '../context/AuthContext';
 import NavDropdown from './nav/NavDropdown';
 import ProfileDropdown from './nav/ProfileDropdown';
@@ -55,7 +56,7 @@ const Navbar = () => {
                     className={styles.navLink}
                     onClick={() => openFloraChat()}
                 >
-                    <Bot className={styles.navIcon} aria-hidden />
+                    <FloraAvatar className={styles.navFlora} alt="" />
                     <span>{item.label}</span>
                 </button>
             );
@@ -203,7 +204,7 @@ const Navbar = () => {
                                 closeMobile();
                             }}
                         >
-                            <Bot className="w-5 h-5" aria-hidden />
+                            <FloraAvatar className={styles.mobileFlora} alt="" />
                             Flora AI
                         </button>
 

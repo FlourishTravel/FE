@@ -241,7 +241,12 @@ const GuideCommunication = () => {
               return (
                 <div key={msg.id || `${msg.createdAt || msg.sentAt}-${msg.content}`} className={`${styles.msgRow} ${mine ? styles.msgMine : ''}`}>
                   {!mine && (
-                    <ChatAvatar name={msg.senderName} url={msg.senderAvatarUrl} className={styles.msgAvatar} />
+                    <ChatAvatar
+                      name={msg.senderName}
+                      url={msg.senderAvatarUrl}
+                      flora={flora}
+                      className={`${styles.msgAvatar} ${flora ? styles.msgAvatarFlora : ''}`}
+                    />
                   )}
                   <div className={`${styles.msgBubble} ${mine ? styles.bubbleMine : flora ? styles.bubbleFlora : styles.bubbleOther}`}>
                     <span className={styles.msgSender}>{displayName}</span>

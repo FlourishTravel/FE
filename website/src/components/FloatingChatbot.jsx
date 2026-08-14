@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { MessageCircle, X, Send, Bot, Sparkles } from 'lucide-react';
+import { X, Send } from 'lucide-react';
 import { sendChatbotMessage } from '../api/chatbot';
 import { useAuth } from '../context/AuthContext';
 import { FLORA_OPEN_EVENT, FLORA_QUICK_ACTIONS } from '../config/navConfig';
+import FloraAvatar from './FloraAvatar';
 import styles from './FloatingChatbot.module.css';
 
 const WELCOME_MSG = {
@@ -129,7 +130,7 @@ const FloatingChatbot = ({ bookingId: bookingIdProp, pageSource = 'flora' }) => 
         aria-label="Mở Flora AI"
         aria-expanded={menuOpen}
       >
-        <MessageCircle className={styles.fabIcon} />
+        <FloraAvatar className={styles.fabAvatar} alt="" />
         <span className={styles.fabLabel}>Flora AI</span>
       </button>
 
@@ -143,7 +144,7 @@ const FloatingChatbot = ({ bookingId: bookingIdProp, pageSource = 'flora' }) => 
           />
           <div className={styles.quickMenu}>
             <div className={styles.quickMenuHeader}>
-              <Sparkles className={styles.quickMenuIcon} />
+              <FloraAvatar className={styles.quickMenuAvatar} alt="" />
               <span>Flora AI</span>
             </div>
             {FLORA_QUICK_ACTIONS.map((action) => (
@@ -174,7 +175,7 @@ const FloatingChatbot = ({ bookingId: bookingIdProp, pageSource = 'flora' }) => 
         <div className={styles.panel}>
           <div className={styles.panelHeader}>
             <div className={styles.panelTitle}>
-              <Bot className={styles.botIcon} />
+              <FloraAvatar className={styles.headerAvatar} alt="" />
               Flora AI
             </div>
             <button type="button" className={styles.closeBtn} onClick={() => setOpen(false)} aria-label="Đóng">
@@ -184,7 +185,7 @@ const FloatingChatbot = ({ bookingId: bookingIdProp, pageSource = 'flora' }) => 
           <div className={styles.messages}>
             {messages.map((m, i) => (
               <div key={i} className={m.role === 'user' ? styles.msgUser : styles.msgBot}>
-                {m.role === 'bot' && <Bot className={styles.msgBotAvatar} />}
+                {m.role === 'bot' && <FloraAvatar className={styles.msgBotAvatar} alt="Flora" />}
                 <div className={m.role === 'user' ? styles.bubbleUser : styles.bubbleBot}>
                   <p>{m.text}</p>
                   {m.tours && m.tours.length > 0 && (
@@ -261,7 +262,7 @@ const FloatingChatbot = ({ bookingId: bookingIdProp, pageSource = 'flora' }) => 
             ))}
             {loading && (
               <div className={styles.msgBot}>
-                <Bot className={styles.msgBotAvatar} />
+                <FloraAvatar className={styles.msgBotAvatar} alt="Flora" />
                 <div className={styles.bubbleBot}>
                   <p className={styles.typing}>Đang suy nghĩ...</p>
                 </div>

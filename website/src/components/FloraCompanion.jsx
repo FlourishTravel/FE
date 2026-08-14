@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { getFloraJourney, postFloraNearbyRecommendations } from '../api/flora';
+import FloraAvatar from './FloraAvatar';
 import styles from './FloraCompanion.module.css';
 
 function scheduleBadge(status) {
@@ -129,7 +130,10 @@ export default function FloraCompanion({ bookingId, onChatFlora }) {
   return (
     <section className={styles.wrap} aria-label="Flora AI đồng hành">
       <div className={styles.headerRow}>
-        <h3 className={styles.title}>Flora AI — Đồng hành chuyến đi</h3>
+        <div className={styles.titleRow}>
+          <FloraAvatar className={styles.floraFace} alt="" />
+          <h3 className={styles.title}>Flora AI — Đồng hành chuyến đi</h3>
+        </div>
         <span className={badge.className}>{badge.label}</span>
       </div>
 
