@@ -68,6 +68,17 @@ jobs:
             docker compose up -d --build --force-recreate fe
             docker compose ps fe
 
+            # Host nginx (1.18) was truncating /assets/*.js|css at ~128KB because
+            # proxy_buffers spilled to proxy_temp. Stream the body instead.
+            if [ -d /etc/nginx/conf.d ] && [ -f FE/deploy/host-nginx-proxy.conf ]; then
+              cp FE/deploy/host-nginx-proxy.conf /etc/nginx/conf.d/flourish-proxy-buffers.conf
+              NGINX_USER=$(awk '$1=="user"{gsub(/;/,""); print $2; exit}' /etc/nginx/nginx.conf 2>/dev/null || true)
+              NGINX_USER=${NGINX_USER:-www-data}
+              chown -R "${NGINX_USER}:${NGINX_USER}" /var/lib/nginx /var/cache/nginx 2>/dev/null || true
+              nginx -t
+              systemctl reload nginx
+            fi
+
             ok=0
             for i in $(seq 1 20); do
               if curl -sfI http://127.0.0.1:3000 >/dev/null 2>&1; then
@@ -81,5 +92,26 @@ jobs:
               echo "FE health check failed"
               docker compose logs fe --tail 40
               exit 1
+            fi
+
+            JS=$(curl -sS http://127.0.0.1:3000/ | grep -oE '/assets/index-[^"[:space:]]+\.js' | head -1)
+            if [ -n "$JS" ]; then
+              HDR=$(curl -sSI "http://127.0.0.1:3000${JS}" | tr -d '\r')
+              CL=$(printf '%s\n' "$HDR" | awk -F': ' 'tolower($1)=="content-length"{print $2; exit}')
+              SZ=$(curl -sS "http://127.0.0.1:3000${JS}" | wc -c)
+              echo "FE asset ${JS} Content-Length=${CL} downloaded=${SZ}"
+              if [ -n "$CL" ] && [ "$CL" -gt 0 ] && [ "$SZ" -ne "$CL" ]; then
+                echo "FE container truncated ${JS}"
+                exit 1
+              fi
+              PUB="https://flourishtravelapp.khanhtn45.id.vn${JS}"
+              PHDR=$(curl -sSI "$PUB" | tr -d '\r')
+              PCL=$(printf '%s\n' "$PHDR" | awk -F': ' 'tolower($1)=="content-length"{print $2; exit}')
+              PSZ=$(curl -sS "$PUB" | wc -c)
+              echo "Public asset ${PUB} Content-Length=${PCL} downloaded=${PSZ}"
+              if [ -n "$PCL" ] && [ "$PCL" -gt 0 ] && [ "$PSZ" -ne "$PCL" ]; then
+                echo "Host nginx still truncating ${JS} — check /etc/nginx and proxy_temp"
+                exit 1
+              fi
             fi
             echo "FE deploy OK"
