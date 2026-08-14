@@ -164,6 +164,80 @@
     color: #047857;
 }
 
+.bannerWarn {
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+    background: #fffbeb;
+    color: #92400e;
+}
+
+.verified {
+    margin-top: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #059669;
+}
+
+.sectionTitle {
+    margin: 8px 0 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.field textarea {
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-weight: 400;
+    font-family: inherit;
+    resize: vertical;
+}
+
+.chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.chip {
+    border: 1px solid #d1d5db;
+    background: #fff;
+    color: #374151;
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.chipOn {
+    border-color: #059669;
+    background: #ecfdf5;
+    color: #047857;
+    font-weight: 600;
+}
+
+.coverBtn {
+    border: 1px dashed #d1d5db;
+    background: #f9fafb;
+    border-radius: 12px;
+    min-height: 88px;
+    cursor: pointer;
+    color: #6b7280;
+    font-family: inherit;
+    overflow: hidden;
+}
+
+.coverPreview {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    display: block;
+}
+
 @media (max-width: 700px) {
     .grid {
         grid-template-columns: 1fr;

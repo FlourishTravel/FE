@@ -65,6 +65,7 @@ import ContactRequestManagement from './pages/admin/pages/ContactRequestManageme
 import CatalogTicketManagement from './pages/admin/pages/CatalogTicketManagement';
 import NotificationBroadcast from './pages/admin/pages/NotificationBroadcast';
 import ReviewModeration from './pages/admin/pages/ReviewModeration';
+import GuideProfiles from './pages/admin/pages/GuideProfiles';
 import ContentManagement from './pages/admin/pages/ContentManagement';
 import AdminSettings from './pages/admin/pages/AdminSettings';
 import GuideExpenseManagement from './pages/admin/pages/GuideExpenseManagement';
@@ -159,6 +160,7 @@ function App() {
           <Route path="destinations" element={<DestinationManagement />} />
           <Route path="notifications" element={<NotificationBroadcast />} />
           <Route path="reviews" element={<ReviewModeration />} />
+          <Route path="guide-profiles" element={<GuideProfiles />} />
           <Route path="content" element={<ContentManagement />} />
           <Route path="settings" element={<AdminSettings />} />
           <Route path="tours/itinerary/:tourId" element={<TourItineraryBuilder />} />

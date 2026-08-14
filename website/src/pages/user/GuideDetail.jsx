@@ -1,136 +1,92 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import {
-    Star, MapPin, Globe, Award, Clock, Users, ChevronRight, ChevronLeft,
-    Heart, MessageCircle, Calendar, CheckCircle, Camera, Coffee, Shield
+    Star, MapPin, Globe, Award, Clock, ChevronLeft,
+    Heart, MessageCircle, Calendar,
 } from 'lucide-react';
 import styles from './GuideDetail.module.css';
 import { getPublicGuide } from '../../api/guides';
 import { resolveMediaUrl } from '../../api/config';
 
-const GUIDES_DATA = {
-    1: {
-        name: 'Trần Bình',
-        avatar: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&w=600&q=80',
-        coverImage: 'https://images.unsplash.com/photo-1508009603885-027cf6d0bf6b?auto=format&fit=crop&w=1200&q=80',
-        role: 'Senior Tour Guide',
-        location: 'Bangkok – Pattaya, Thái Lan',
-        rating: 4.9,
-        reviewCount: 218,
-        toursCompleted: 156,
-        experience: '5 năm',
-        languages: ['Tiếng Việt', 'Tiếng Anh', 'Tiếng Thái'],
-        specialties: ['Ẩm thực', 'Văn hóa', 'Chữa lành'],
-        bio: 'Chuyên gia dẫn tour Bangkok – Pattaya với 5 năm kinh nghiệm. Bình nổi tiếng với phong cách dẫn tour "chill healing", giúp du khách tận hưởng từng khoảnh khắc thay vì chạy theo lịch trình. Anh am hiểu sâu sắc văn hóa Thái Lan, từ ẩm thực đường phố đến những ngôi chùa cổ kính.',
-        fullBio: 'Bình bắt đầu sự nghiệp hướng dẫn viên từ năm 2021 khi tham gia chương trình đào tạo của Flourish Tourism. Với niềm đam mê du lịch bền vững và trải nghiệm chậm, anh đã trở thành một trong những guide được yêu thích nhất của công ty. Phong cách dẫn tour của Bình luôn chú trọng vào việc giúp du khách thực sự "sống chậm" và cảm nhận mỗi điểm đến thay vì chỉ check-in vội vã.',
-        badges: ['Top Guide 2025', 'Chứng nhận Bền vững'],
-        verified: true,
-        joinedDate: 'Tháng 3, 2021',
-        tours: [
-            {
-                id: 1,
-                title: 'BANGKOK - PATAYA',
-                duration: '5 Ngày / 4 Đêm',
-                price: 8999000,
-                image: 'https://images.unsplash.com/photo-1508009603885-027cf6d0bf6b?auto=format&fit=crop&w=600&q=80',
-                rating: 4.8,
-                nextDate: '15/06/2026',
-            },
-        ],
-        reviews: [
-            {
-                id: 1,
-                name: 'Nguyễn Thanh Hà',
-                avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=100&q=80',
-                rating: 5,
-                date: '20/04/2026',
-                comment: 'Anh Bình dẫn tour rất tuyệt! Phong cách chill, không vội vã, giúp cả đoàn thực sự tận hưởng chuyến đi. Đặc biệt là những quán ăn anh đưa đi đều rất ngon và authentic.',
-                tourName: 'Bangkok - Pattaya',
-            },
-            {
-                id: 2,
-                name: 'Trần Minh Đức',
-                avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=100&q=80',
-                rating: 5,
-                date: '15/03/2026',
-                comment: 'Lần thứ 2 đi tour với anh Bình. Anh rất chu đáo, biết nhiều spot ẩn ở Bangkok mà guide khác không biết. Recommend 100%!',
-                tourName: 'Bangkok - Pattaya',
-            },
-            {
-                id: 3,
-                name: 'Lê Thu Trang',
-                avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=100&q=80',
-                rating: 4,
-                date: '28/02/2026',
-                comment: 'Chuyến đi rất thú vị, anh Bình nói tiếng Thái rất giỏi nên giao tiếp với người địa phương rất dễ dàng. Ẩm thực mà anh recommend đều tuyệt vời.',
-                tourName: 'Bangkok - Pattaya',
-            },
-        ],
-        stats: {
-            responseRate: '98%',
-            responseTime: '< 1 giờ',
-            repeatGuests: '42%',
-        },
-    },
-};
+function asStringList(raw) {
+    if (!Array.isArray(raw)) return [];
+    return raw
+        .map((item) => (typeof item === 'string' ? item : (item?.name || item?.label || '')))
+        .map((item) => String(item).trim())
+        .filter(Boolean);
+}
 
-// Fallback for any guide ID
-const DEFAULT_GUIDE = GUIDES_DATA[1];
+function formatDate(value) {
+    if (!value) return '';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return String(value);
+    return date.toLocaleDateString('vi-VN');
+}
+
+function formatJoined(value) {
+    if (!value) return '';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '';
+    return date.toLocaleDateString('vi-VN', { month: 'long', year: 'numeric' });
+}
+
+function initials(name) {
+    const parts = String(name || '').trim().split(/\s+/).filter(Boolean);
+    if (!parts.length) return 'HDV';
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+}
 
 function mapGuideDetail(raw) {
     if (!raw) return null;
-    const languages = Array.isArray(raw.languages)
-        ? raw.languages.map((l) => (typeof l === 'string' ? l : (l?.name || l?.label || ''))).filter(Boolean)
-        : [];
-    const specialties = Array.isArray(raw.specialties)
-        ? raw.specialties.map((s) => (typeof s === 'string' ? s : (s?.name || s?.label || ''))).filter(Boolean)
-        : [];
-    const badges = Array.isArray(raw.badges)
-        ? raw.badges.map((b) => (typeof b === 'string' ? b : (b?.name || b?.label || ''))).filter(Boolean)
-        : [];
+    const languages = asStringList(raw.languages);
+    const specialties = asStringList(raw.specialties);
+    const badges = asStringList(raw.badges);
     const tours = Array.isArray(raw.tours) ? raw.tours : [];
     const reviews = Array.isArray(raw.reviews) ? raw.reviews : [];
+    const rating = raw.rating == null || raw.rating === '' ? null : Number(raw.rating);
+    const shortBio = raw.shortBio || '';
+    const fullBio = raw.bio || '';
     return {
         name: raw.fullName || raw.name || 'Hướng dẫn viên',
         avatar: resolveMediaUrl(raw.avatarUrl || raw.avatar) || '',
-        coverImage: resolveMediaUrl(raw.coverImageUrl || raw.coverImage) || '',
+        coverImage: resolveMediaUrl(raw.coverImageUrl || raw.coverImage || raw.guideCoverUrl) || '',
         role: raw.jobTitle || raw.title || raw.role || 'Hướng dẫn viên',
-        location: raw.department || raw.location || raw.baseLocation || 'Flourish Travel',
-        rating: raw.rating != null ? Number(raw.rating) : null,
+        location: raw.location || raw.baseLocation || raw.guideBaseLocation || '',
+        rating: Number.isFinite(rating) ? rating : null,
         reviewCount: Number(raw.reviewCount) || reviews.length || 0,
         toursCompleted: Number(raw.toursCompleted) || 0,
-        experience: raw.experienceYears ? `${raw.experienceYears} năm` : (raw.experience || ''),
-        languages: languages,
-        specialties: specialties,
-        bio: raw.shortBio || raw.bio || 'Đồng hành cùng du khách với phong cách chuyên nghiệp và gần gũi.',
-        fullBio: raw.bio || '',
-        badges: badges,
-        verified: Boolean(raw.verified ?? true),
-        joinedDate: raw.joinedDate || raw.createdAt || '',
+        experience: raw.experienceYears != null && raw.experienceYears !== ''
+            ? `${raw.experienceYears} năm`
+            : (raw.experience || ''),
+        languages,
+        specialties,
+        bio: shortBio,
+        fullBio: fullBio && fullBio !== shortBio ? fullBio : '',
+        badges,
+        verified: Boolean(raw.verified),
+        joinedDate: formatJoined(raw.joinedAt || raw.joinedDate || raw.createdAt),
         tours: tours.map((tour, index) => ({
             id: tour.id || index,
             title: tour.title || 'Tour',
             duration: tour.durationText
-                || (tour.durationDays ? `${tour.durationDays} Ngày${tour.durationNights != null ? ` / ${tour.durationNights} Đêm` : ''}` : ''),
+                || (tour.durationDays
+                    ? `${tour.durationDays} Ngày${tour.durationNights != null ? ` / ${tour.durationNights} Đêm` : ''}`
+                    : ''),
             price: Number(tour.basePrice) || 0,
             image: resolveMediaUrl(tour.thumbnailUrl || tour.imageUrl) || '',
-            rating: Number(tour.rating) || null,
-            nextDate: tour.nextStartDate || 'Đang cập nhật',
+            rating: tour.rating == null ? null : Number(tour.rating),
+            nextDate: tour.nextStartDate ? formatDate(tour.nextStartDate) : '',
         })),
         reviews: reviews.map((review, index) => ({
             id: review.id || index,
             name: review.authorName || review.name || 'Du khách',
             avatar: resolveMediaUrl(review.authorAvatarUrl || review.avatar) || '',
-            rating: Number(review.rating) || 5,
-            date: review.createdAt || review.date || '',
+            rating: Number(review.rating) || 0,
+            date: formatDate(review.createdAt || review.date),
             comment: review.comment || '',
-            tourName: review.tourName || 'Tour Flourish',
+            tourName: review.tourName || '',
         })),
-        stats: {
-            responseRate: raw.responseRate || '—',
-            responseTime: raw.responseTime || '—',
-            repeatGuests: raw.repeatGuests || '—',
-        },
     };
 }
 
@@ -191,7 +147,7 @@ const GuideDetail = () => {
         return (
             <div className={styles.pageContainer}>
                 <div className={styles.container} style={{ padding: '48px 24px' }}>
-                    <p>{loadError || 'Không tìm thấy hướng dẫn viên.'}</p>
+                    <p>{loadError || 'Hồ sơ này chưa được duyệt hoặc không tồn tại.'}</p>
                     <button className={styles.backBtn} onClick={() => navigate('/our-guides')} type="button">
                         <ChevronLeft className={styles.backIcon} />
                         Trở lại
@@ -201,24 +157,32 @@ const GuideDetail = () => {
         );
     }
 
+    const firstTour = guide.tours[0];
+
     return (
         <div className={styles.pageContainer}>
-            {/* Cover Image */}
             <div className={styles.coverSection}>
-                <img src={guide.coverImage} alt="" className={styles.coverImage} />
+                {guide.coverImage ? (
+                    <img src={guide.coverImage} alt="" className={styles.coverImage} />
+                ) : (
+                    <div className={styles.coverFallback} aria-hidden="true" />
+                )}
                 <div className={styles.coverOverlay}></div>
-                <button className={styles.backBtn} onClick={() => navigate('/our-guides')}>
+                <button className={styles.backBtn} onClick={() => navigate('/our-guides')} type="button">
                     <ChevronLeft className={styles.backIcon} />
                     Trở lại
                 </button>
             </div>
 
             <div className={styles.container}>
-                {/* Profile Header */}
                 <div className={styles.profileHeader}>
                     <div className={styles.profileLeft}>
                         <div className={styles.avatarSection}>
-                            <img src={guide.avatar} alt={guide.name} className={styles.avatar} />
+                            {guide.avatar ? (
+                                <img src={guide.avatar} alt={guide.name} className={styles.avatar} />
+                            ) : (
+                                <span className={styles.avatarFallback}>{initials(guide.name)}</span>
+                            )}
                             {guide.verified && (
                                 <span className={styles.verifiedBadge}>✓</span>
                             )}
@@ -229,13 +193,13 @@ const GuideDetail = () => {
                             <div className={styles.profileMeta}>
                                 <span className={styles.metaItem}>
                                     <MapPin className={styles.metaIcon} />
-                                    {guide.location}
+                                    {guide.location || 'Chưa cập nhật tuyến'}
                                 </span>
                                 {guide.joinedDate ? (
-                                <span className={styles.metaItem}>
-                                    <Calendar className={styles.metaIcon} />
-                                    Gia nhập {guide.joinedDate}
-                                </span>
+                                    <span className={styles.metaItem}>
+                                        <Calendar className={styles.metaIcon} />
+                                        Gia nhập {guide.joinedDate}
+                                    </span>
                                 ) : null}
                             </div>
                         </div>
@@ -244,18 +208,18 @@ const GuideDetail = () => {
                         <button
                             className={`${styles.saveBtn} ${isSaved ? styles.saveBtnActive : ''}`}
                             onClick={() => setIsSaved(!isSaved)}
+                            type="button"
                         >
                             <Heart className={styles.saveBtnIcon} />
                             {isSaved ? 'Đã lưu' : 'Lưu'}
                         </button>
-                        <button className={styles.contactBtn}>
+                        <Link to="/help" className={styles.contactBtn}>
                             <MessageCircle className={styles.contactBtnIcon} />
                             Liên hệ
-                        </button>
+                        </Link>
                     </div>
                 </div>
 
-                {/* Stats Row */}
                 <div className={styles.statsGrid}>
                     <div className={styles.statCard}>
                         <div className={styles.statValue}>
@@ -266,61 +230,63 @@ const GuideDetail = () => {
                     </div>
                     <div className={styles.statCard}>
                         <div className={styles.statValue}>{guide.toursCompleted}</div>
-                        <div className={styles.statLabel}>Tour hoàn thành</div>
+                        <div className={styles.statLabel}>Tour đã dẫn</div>
                     </div>
                     <div className={styles.statCard}>
                         <div className={styles.statValue}>{guide.experience || '—'}</div>
                         <div className={styles.statLabel}>Kinh nghiệm</div>
                     </div>
                     <div className={styles.statCard}>
-                        <div className={styles.statValue}>{guide.stats.repeatGuests}</div>
-                        <div className={styles.statLabel}>Khách quay lại</div>
+                        <div className={styles.statValue}>{guide.languages.length || '—'}</div>
+                        <div className={styles.statLabel}>Ngôn ngữ</div>
                     </div>
                 </div>
 
-                {/* Content Grid */}
                 <div className={styles.contentGrid}>
-                    {/* Left Column */}
                     <div className={styles.leftCol}>
-                        {/* About */}
                         <section className={styles.section}>
                             <h2 className={styles.sectionTitle}>Giới thiệu</h2>
-                            <p className={styles.bioText}>{guide.bio}</p>
-                            {guide.fullBio ? <p className={styles.bioText}>{guide.fullBio}</p> : null}
+                            {guide.bio || guide.fullBio ? (
+                                <>
+                                    {guide.bio ? <p className={styles.bioText}>{guide.bio}</p> : null}
+                                    {guide.fullBio ? <p className={styles.bioText}>{guide.fullBio}</p> : null}
+                                </>
+                            ) : (
+                                <p className={styles.bioText}>Chưa có giới thiệu.</p>
+                            )}
                         </section>
 
-                        {/* Specialties & Languages */}
                         <section className={styles.section}>
                             <h2 className={styles.sectionTitle}>Chuyên môn & Ngôn ngữ</h2>
                             <div className={styles.tagGroup}>
                                 <h3 className={styles.tagGroupTitle}>Chuyên môn</h3>
                                 <div className={styles.tagRow}>
-                                    {(guide.specialties || []).length
-                                        ? guide.specialties.map((s, i) => (
-                                            <span key={i} className={styles.specialtyTag}>{s}</span>
+                                    {guide.specialties.length
+                                        ? guide.specialties.map((s) => (
+                                            <span key={s} className={styles.specialtyTag}>{s}</span>
                                         ))
-                                        : <span className={styles.langTag}>Đang cập nhật</span>}
+                                        : <span className={styles.langTag}>Chưa cập nhật</span>}
                                 </div>
                             </div>
                             <div className={styles.tagGroup}>
                                 <h3 className={styles.tagGroupTitle}>Ngôn ngữ</h3>
                                 <div className={styles.tagRow}>
-                                    {(guide.languages || []).length
-                                        ? guide.languages.map((l, i) => (
-                                            <span key={i} className={styles.langTag}>
+                                    {guide.languages.length
+                                        ? guide.languages.map((l) => (
+                                            <span key={l} className={styles.langTag}>
                                                 <Globe className={styles.langIcon} />
                                                 {l}
                                             </span>
                                         ))
-                                        : <span className={styles.langTag}>Đang cập nhật</span>}
+                                        : <span className={styles.langTag}>Chưa cập nhật</span>}
                                 </div>
                             </div>
                             <div className={styles.tagGroup}>
                                 <h3 className={styles.tagGroupTitle}>Chứng chỉ & Giải thưởng</h3>
                                 <div className={styles.tagRow}>
-                                    {(guide.badges || []).length
-                                        ? guide.badges.map((b, i) => (
-                                            <span key={i} className={styles.awardBadge}>
+                                    {guide.badges.length
+                                        ? guide.badges.map((b) => (
+                                            <span key={b} className={styles.awardBadge}>
                                                 <Award className={styles.awardIcon} />
                                                 {b}
                                             </span>
@@ -330,7 +296,6 @@ const GuideDetail = () => {
                             </div>
                         </section>
 
-                        {/* Reviews */}
                         <section className={styles.section}>
                             <div className={styles.sectionHeader}>
                                 <h2 className={styles.sectionTitle}>Đánh giá từ du khách</h2>
@@ -340,13 +305,19 @@ const GuideDetail = () => {
                                 </span>
                             </div>
                             <div className={styles.reviewList}>
-                                {(guide.reviews || []).length ? guide.reviews.map((review) => (
+                                {guide.reviews.length ? guide.reviews.map((review) => (
                                     <div key={review.id} className={styles.reviewCard}>
                                         <div className={styles.reviewHeader}>
-                                            <img src={review.avatar} alt="" className={styles.reviewAvatar} />
+                                            {review.avatar ? (
+                                                <img src={review.avatar} alt="" className={styles.reviewAvatar} />
+                                            ) : (
+                                                <span className={styles.reviewAvatarFallback}>{initials(review.name)}</span>
+                                            )}
                                             <div className={styles.reviewInfo}>
                                                 <span className={styles.reviewName}>{review.name}</span>
-                                                <span className={styles.reviewDate}>{review.date} · {review.tourName}</span>
+                                                <span className={styles.reviewDate}>
+                                                    {[review.date, review.tourName].filter(Boolean).join(' · ')}
+                                                </span>
                                             </div>
                                             <div className={styles.reviewStars}>
                                                 {renderStars(review.rating)}
@@ -361,14 +332,17 @@ const GuideDetail = () => {
                         </section>
                     </div>
 
-                    {/* Right Column - Tours */}
                     <div className={styles.rightCol}>
                         <div className={styles.stickyCard}>
                             <h3 className={styles.stickyCardTitle}>Tour đang dẫn</h3>
-                            {(guide.tours || []).length ? guide.tours.map((tour) => (
+                            {guide.tours.length ? guide.tours.map((tour) => (
                                 <Link key={tour.id} to={`/tours/${tour.id}`} className={styles.tourCardLink}>
                                     <div className={styles.tourCard}>
-                                        <img src={tour.image} alt={tour.title} className={styles.tourCardImage} />
+                                        {tour.image ? (
+                                            <img src={tour.image} alt={tour.title} className={styles.tourCardImage} />
+                                        ) : (
+                                            <div className={styles.tourCardImageFallback} />
+                                        )}
                                         <div className={styles.tourCardContent}>
                                             <h4 className={styles.tourCardTitle}>{tour.title}</h4>
                                             <div className={styles.tourCardMeta}>
@@ -378,10 +352,12 @@ const GuideDetail = () => {
                                                 <span className={styles.tourPriceLabel}>Từ</span>
                                                 <span className={styles.tourPriceValue}>{(tour.price || 0).toLocaleString('de-DE')} VND</span>
                                             </div>
-                                            <div className={styles.tourNextDate}>
-                                                <Calendar className={styles.tourMetaIcon} />
-                                                Khởi hành tiếp theo: {tour.nextDate}
-                                            </div>
+                                            {tour.nextDate ? (
+                                                <div className={styles.tourNextDate}>
+                                                    <Calendar className={styles.tourMetaIcon} />
+                                                    Khởi hành tiếp theo: {tour.nextDate}
+                                                </div>
+                                            ) : null}
                                         </div>
                                     </div>
                                 </Link>
@@ -389,27 +365,15 @@ const GuideDetail = () => {
                                 <p className={styles.bioText}>Chưa có tour được phân công.</p>
                             )}
 
-                            {/* Response Info */}
-                            <div className={styles.responseInfo}>
-                                <div className={styles.responseItem}>
-                                    <Shield className={styles.responseIcon} />
-                                    <div>
-                                        <div className={styles.responseLabel}>Tỷ lệ phản hồi</div>
-                                        <div className={styles.responseValue}>{guide.stats.responseRate}</div>
-                                    </div>
-                                </div>
-                                <div className={styles.responseItem}>
-                                    <Clock className={styles.responseIcon} />
-                                    <div>
-                                        <div className={styles.responseLabel}>Thời gian phản hồi</div>
-                                        <div className={styles.responseValue}>{guide.stats.responseTime}</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <button className={styles.bookWithGuideBtn}>
-                                Đặt tour cùng {guide.name}
-                            </button>
+                            {firstTour ? (
+                                <Link to={`/tours/${firstTour.id}`} className={styles.bookWithGuideBtn}>
+                                    Đặt tour cùng {guide.name}
+                                </Link>
+                            ) : (
+                                <Link to="/tours" className={styles.bookWithGuideBtn}>
+                                    Xem tour Flourish
+                                </Link>
+                            )}
                         </div>
                     </div>
                 </div>

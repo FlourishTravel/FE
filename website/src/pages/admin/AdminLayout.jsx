@@ -14,6 +14,7 @@ const NAV_ITEMS = [
     { path: '/admin/catalog-tickets', icon: 'confirmation_number', label: 'Danh Mục Vé' },
     { path: '/admin/notifications', icon: 'campaign', label: 'Thông Báo' },
     { path: '/admin/reviews', icon: 'reviews', label: 'Đánh Giá' },
+    { path: '/admin/guide-profiles', icon: 'badge', label: 'Hồ Sơ HDV' },
     { path: '/admin/content', icon: 'article', label: 'Nội Dung' },
     { path: '/admin/dispatch', icon: 'calendar_month', label: 'Điều Hành Tour' },
     { path: '/admin/bookings', icon: 'book_online', label: 'Quản Lý Đặt Chỗ' },

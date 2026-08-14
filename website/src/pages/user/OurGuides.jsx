@@ -4,146 +4,50 @@ import { Star, MapPin, Globe, Award, Clock, Users, ChevronRight, Search, Heart }
 import styles from './OurGuides.module.css';
 import { listPublicGuides } from '../../api/guides';
 import { resolveMediaUrl } from '../../api/config';
+import { GUIDE_SPECIALTY_OPTIONS } from '../../config/guideProfile';
 
-const TOUR_GUIDES = [
-    {
-        id: 1,
-        name: 'Trần Bình',
-        avatar: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&w=400&q=80',
-        role: 'Senior Tour Guide',
-        location: 'Bangkok – Pattaya, Thái Lan',
-        rating: 4.9,
-        reviewCount: 218,
-        toursCompleted: 156,
-        experience: '5 năm',
-        languages: ['Tiếng Việt', 'Tiếng Anh', 'Tiếng Thái'],
-        specialties: ['Ẩm thực', 'Văn hóa', 'Chữa lành'],
-        bio: 'Chuyên gia dẫn tour Bangkok – Pattaya với 5 năm kinh nghiệm. Bình nổi tiếng với phong cách dẫn tour "chill healing", giúp du khách tận hưởng từng khoảnh khắc thay vì chạy theo lịch trình.',
-        featuredTour: 'BANGKOK - PATAYA',
-        featuredTourId: 1,
-        badges: ['Top Guide 2025', 'Chứng nhận Bền vững'],
-        verified: true,
-    },
-    {
-        id: 2,
-        name: 'Nguyễn Minh Anh',
-        avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80',
-        role: 'Cultural Experience Guide',
-        location: 'Bangkok – Pattaya, Thái Lan',
-        rating: 4.8,
-        reviewCount: 175,
-        toursCompleted: 120,
-        experience: '4 năm',
-        languages: ['Tiếng Việt', 'Tiếng Anh'],
-        specialties: ['Nghệ thuật', 'Nhiếp ảnh', 'Local food'],
-        bio: 'Minh Anh là hướng dẫn viên chuyên về trải nghiệm văn hóa và nghệ thuật đương đại. Cô đặc biệt giỏi đưa đoàn đến những quán cafe ẩn và gallery nghệ thuật ít người biết tại Bangkok.',
-        featuredTour: 'BANGKOK - PATAYA',
-        featuredTourId: 1,
-        badges: ['Rising Star 2025'],
-        verified: true,
-    },
-    {
-        id: 3,
-        name: 'Lê Hoàng Phúc',
-        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
-        role: 'Adventure Guide',
-        location: 'Bangkok – Pattaya, Thái Lan',
-        rating: 4.7,
-        reviewCount: 142,
-        toursCompleted: 98,
-        experience: '3 năm',
-        languages: ['Tiếng Việt', 'Tiếng Anh', 'Tiếng Thái'],
-        specialties: ['Phiêu lưu', 'Biển đảo', 'Nightlife'],
-        bio: 'Phúc là guide trẻ tuổi, năng động, chuyên dẫn tour đảo Coral và các hoạt động thể thao nước tại Pattaya. Anh cũng là chuyên gia về nightlife Bangkok an toàn và thú vị.',
-        featuredTour: 'BANGKOK - PATAYA',
-        featuredTourId: 1,
-        badges: ['Chứng nhận Cứu hộ'],
-        verified: true,
-    },
-    {
-        id: 4,
-        name: 'Phạm Thùy Linh',
-        avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=400&q=80',
-        role: 'Wellness & Healing Guide',
-        location: 'Bangkok – Pattaya, Thái Lan',
-        rating: 5.0,
-        reviewCount: 89,
-        toursCompleted: 64,
-        experience: '2 năm',
-        languages: ['Tiếng Việt', 'Tiếng Anh'],
-        specialties: ['Wellness', 'Spa & Massage', 'Yoga'],
-        bio: 'Linh chuyên về các tour chữa lành và wellness. Mỗi hành trình cùng Linh đều bao gồm trải nghiệm spa Thái chính hiệu, buổi yoga sáng trên bãi biển và các hoạt động mindfulness.',
-        featuredTour: 'BANGKOK - PATAYA',
-        featuredTourId: 1,
-        badges: ['Wellness Certified'],
-        verified: true,
-    },
-    {
-        id: 5,
-        name: 'Võ Thanh Tùng',
-        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=400&q=80',
-        role: 'Food & Culture Guide',
-        location: 'Siem Reap – Phnom Penh, Campuchia',
-        rating: 4.8,
-        reviewCount: 103,
-        toursCompleted: 78,
-        experience: '4 năm',
-        languages: ['Tiếng Việt', 'Tiếng Anh', 'Tiếng Khmer'],
-        specialties: ['Ẩm thực', 'Lịch sử', 'Khám phá'],
-        bio: 'Tùng là chuyên gia về ẩm thực và lịch sử Campuchia. Anh sẽ đưa bạn khám phá những quán ăn gia đình bản địa và kể những câu chuyện hấp dẫn về đế chế Angkor.',
-        featuredTour: 'CAMPUCHIA: SIEM REAP - PHNOM PENH',
-        featuredTourId: 2,
-        badges: ['History Expert'],
-        verified: true,
-    },
-    {
-        id: 6,
-        name: 'Đặng Thị Mai',
-        avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80',
-        role: 'Eco & Sustainable Guide',
-        location: 'Hội An – Huế – Đà Nẵng',
-        rating: 4.9,
-        reviewCount: 156,
-        toursCompleted: 110,
-        experience: '6 năm',
-        languages: ['Tiếng Việt', 'Tiếng Anh', 'Tiếng Pháp'],
-        specialties: ['Bền vững', 'Làng nghề', 'Xe máy'],
-        bio: 'Mai là hướng dẫn viên lâu năm nhất của Flourish với 6 năm kinh nghiệm dẫn tour miền Trung. Cô đặc biệt yêu thích du lịch bền vững và hỗ trợ cộng đồng địa phương.',
-        featuredTour: 'HỘI AN – HUẾ – ĐÀ NẴNG',
-        featuredTourId: 3,
-        badges: ['Top Guide 2024', 'Eco Champion'],
-        verified: true,
-    },
-];
+const SPECIALTIES_FILTER = ['Tất cả', ...GUIDE_SPECIALTY_OPTIONS];
 
-const SPECIALTIES_FILTER = ['Tất cả', 'Ẩm thực', 'Văn hóa', 'Phiêu lưu', 'Wellness', 'Bền vững', 'Nghệ thuật'];
+function asStringList(raw) {
+    if (!Array.isArray(raw)) return [];
+    return raw
+        .map((item) => (typeof item === 'string' ? item : (item?.name || item?.label || '')))
+        .map((item) => item.trim())
+        .filter(Boolean);
+}
 
-function normalizeGuide(raw, fallbackIndex) {
-    const languages = Array.isArray(raw?.languages)
-        ? raw.languages.map((lang) => (typeof lang === 'string' ? lang : (lang?.name || lang?.label || '')))
-        : [];
-    const specialties = Array.isArray(raw?.specialties)
-        ? raw.specialties.map((s) => (typeof s === 'string' ? s : (s?.name || s?.label || '')))
-        : [];
-    const badges = Array.isArray(raw?.badges)
-        ? raw.badges.map((b) => (typeof b === 'string' ? b : (b?.name || b?.label || '')))
-        : [];
+function initials(name) {
+    const parts = String(name || '')
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean);
+    if (!parts.length) return 'HDV';
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+}
+
+function normalizeGuide(raw) {
+    const languages = asStringList(raw?.languages);
+    const specialties = asStringList(raw?.specialties);
+    const badges = asStringList(raw?.badges);
     const experienceYears = raw?.experienceYears ?? raw?.yearsExperience;
+    const name = raw?.fullName || raw?.name || 'Hướng dẫn viên';
+    const rating = raw?.rating == null || raw?.rating === '' ? null : Number(raw.rating);
     return {
-        id: raw?.id || `fallback-${fallbackIndex}`,
-        name: raw?.fullName || raw?.name || 'Hướng dẫn viên',
-        avatar: resolveMediaUrl(raw?.avatarUrl || raw?.avatar) || 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&w=400&q=80',
+        id: raw?.id,
+        name,
+        avatar: resolveMediaUrl(raw?.avatarUrl || raw?.avatar) || '',
         role: raw?.jobTitle || raw?.title || raw?.role || 'Hướng dẫn viên',
-        location: raw?.department || raw?.location || raw?.baseLocation || 'Flourish Travel',
-        rating: Number(raw?.rating) || 4.8,
+        location: raw?.location || raw?.baseLocation || raw?.guideBaseLocation || '',
+        rating: Number.isFinite(rating) ? rating : null,
         reviewCount: Number(raw?.reviewCount) || 0,
         toursCompleted: Number(raw?.toursCompleted) || 0,
-        experience: experienceYears ? `${experienceYears} năm` : (raw?.experience || 'Kinh nghiệm thực chiến'),
-        languages: languages.filter(Boolean).length ? languages.filter(Boolean) : ['Tiếng Việt'],
-        specialties: specialties.filter(Boolean).length ? specialties.filter(Boolean) : ['Trải nghiệm'],
-        bio: raw?.bio || raw?.shortBio || 'Đồng hành cùng du khách với phong cách chuyên nghiệp và gần gũi.',
-        badges: badges.filter(Boolean),
-        verified: Boolean(raw?.verified ?? true),
+        experienceYears: experienceYears == null || experienceYears === '' ? null : Number(experienceYears),
+        languages,
+        specialties,
+        bio: raw?.shortBio || raw?.bio || '',
+        badges,
+        verified: Boolean(raw?.verified),
     };
 }
 
@@ -152,18 +56,24 @@ const OurGuides = () => {
     const [activeFilter, setActiveFilter] = useState('Tất cả');
     const [savedGuides, setSavedGuides] = useState([]);
     const [guides, setGuides] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [loadError, setLoadError] = useState('');
 
     useEffect(() => {
         let alive = true;
         (async () => {
+            setLoading(true);
+            setLoadError('');
             try {
                 const list = await listPublicGuides();
                 if (!alive) return;
-                const normalized = (Array.isArray(list) ? list : []).map((guide, index) => normalizeGuide(guide, index));
-                setGuides(normalized);
-            } catch {
+                setGuides((Array.isArray(list) ? list : []).map(normalizeGuide).filter((g) => g.id));
+            } catch (err) {
                 if (!alive) return;
-                setGuides(TOUR_GUIDES);
+                setGuides([]);
+                setLoadError(err?.message || 'Không tải được đội ngũ hướng dẫn viên.');
+            } finally {
+                if (alive) setLoading(false);
             }
         })();
         return () => {
@@ -174,27 +84,44 @@ const OurGuides = () => {
     const toggleSave = (e, id) => {
         e.preventDefault();
         e.stopPropagation();
-        setSavedGuides(prev =>
-            prev.includes(id) ? prev.filter(g => g !== id) : [...prev, id]
+        setSavedGuides((prev) =>
+            prev.includes(id) ? prev.filter((g) => g !== id) : [...prev, id]
         );
     };
 
     const filteredGuides = useMemo(() => {
+        const query = searchQuery.trim().toLowerCase();
         return guides.filter((guide) => {
-            const query = searchQuery.toLowerCase();
-            const matchesSearch =
-                guide.name.toLowerCase().includes(query) ||
-                guide.location.toLowerCase().includes(query);
+            const hay = [
+                guide.name,
+                guide.location,
+                guide.bio,
+                ...(guide.specialties || []),
+                ...(guide.languages || []),
+            ].join(' ').toLowerCase();
+            const matchesSearch = !query || hay.includes(query);
             const matchesFilter =
                 activeFilter === 'Tất cả' ||
-                guide.specialties.some((s) => s.toLowerCase().includes(activeFilter.toLowerCase()));
+                guide.specialties.some((s) => s.toLowerCase() === activeFilter.toLowerCase());
             return matchesSearch && matchesFilter;
         });
     }, [guides, searchQuery, activeFilter]);
 
+    let emptyTitle = 'Không tìm thấy hướng dẫn viên';
+    let emptyText = 'Thử tìm kiếm với từ khóa khác hoặc bỏ bộ lọc.';
+    if (loading) {
+        emptyTitle = 'Đang tải đội ngũ HDV';
+        emptyText = 'Vui lòng chờ trong giây lát.';
+    } else if (loadError) {
+        emptyTitle = 'Không tải được danh sách';
+        emptyText = loadError;
+    } else if (guides.length === 0) {
+        emptyTitle = 'Chưa có hồ sơ được duyệt';
+        emptyText = 'Hướng dẫn viên điền hồ sơ trên portal, admin duyệt xong mới hiện tại đây.';
+    }
+
     return (
         <div className={styles.pageContainer}>
-            {/* Hero Section */}
             <div className={styles.heroSection}>
                 <div className={styles.heroOverlay}></div>
                 <div className={styles.heroContent}>
@@ -204,15 +131,14 @@ const OurGuides = () => {
                     </span>
                     <h1 className={styles.heroTitle}>Hướng Dẫn Viên Của Chúng Tôi</h1>
                     <p className={styles.heroSubtitle}>
-                        Những người bạn đồng hành tận tâm, trẻ trung và đầy kinh nghiệm — sẵn sàng biến mỗi hành trình thành kỷ niệm đáng nhớ.
+                        Những người bạn đồng hành tận tâm — hồ sơ thật, đã được Flourish duyệt.
                     </p>
 
-                    {/* Search Bar */}
                     <div className={styles.searchBar}>
                         <Search className={styles.searchIcon} />
                         <input
                             type="text"
-                            placeholder="Tìm hướng dẫn viên theo tên hoặc điểm đến..."
+                            placeholder="Tìm theo tên, tuyến, ngôn ngữ hoặc chuyên môn..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className={styles.searchInput}
@@ -222,7 +148,6 @@ const OurGuides = () => {
             </div>
 
             <div className={styles.container}>
-                {/* Filter Pills */}
                 <div className={styles.filterSection}>
                     <div className={styles.filterRow}>
                         {SPECIALTIES_FILTER.map((filter) => (
@@ -240,7 +165,6 @@ const OurGuides = () => {
                     </p>
                 </div>
 
-                {/* Guide Cards Grid */}
                 <div className={styles.grid}>
                     {filteredGuides.map((guide) => (
                         <Link
@@ -249,14 +173,17 @@ const OurGuides = () => {
                             className={styles.cardLink}
                         >
                             <article className={styles.card}>
-                                {/* Card Header with Image */}
                                 <div className={styles.cardHeader}>
                                     <div className={styles.avatarWrap}>
-                                        <img
-                                            src={guide.avatar}
-                                            alt={guide.name}
-                                            className={styles.avatar}
-                                        />
+                                        {guide.avatar ? (
+                                            <img
+                                                src={guide.avatar}
+                                                alt={guide.name}
+                                                className={styles.avatar}
+                                            />
+                                        ) : (
+                                            <span className={styles.avatarFallback}>{initials(guide.name)}</span>
+                                        )}
                                         {guide.verified && (
                                             <span className={styles.verifiedBadge} title="Đã xác minh">✓</span>
                                         )}
@@ -270,53 +197,57 @@ const OurGuides = () => {
                                     </button>
                                 </div>
 
-                                {/* Card Body */}
                                 <div className={styles.cardBody}>
                                     <h2 className={styles.guideName}>{guide.name}</h2>
                                     <p className={styles.guideRole}>{guide.role}</p>
 
                                     <div className={styles.ratingRow}>
                                         <Star className={styles.starIcon} />
-                                        <span className={styles.ratingValue}>{guide.rating}</span>
-                                        <span className={styles.reviewCount}>({guide.reviewCount} đánh giá)</span>
+                                        <span className={styles.ratingValue}>{guide.rating != null ? guide.rating : '—'}</span>
+                                        <span className={styles.reviewCount}>
+                                            {guide.reviewCount ? `(${guide.reviewCount} đánh giá)` : '(Chưa có đánh giá)'}
+                                        </span>
                                     </div>
 
                                     <div className={styles.infoRow}>
                                         <MapPin className={styles.infoIcon} />
-                                        <span>{guide.location}</span>
+                                        <span>{guide.location || 'Chưa cập nhật tuyến'}</span>
                                     </div>
 
                                     <div className={styles.infoRow}>
                                         <Globe className={styles.infoIcon} />
-                                        <span>{guide.languages.join(', ')}</span>
+                                        <span>{guide.languages.length ? guide.languages.join(', ') : 'Chưa cập nhật ngôn ngữ'}</span>
                                     </div>
 
-                                    <div className={styles.infoRow}>
-                                        <Clock className={styles.infoIcon} />
-                                        <span>{guide.experience} kinh nghiệm</span>
-                                    </div>
+                                    {guide.experienceYears != null ? (
+                                        <div className={styles.infoRow}>
+                                            <Clock className={styles.infoIcon} />
+                                            <span>{guide.experienceYears} năm kinh nghiệm</span>
+                                        </div>
+                                    ) : null}
 
-                                    <p className={styles.bio}>{guide.bio}</p>
+                                    {guide.bio ? <p className={styles.bio}>{guide.bio}</p> : null}
 
-                                    {/* Specialties */}
-                                    <div className={styles.specialtyRow}>
-                                        {guide.specialties.map((spec, idx) => (
-                                            <span key={idx} className={styles.specialtyTag}>{spec}</span>
-                                        ))}
-                                    </div>
+                                    {guide.specialties.length ? (
+                                        <div className={styles.specialtyRow}>
+                                            {guide.specialties.map((spec) => (
+                                                <span key={spec} className={styles.specialtyTag}>{spec}</span>
+                                            ))}
+                                        </div>
+                                    ) : null}
 
-                                    {/* Badges */}
-                                    <div className={styles.badgeRow}>
-                                        {guide.badges.map((badge, idx) => (
-                                            <span key={idx} className={styles.awardBadge}>
-                                                <Award className={styles.awardIcon} />
-                                                {badge}
-                                            </span>
-                                        ))}
-                                    </div>
+                                    {guide.badges.length ? (
+                                        <div className={styles.badgeRow}>
+                                            {guide.badges.map((badge) => (
+                                                <span key={badge} className={styles.awardBadge}>
+                                                    <Award className={styles.awardIcon} />
+                                                    {badge}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    ) : null}
                                 </div>
 
-                                {/* Card Footer */}
                                 <div className={styles.cardFooter}>
                                     <div className={styles.statsRow}>
                                         <div className={styles.stat}>
@@ -337,12 +268,11 @@ const OurGuides = () => {
                 {filteredGuides.length === 0 && (
                     <div className={styles.emptyState}>
                         <Search className={styles.emptyIcon} />
-                        <h3>Không tìm thấy hướng dẫn viên</h3>
-                        <p>Thử tìm kiếm với từ khóa khác hoặc bỏ bộ lọc.</p>
+                        <h3>{emptyTitle}</h3>
+                        <p>{emptyText}</p>
                     </div>
                 )}
 
-                {/* CTA Section */}
                 <div className={styles.ctaSection}>
                     <h2 className={styles.ctaTitle}>Bạn muốn trở thành Hướng Dẫn Viên?</h2>
                     <p className={styles.ctaText}>
