@@ -539,35 +539,6 @@ const TourDetail = () => {
                     </div>
                 </div>
 
-                <div className={styles.gallery}>
-                    <div className={styles.galleryMain}>
-                        <img
-                            src={tour.images.main}
-                            alt={tour.title}
-                            className={styles.galleryImage}
-                            onClick={() => setSelectedImage(tour.images.main)}
-                        />
-                    </div>
-                    <div className={styles.gallerySide}>
-                        {tour.images.secondary.map((img, idx) => (
-                            <div key={idx} className={styles.gallerySideItem}>
-                                <img
-                                    src={img}
-                                    alt={`${tour.title} ${idx + 2}`}
-                                    className={styles.galleryImage}
-                                    onClick={() => setSelectedImage(img)}
-                                />
-                                {idx === 1 && (
-                                    <button type="button" className={styles.viewAllBtn} onClick={() => setSelectedImage(tour.images.main)}>
-                                        <Layers className={styles.viewAllIcon} />
-                                        Xem tất cả ảnh
-                                    </button>
-                                )}
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
                 {tour.videos.length > 0 ? (
                     <section className={styles.introVideoSection} aria-label="Video giới thiệu">
                         <div className={styles.introVideoHeader}>
@@ -607,6 +578,35 @@ const TourDetail = () => {
                         </div>
                     </section>
                 ) : null}
+
+                <div className={styles.gallery}>
+                    <div className={styles.galleryMain}>
+                        <img
+                            src={tour.images.main}
+                            alt={tour.title}
+                            className={styles.galleryImage}
+                            onClick={() => setSelectedImage(tour.images.main)}
+                        />
+                    </div>
+                    <div className={styles.gallerySide}>
+                        {tour.images.secondary.map((img, idx) => (
+                            <div key={idx} className={styles.gallerySideItem}>
+                                <img
+                                    src={img}
+                                    alt={`${tour.title} ${idx + 2}`}
+                                    className={styles.galleryImage}
+                                    onClick={() => setSelectedImage(img)}
+                                />
+                                {idx === 1 && (
+                                    <button type="button" className={styles.viewAllBtn} onClick={() => setSelectedImage(tour.images.main)}>
+                                        <Layers className={styles.viewAllIcon} />
+                                        Xem tất cả ảnh
+                                    </button>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </div>
 
                 <div className={styles.bodyLayout}>
                     <div className={styles.mainInfo}>
