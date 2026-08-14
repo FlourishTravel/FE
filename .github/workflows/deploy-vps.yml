@@ -30,6 +30,13 @@ jobs:
             set -e
             cd ~/flourish
 
+            echo "=== disk before cleanup ==="
+            df -h /
+            docker builder prune -af || true
+            docker image prune -af || true
+            echo "=== disk after cleanup ==="
+            df -h /
+
             if [ -d FE/.git ]; then
               cd FE
               git fetch origin

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, ArrowLeft } from 'lucide-react';
@@ -26,6 +26,21 @@ const Login = () => {
         checkGuideCredentials,
         MOCK_GUIDE,
     } = useAuth();
+    const googleBtnRef = useRef(null);
+    const [googleBtnWidth, setGoogleBtnWidth] = useState(320);
+
+    useEffect(() => {
+        const el = googleBtnRef.current;
+        if (!el) return undefined;
+        const apply = () => {
+            const w = Math.floor(el.getBoundingClientRect().width);
+            setGoogleBtnWidth(Math.min(400, Math.max(200, w || 320)));
+        };
+        apply();
+        const ro = new ResizeObserver(apply);
+        ro.observe(el);
+        return () => ro.disconnect();
+    }, []);
 
     // Điều hướng sau khi đăng nhập theo role (đã được AuthContext chuẩn hoá: admin/guide/user)
     const redirectByRole = (role) => {
@@ -180,7 +195,7 @@ const Login = () => {
                     <span className={styles.dividerLine}></span>
                 </div>
 
-                <div className={styles.googleBtnWrap}>
+                <div className={styles.googleBtnWrap} ref={googleBtnRef}>
                     {GOOGLE_CLIENT_ID ? (
                         <GoogleLogin
                             onSuccess={handleGoogleSuccess}
@@ -188,7 +203,7 @@ const Login = () => {
                             useOneTap={false}
                             theme="outline"
                             size="large"
-                            width="100%"
+                            width={googleBtnWidth}
                             text="signin_with"
                             shape="rectangular"
                         />
