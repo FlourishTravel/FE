@@ -6,6 +6,7 @@ export const EXPLORE_MENU = [
     { label: 'Cẩm nang du lịch', href: '/travel-guide', description: 'Mẹo, checklist và kinh nghiệm' },
     { label: 'Blog du lịch', href: '/news', description: 'Tin tức và câu chuyện du lịch' },
     { label: 'Gợi ý theo mùa', href: '/stories', description: 'Hành trình theo mùa trong năm' },
+    { label: 'Ưu đãi', href: '/my-vouchers', description: 'Mã giảm giá đang áp dụng' },
 ];
 
 /** Menu Tour — fallback khi chưa tải được danh mục từ DB. */
@@ -98,6 +99,7 @@ export function isExploreActive(pathname) {
         || pathMatchesPrefix(pathname, '/news')
         || pathMatchesPrefix(pathname, '/stories')
         || pathMatchesPrefix(pathname, '/content')
+        || pathname === '/my-vouchers'
     );
 }
 

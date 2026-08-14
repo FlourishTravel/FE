@@ -1220,6 +1220,35 @@
     cursor: not-allowed;
 }
 
+.promoChips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.promoChip {
+    border: 1px dashed #86efac;
+    background: #ecfdf5;
+    color: #047857;
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.promoChip:hover:not(:disabled) {
+    background: #d1fae5;
+}
+
+.promoChip:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 .promoMsg {
     font-size: 12px;
     margin-top: 6px;

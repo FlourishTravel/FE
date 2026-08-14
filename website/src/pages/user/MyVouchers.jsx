@@ -54,7 +54,7 @@ const MyVouchers = () => {
                         Voucher & Mã giảm giá
                     </h1>
                     <p className={styles.subtitle}>
-                        Mã công khai và voucher được tặng riêng cho tài khoản của bạn — nhập khi thanh toán tour.
+                        Mã công khai hiện trên trang chủ và trang này. Voucher tặng riêng chỉ tài khoản của bạn mới thấy — nhập khi thanh toán tour.
                     </p>
                 </header>
 
@@ -78,6 +78,9 @@ const MyVouchers = () => {
                             <span className={styles.badge}>{formatDiscount(p)}</span>
                             {(p.gifted || p.isPublic === false) && (
                                 <span className={`${styles.badge} ${styles.badgeGift}`}>Tặng riêng</span>
+                            )}
+                            {p.upcoming && (
+                                <span className={`${styles.badge} ${styles.badgeMuted}`}>Sắp có hiệu lực</span>
                             )}
                             <span>HSD: {formatDate(p.validTo)}</span>
                             {p.minOrderAmount != null && (

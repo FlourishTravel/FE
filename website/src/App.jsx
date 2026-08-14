@@ -3,6 +3,7 @@ import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import FeaturedDestinations from './components/FeaturedDestinations';
+import FeaturedPromotions from './components/FeaturedPromotions';
 import FeaturedReviews from './components/FeaturedReviews';
 import ValueProp from './components/ValueProp';
 import Mission from './components/Mission';
@@ -86,6 +87,7 @@ const HomePage = () => (
   <div className="min-h-screen w-full">
     <Navbar />
     <Hero />
+    <FeaturedPromotions />
     <FeaturedDestinations />
     <FeaturedReviews />
     <ValueProp />

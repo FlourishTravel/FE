@@ -10,6 +10,7 @@ import styles from './Checkout.module.css';
 import { getPublicTour } from '../../api/tours';
 import { resolveMediaUrl } from '../../api/config';
 import { createBooking, validateBookingPromo } from '../../api/bookings';
+import { listActivePromotions } from '../../api/promotions';
 import { getAccessToken } from '../../api/auth';
 import { useAuth } from '../../context/AuthContext';
 
@@ -184,6 +185,7 @@ const Checkout = () => {
     const [agreeTerms, setAgreeTerms] = useState(false);
     const [promoResult, setPromoResult] = useState(null);
     const [promoLoading, setPromoLoading] = useState(false);
+    const [publicPromos, setPublicPromos] = useState([]);
     const [slotData, setSlotData] = useState({});
     const [singleRoom, setSingleRoom] = useState({});
 
@@ -329,6 +331,20 @@ const Checkout = () => {
         }));
     }, [user]);
 
+    useEffect(() => {
+        let alive = true;
+        (async () => {
+            try {
+                const rows = await listActivePromotions();
+                if (!alive) return;
+                setPublicPromos((rows || []).filter((p) => p.isPublic !== false && !p.gifted && !p.upcoming));
+            } catch {
+                if (alive) setPublicPromos([]);
+            }
+        })();
+        return () => { alive = false; };
+    }, []);
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
@@ -351,8 +367,8 @@ const Checkout = () => {
         setErrors((prev) => (prev[`slot_${key}`] ? { ...prev, [`slot_${key}`]: '' } : prev));
     }, []);
 
-    const applyPromo = async () => {
-        const code = formData.promoInput.trim().toUpperCase();
+    const applyPromo = async (overrideCode) => {
+        const code = String(overrideCode || formData.promoInput).trim().toUpperCase();
         if (!code) {
             setPromoResult({ valid: false, message: 'Nhập mã ưu đãi.' });
             return;
@@ -361,6 +377,7 @@ const Checkout = () => {
             setPromoResult({ valid: false, message: 'Chọn đợt khởi hành trước khi áp dụng mã ưu đãi.' });
             return;
         }
+        setFormData((prev) => ({ ...prev, promoInput: code }));
         setPromoLoading(true);
         setPromoResult(null);
         try {
@@ -1266,10 +1283,25 @@ const Checkout = () => {
                                             className={styles.formInput}
                                             autoComplete="off"
                                         />
-                                        <button type="button" className={styles.btnApply} onClick={applyPromo} disabled={promoLoading || !sessionOk}>
+                                        <button type="button" className={styles.btnApply} onClick={() => applyPromo()} disabled={promoLoading || !sessionOk}>
                                             {promoLoading ? '...' : 'Áp dụng'}
                                         </button>
                                     </div>
+                                    {publicPromos.length > 0 ? (
+                                        <div className={styles.promoChips}>
+                                            {publicPromos.map((p) => (
+                                                <button
+                                                    key={p.id || p.code}
+                                                    type="button"
+                                                    className={styles.promoChip}
+                                                    onClick={() => applyPromo(p.code)}
+                                                    disabled={promoLoading || !sessionOk}
+                                                >
+                                                    {p.code}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    ) : null}
                                     {isLiveTour && !sessionOk ? (
                                         <p className={styles.promoMsg} style={{ color: '#b45309' }}>
                                             Chọn đợt khởi hành trước khi áp dụng mã giảm giá.

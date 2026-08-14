@@ -226,11 +226,21 @@ const PromotionManagement = () => {
       render: (_, row) => {
         const pub = row.isPublic !== false;
         const gifted = row.assignedCount ?? 0;
+        const active = row.isActive !== false && row.active !== false;
+        const now = Date.now();
+        const from = row.validFrom ? new Date(row.validFrom).getTime() : NaN;
+        const to = row.validTo ? new Date(row.validTo).getTime() : NaN;
+        let hint = 'Chỉ khách được tặng';
+        if (!active) hint = 'Không hiện (tạm dừng)';
+        else if (pub && Number.isFinite(to) && to <= now) hint = 'Không hiện (hết hạn)';
+        else if (pub && Number.isFinite(from) && from > now) hint = 'Hiện trên web (sắp áp dụng)';
+        else if (pub) hint = 'Đang hiện trên trang chủ / Voucher';
         return (
           <div>
             <span className={`${styles.statusBadge} ${pub ? styles.badgeSuccess : styles.badgeWarning}`}>
               {pub ? 'Công khai' : 'Tặng riêng'}
             </span>
+            <div className={styles.subText}>{hint}</div>
             {gifted > 0 && <div className={styles.subText}>Đã tặng {gifted}</div>}
           </div>
         );
