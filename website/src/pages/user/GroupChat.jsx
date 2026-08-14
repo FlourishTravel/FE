@@ -37,6 +37,7 @@ function formatMsgTime(iso) {
 
 function senderLabel(msg) {
   const r = (msg.senderRole || '').toUpperCase();
+  if (r === 'FLORA') return 'Flora';
   if (r === 'TOUR_GUIDE') {
     return msg.senderName ? `${msg.senderName} (HDV)` : 'Hướng dẫn viên';
   }
@@ -191,17 +192,21 @@ const GroupChat = () => {
           <>
             <div className={styles.messages}>
               {messages.length === 0 ? (
-                <p className={styles.emptyHint}>Chưa có tin nhắn. Hãy chào HDV và đoàn!</p>
+                <p className={styles.emptyHint}>
+                  Chưa có tin nhắn. Hãy chào đoàn, hoặc gõ @Flora để hỏi lịch trình / sự cố / chính sách tour.
+                </p>
               ) : (
                 messages.map((m) => {
                   const isMe = user && String(user.id) === String(m.senderId);
+                  const isFlora = (m.senderRole || '').toUpperCase() === 'FLORA';
                   const displayName = isMe ? 'Bạn' : senderLabel(m);
+                  const bubbleClass = isMe ? styles.bubbleMe : isFlora ? styles.bubbleFlora : styles.bubble;
                   return (
                     <div key={m.id} className={isMe ? styles.msgRowMe : styles.msgRow}>
                       {!isMe && (
                         <ChatAvatar name={m.senderName} url={m.senderAvatarUrl} className={styles.avatar} />
                       )}
-                      <div className={isMe ? styles.bubbleMe : styles.bubble}>
+                      <div className={bubbleClass}>
                         <span className={styles.bubbleSender}>
                           {displayName}
                           {m.isPinned ? ' · Đã ghim' : ''}
@@ -222,7 +227,7 @@ const GroupChat = () => {
             <div className={styles.inputBar}>
               <input
                 type="text"
-                placeholder="Nhập tin nhắn..."
+                placeholder="Nhắn đoàn, hoặc @Flora để hỏi AI..."
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}

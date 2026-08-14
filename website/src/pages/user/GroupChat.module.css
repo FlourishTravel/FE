@@ -68,6 +68,10 @@
     @apply max-w-[85%] rounded-2xl rounded-tr-md px-4 py-2 bg-primary-500 text-white;
 }
 
+.bubbleFlora {
+    @apply max-w-[85%] rounded-2xl rounded-tl-md px-4 py-2 bg-emerald-50 text-gray-900 border border-emerald-200;
+}
+
 .bubbleSender {
     @apply block text-xs font-semibold opacity-90 mb-0.5;
 }

@@ -20,6 +20,7 @@ function formatMsgTime(iso) {
 
 function senderLabel(msg, userId) {
   const r = (msg.senderRole || '').toUpperCase();
+  if (r === 'FLORA') return 'Flora';
   if (r === 'TOUR_GUIDE') return msg.senderName ? `${msg.senderName} (HDV)` : 'Hướng dẫn viên';
   if (r === 'ADMIN') return msg.senderName || 'Quản trị';
   if (msg.senderId && userId && String(msg.senderId) === String(userId)) return 'Bạn';
@@ -235,13 +236,14 @@ const GuideCommunication = () => {
             )}
             {messages.map((msg) => {
               const mine = msg.senderId && user?.id && String(msg.senderId) === String(user.id);
+              const flora = (msg.senderRole || '').toUpperCase() === 'FLORA';
               const displayName = mine ? 'Bạn' : senderLabel(msg, user?.id);
               return (
                 <div key={msg.id || `${msg.createdAt || msg.sentAt}-${msg.content}`} className={`${styles.msgRow} ${mine ? styles.msgMine : ''}`}>
                   {!mine && (
                     <ChatAvatar name={msg.senderName} url={msg.senderAvatarUrl} className={styles.msgAvatar} />
                   )}
-                  <div className={`${styles.msgBubble} ${mine ? styles.bubbleMine : styles.bubbleOther}`}>
+                  <div className={`${styles.msgBubble} ${mine ? styles.bubbleMine : flora ? styles.bubbleFlora : styles.bubbleOther}`}>
                     <span className={styles.msgSender}>{displayName}</span>
                     <span className={styles.msgText}>{msg.content}</span>
                     <span className={styles.msgTime}>{formatMsgTime(msg.createdAt || msg.sentAt)}</span>
@@ -258,7 +260,7 @@ const GuideCommunication = () => {
           <div className={styles.chatInputBar}>
             <input
               className={styles.chatInput}
-              placeholder="Nhắn tin đoàn..."
+              placeholder="Nhắn tin đoàn, hoặc @Flora..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleSend())}

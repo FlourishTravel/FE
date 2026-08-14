@@ -331,6 +331,12 @@
     border-bottom-left-radius: 4px;
 }
 
+.bubbleFlora {
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    border-bottom-left-radius: 4px;
+}
+
 .bubbleMine {
     background: #059669;
     color: white;
