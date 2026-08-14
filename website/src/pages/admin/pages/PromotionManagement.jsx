@@ -50,7 +50,7 @@ const PromotionManagement = () => {
       }
       setItems(rows);
     } catch (err) {
-      setErrorMsg(err?.message || 'Khong the tai danh sach khuyen mai');
+      setErrorMsg(err?.message || 'Không tải được danh sách khuyến mãi.');
     } finally {
       setLoading(false);
     }
@@ -100,15 +100,15 @@ const PromotionManagement = () => {
       };
       if (editingItem?.id) {
         await updateAdminPromotion(editingItem.id, payload);
-        setSuccessMsg('Da cap nhat chuong trinh khuyen mai');
+        setSuccessMsg('Đã cập nhật chương trình khuyến mãi.');
       } else {
         await createAdminPromotion(payload);
-        setSuccessMsg('Da tao chuong trinh khuyen mai moi');
+        setSuccessMsg('Đã tạo chương trình khuyến mãi mới.');
       }
       setModalOpen(false);
       fetchData();
     } catch (err) {
-      setErrorMsg(err?.message || 'Khong the luu khuyen mai');
+      setErrorMsg(err?.message || 'Không lưu được khuyến mãi.');
     }
   };
 
@@ -116,10 +116,10 @@ const PromotionManagement = () => {
     const isActive = row.isActive !== false && row.active !== false;
     try {
       await toggleAdminPromotionActive(row.id, !isActive);
-      setSuccessMsg(isActive ? 'Da tam dung khuyen mai' : 'Da kich hoat khuyen mai');
+      setSuccessMsg(isActive ? 'Đã tạm dừng khuyến mãi.' : 'Đã kích hoạt khuyến mãi.');
       fetchData();
     } catch (err) {
-      setErrorMsg(err?.message || 'Khong the cap nhat trang thai');
+      setErrorMsg(err?.message || 'Không cập nhật được trạng thái.');
     }
   };
 
@@ -135,7 +135,7 @@ const PromotionManagement = () => {
   const columns = [
     {
       key: 'title',
-      label: 'Khuyen mai',
+      label: 'Khuyến mãi',
       render: (_, row) => (
         <div className={styles.nameCell}>
           <div className={styles.nameIcon}>
@@ -143,21 +143,21 @@ const PromotionManagement = () => {
           </div>
           <div>
             <div className={styles.nameTitle}>{row.name || row.title || row.code}</div>
-            <div className={styles.subText}>{row.code || 'Khong co ma'}</div>
+            <div className={styles.subText}>{row.code || 'Không có mã'}</div>
           </div>
         </div>
       ),
     },
-    { key: 'discountPercent', label: 'Giam (%)', render: (v) => `${v ?? 0}%` },
-    { key: 'maxDiscountAmount', label: 'Tran giam', render: (v) => (v ? v.toLocaleString('vi-VN') : 'Khong gioi han') },
+    { key: 'discountPercent', label: 'Giảm (%)', render: (v) => `${v ?? 0}%` },
+    { key: 'maxDiscountAmount', label: 'Trần giảm', render: (v) => (v ? v.toLocaleString('vi-VN') : 'Không giới hạn') },
     {
       key: 'active',
-      label: 'Trang thai',
+      label: 'Trạng thái',
       render: (v, row) => {
         const active = row.isActive !== false && row.active !== false;
         return (
         <span className={`${styles.statusBadge} ${active ? styles.badgeSuccess : styles.badgeNeutral}`}>
-          {active ? 'Dang hoat dong' : 'Tam dung'}
+          {active ? 'Đang hoạt động' : 'Tạm dừng'}
         </span>
         );
       },
@@ -167,13 +167,13 @@ const PromotionManagement = () => {
       label: '',
       render: (_, row) => (
         <div className={styles.actions}>
-          <button className={styles.actionBtn} onClick={() => openEdit(row)} title="Chinh sua">
+          <button className={styles.actionBtn} onClick={() => openEdit(row)} title="Chỉnh sửa">
             <span className="material-icons-round" style={{ fontSize: 18 }}>edit</span>
           </button>
           <button
             className={`${styles.actionBtn} ${(row.isActive !== false && row.active !== false) ? styles.actionDanger : styles.actionSuccess}`}
             onClick={() => handleToggle(row)}
-            title={(row.isActive !== false && row.active !== false) ? 'Tam dung' : 'Kich hoat'}
+            title={(row.isActive !== false && row.active !== false) ? 'Tạm dừng' : 'Kích hoạt'}
           >
             <span className="material-icons-round" style={{ fontSize: 18 }}>
               {(row.isActive !== false && row.active !== false) ? 'toggle_off' : 'toggle_on'}
@@ -188,19 +188,19 @@ const PromotionManagement = () => {
     <div className={styles.page}>
       <div className={styles.pageHeader}>
         <div>
-          <h1 className={styles.pageTitle}>Quan Ly Khuyen Mai</h1>
-          <p className={styles.pageSubtitle}>Quan ly ma giam gia, ngay hieu luc va trang thai su dung</p>
+          <h1 className={styles.pageTitle}>Quản lý khuyến mãi</h1>
+          <p className={styles.pageSubtitle}>Quản lý mã giảm giá, ngày hiệu lực và trạng thái sử dụng</p>
         </div>
         <div className={styles.headerActions}>
-          <button className={styles.refreshBtn} onClick={fetchData} disabled={loading}>Tai lai</button>
-          <button className={styles.addBtn} onClick={openCreate}>Them khuyen mai</button>
+          <button className={styles.refreshBtn} onClick={fetchData} disabled={loading}>Tải lại</button>
+          <button className={styles.addBtn} onClick={openCreate}>Thêm khuyến mãi</button>
         </div>
       </div>
 
       <div className={styles.statsGrid}>
-        <StatCard icon="sell" label="Tong chuong trinh" value={String(stats.total)} color="green" />
-        <StatCard icon="bolt" label="Dang hoat dong" value={String(stats.active)} color="blue" />
-        <StatCard icon="schedule" label="Sap dien ra" value={String(stats.upcoming)} color="orange" />
+        <StatCard icon="sell" label="Tổng chương trình" value={String(stats.total)} color="green" />
+        <StatCard icon="bolt" label="Đang hoạt động" value={String(stats.active)} color="blue" />
+        <StatCard icon="schedule" label="Sắp diễn ra" value={String(stats.upcoming)} color="orange" />
       </div>
 
       {(errorMsg || successMsg) && (
@@ -216,9 +216,9 @@ const PromotionManagement = () => {
       <div className={styles.filterBar}>
         <div className={styles.filterTabs}>
           {[
-            { key: 'all', label: 'Tat ca' },
-            { key: 'true', label: 'Dang bat' },
-            { key: 'false', label: 'Tam dung' },
+            { key: 'all', label: 'Tất cả' },
+            { key: 'true', label: 'Đang bật' },
+            { key: 'false', label: 'Tạm dừng' },
           ].map((tab) => (
             <button
               key={tab.key}
@@ -233,7 +233,7 @@ const PromotionManagement = () => {
           <span className="material-icons-round" style={{ fontSize: 18, color: '#9ca3af' }}>search</span>
           <input
             className={styles.filterInput}
-            placeholder="Tim theo ten, ma khuyen mai..."
+            placeholder="Tìm theo tên, mã khuyến mãi..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -243,15 +243,15 @@ const PromotionManagement = () => {
       <DataTable
         columns={columns}
         data={items}
-        totalLabel="khuyen mai"
-        emptyMessage={loading ? 'Dang tai...' : 'Chua co khuyen mai nao'}
+        totalLabel="khuyến mãi"
+        emptyMessage={loading ? 'Đang tải...' : 'Chưa có khuyến mãi nào'}
       />
 
       {modalOpen && (
         <div className={styles.modalOverlay} onClick={() => setModalOpen(false)}>
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
-              <h2>{editingItem ? 'Chinh sua khuyen mai' : 'Tao khuyen mai moi'}</h2>
+              <h2>{editingItem ? 'Chỉnh sửa khuyến mãi' : 'Tạo khuyến mãi mới'}</h2>
               <button className={styles.actionBtn} type="button" onClick={() => setModalOpen(false)}>
                 <span className="material-icons-round">close</span>
               </button>
@@ -260,42 +260,42 @@ const PromotionManagement = () => {
               <div className={styles.modalBody}>
                 <div className={styles.formRow}>
                   <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>Ma khuyen mai</label>
+                    <label className={styles.formLabel}>Mã khuyến mãi</label>
                     <input className={styles.formInput} value={formData.code} onChange={(e) => setFormData((p) => ({ ...p, code: e.target.value }))} required />
                   </div>
                   <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>Tieu de</label>
+                    <label className={styles.formLabel}>Tiêu đề</label>
                     <input className={styles.formInput} value={formData.title} onChange={(e) => setFormData((p) => ({ ...p, title: e.target.value }))} required />
                   </div>
                 </div>
                 <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>Mo ta</label>
-                  <textarea className={styles.formTextarea} value={formData.description} onChange={(e) => setFormData((p) => ({ ...p, description: e.target.value }))} />
+                  <label className={styles.formLabel}>Mô tả</label>
+                  <textarea className={styles.formTextarea} rows={4} value={formData.description} onChange={(e) => setFormData((p) => ({ ...p, description: e.target.value }))} />
                 </div>
                 <div className={styles.formRow}>
                   <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>Phan tram giam</label>
+                    <label className={styles.formLabel}>Phần trăm giảm</label>
                     <input type="number" min="0" max="100" className={styles.formInput} value={formData.discountPercent} onChange={(e) => setFormData((p) => ({ ...p, discountPercent: e.target.value }))} />
                   </div>
                   <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>Tran giam (VND)</label>
+                    <label className={styles.formLabel}>Trần giảm (VNĐ)</label>
                     <input type="number" min="0" className={styles.formInput} value={formData.maxDiscountAmount} onChange={(e) => setFormData((p) => ({ ...p, maxDiscountAmount: e.target.value }))} />
                   </div>
                 </div>
                 <div className={styles.formRow}>
                   <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>Bat dau</label>
+                    <label className={styles.formLabel}>Bắt đầu</label>
                     <input type="datetime-local" className={styles.formInput} value={formData.startAt} onChange={(e) => setFormData((p) => ({ ...p, startAt: e.target.value }))} />
                   </div>
                   <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>Ket thuc</label>
+                    <label className={styles.formLabel}>Kết thúc</label>
                     <input type="datetime-local" className={styles.formInput} value={formData.endAt} onChange={(e) => setFormData((p) => ({ ...p, endAt: e.target.value }))} />
                   </div>
                 </div>
               </div>
               <div className={styles.modalFooter}>
-                <button type="button" className={styles.cancelBtn} onClick={() => setModalOpen(false)}>Huy</button>
-                <button type="submit" className={styles.submitBtn}>{editingItem ? 'Luu thay doi' : 'Tao khuyen mai'}</button>
+                <button type="button" className={styles.cancelBtn} onClick={() => setModalOpen(false)}>Hủy</button>
+                <button type="submit" className={styles.submitBtn}>{editingItem ? 'Lưu thay đổi' : 'Tạo khuyến mãi'}</button>
               </div>
             </form>
           </div>
