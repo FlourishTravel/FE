@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { resolveMediaUrl } from '../../../api/config';
-import { getAdminTourDetail } from '../../../api/tours';
+import { createAdminSession, deleteAdminSession, getAdminTourDetail, addDaysIso } from '../../../api/tours';
 import styles from './TourDetailModal.module.css';
 
 const STATUS_LABELS = {
@@ -28,7 +28,7 @@ const TABS = [
     { key: 'overview', label: 'Tổng quan', icon: 'info' },
     { key: 'itinerary', label: 'Lịch trình', icon: 'event_note' },
     { key: 'locations', label: 'Địa điểm', icon: 'place' },
-    { key: 'sessions', label: 'Lịch khởi hành', icon: 'calendar_month' },
+    { key: 'sessions', label: 'Đợt khởi hành', icon: 'calendar_month' },
     { key: 'media', label: 'Ảnh & Video', icon: 'collections' },
 ];
 
@@ -91,6 +91,17 @@ const TourDetailModal = ({ isOpen, tourId, onClose, onEdit }) => {
     const [loading, setLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
     const [expandedItineraryId, setExpandedItineraryId] = useState(null);
+    const [newStartDate, setNewStartDate] = useState('');
+    const [newMaxPax, setNewMaxPax] = useState('20');
+    const [sessionBusy, setSessionBusy] = useState(false);
+    const [sessionMsg, setSessionMsg] = useState('');
+
+    const reloadDetail = () => {
+        if (!tourId) return Promise.resolve();
+        return getAdminTourDetail(tourId)
+            .then((data) => setDetail(data || null))
+            .catch((err) => setErrorMsg(err?.message || 'Không tải được chi tiết tour'));
+    };
 
     useEffect(() => {
         if (!isOpen || !tourId) return;
@@ -98,6 +109,9 @@ const TourDetailModal = ({ isOpen, tourId, onClose, onEdit }) => {
         setLoading(true);
         setErrorMsg('');
         setDetail(null);
+        setNewStartDate('');
+        setNewMaxPax('20');
+        setSessionMsg('');
         getAdminTourDetail(tourId)
             .then((data) => setDetail(data || null))
             .catch((err) => setErrorMsg(err?.message || 'Không tải được chi tiết tour'))
@@ -116,6 +130,52 @@ const TourDetailModal = ({ isOpen, tourId, onClose, onEdit }) => {
         if (!detail?.images?.length) return PLACEHOLDER_IMG;
         return detail.images[0]?.imageUrl || PLACEHOLDER_IMG;
     }, [detail]);
+
+    const handleAddSession = async (e) => {
+        e.preventDefault();
+        if (!detail?.id || !newStartDate) return;
+        setSessionBusy(true);
+        setSessionMsg('');
+        try {
+            const tripDays = Number(detail.durationDays);
+            await createAdminSession({
+                tourId: detail.id,
+                startDate: newStartDate,
+                endDate: addDaysIso(
+                    newStartDate,
+                    Number.isFinite(tripDays) && tripDays > 1 ? tripDays - 1 : 0
+                ),
+                maxParticipants: Number(newMaxPax) > 0 ? Number(newMaxPax) : 20,
+            });
+            setNewStartDate('');
+            setNewMaxPax('20');
+            setSessionMsg('Đã thêm đợt khởi hành.');
+            await reloadDetail();
+        } catch (err) {
+            setSessionMsg(err?.message || 'Không thêm được đợt.');
+        } finally {
+            setSessionBusy(false);
+        }
+    };
+
+    const handleDeleteSession = async (session) => {
+        if (!session?.id) return;
+        const ok = window.confirm(
+            `Xoá đợt khởi hành ${formatDate(session.startDate)}? Chỉ xoá được đợt chưa có khách đặt.`
+        );
+        if (!ok) return;
+        setSessionBusy(true);
+        setSessionMsg('');
+        try {
+            await deleteAdminSession(session.id);
+            setSessionMsg('Đã xoá đợt.');
+            await reloadDetail();
+        } catch (err) {
+            setSessionMsg(err?.message || 'Không xoá được đợt.');
+        } finally {
+            setSessionBusy(false);
+        }
+    };
 
     if (!isOpen) return null;
 
@@ -216,7 +276,7 @@ const TourDetailModal = ({ isOpen, tourId, onClose, onEdit }) => {
                                 />
                                 <InfoBlock
                                     icon="event"
-                                    label="Số lịch khởi hành"
+                                    label="Số đợt khởi hành"
                                     value={String(detail.sessions?.length ?? 0)}
                                 />
                                 <InfoBlock
@@ -426,24 +486,64 @@ const TourDetailModal = ({ isOpen, tourId, onClose, onEdit }) => {
 
                     {!loading && detail && tab === 'sessions' && (
                         <div className={styles.section}>
+                            <form className={styles.addSessionForm} onSubmit={handleAddSession}>
+                                <div className={styles.addSessionFields}>
+                                    <label>
+                                        Ngày khởi hành
+                                        <input
+                                            type="date"
+                                            required
+                                            value={newStartDate}
+                                            onChange={(e) => setNewStartDate(e.target.value)}
+                                            disabled={sessionBusy}
+                                        />
+                                    </label>
+                                    <label>
+                                        Số khách tối đa
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            max="999"
+                                            value={newMaxPax}
+                                            onChange={(e) => setNewMaxPax(e.target.value)}
+                                            disabled={sessionBusy}
+                                        />
+                                    </label>
+                                </div>
+                                <button type="submit" className={styles.addSessionBtn} disabled={sessionBusy}>
+                                    <span className="material-icons-round" style={{ fontSize: 16 }}>add</span>
+                                    {sessionBusy ? 'Đang lưu...' : 'Thêm đợt'}
+                                </button>
+                            </form>
+                            {sessionMsg ? (
+                                <p className={styles.sessionMsg}>{sessionMsg}</p>
+                            ) : (
+                                <p className={styles.sessionHint}>
+                                    Ngày kết thúc được tính từ số ngày của tour. Có thể thêm nhiều đợt cho cùng một tour.
+                                </p>
+                            )}
                             {detail.sessions?.length ? (
                                 <table className={styles.sessionTable}>
                                     <thead>
                                         <tr>
+                                            <th>Đợt</th>
                                             <th>Khởi hành</th>
                                             <th>Kết thúc</th>
                                             <th>Slot</th>
                                             <th>HDV</th>
                                             <th>Trạng thái</th>
+                                            <th></th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {detail.sessions.map((s) => {
+                                        {detail.sessions.map((s, idx) => {
                                             const total = s.maxParticipants ?? 0;
                                             const current = s.currentParticipants ?? 0;
                                             const pct = total > 0 ? Math.min(100, (current / total) * 100) : 0;
+                                            const canDelete = current === 0 && s.status !== 'ongoing';
                                             return (
                                                 <tr key={s.id}>
+                                                    <td>Đợt {idx + 1}</td>
                                                     <td>{formatDate(s.startDate)}</td>
                                                     <td>{formatDate(s.endDate)}</td>
                                                     <td>
@@ -482,6 +582,23 @@ const TourDetailModal = ({ isOpen, tourId, onClose, onEdit }) => {
                                                         )}
                                                     </td>
                                                     <td>{renderStatusBadge(s.status, SESSION_STATUS_LABELS)}</td>
+                                                    <td>
+                                                        {canDelete ? (
+                                                            <button
+                                                                type="button"
+                                                                className={styles.sessionDeleteBtn}
+                                                                disabled={sessionBusy}
+                                                                onClick={() => handleDeleteSession(s)}
+                                                                title="Xoá đợt chưa có khách"
+                                                            >
+                                                                <span className="material-icons-round" style={{ fontSize: 16 }}>
+                                                                    delete_outline
+                                                                </span>
+                                                            </button>
+                                                        ) : (
+                                                            <span className={styles.muted}>—</span>
+                                                        )}
+                                                    </td>
                                                 </tr>
                                             );
                                         })}
@@ -490,7 +607,7 @@ const TourDetailModal = ({ isOpen, tourId, onClose, onEdit }) => {
                             ) : (
                                 <EmptyHint
                                     icon="calendar_month"
-                                    text="Chưa có lịch khởi hành. Tour đang ở trạng thái Nháp."
+                                    text="Chưa có lịch khởi hành. Thêm đợt ở form phía trên để mở bán."
                                 />
                             )}
                         </div>

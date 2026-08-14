@@ -117,12 +117,8 @@ const TourManagement = () => {
         return { total: tours.length, ...counts };
     }, [tours]);
 
-    const handleCreated = (_, departureWarning) => {
-        setSuccessMsg(
-            departureWarning
-                ? `Đã tạo tour mới. Lưu ý: ${departureWarning}`
-                : 'Đã tạo tour mới'
-        );
+    const handleCreated = () => {
+        setSuccessMsg('Đã tạo tour mới kèm lịch khởi hành');
         fetchTours();
     };
 
@@ -214,9 +210,23 @@ const TourManagement = () => {
         },
         {
             key: 'departure',
-            label: 'Khởi hành',
+            label: 'Đợt khởi hành',
             sortable: true,
-            render: (_, row) => formatDate(row.earliestSession?.startDate),
+            render: (_, row) => {
+                const start = formatDate(row.earliestSession?.startDate);
+                const count = row.sessionsCount ?? 0;
+                if (!row.earliestSession?.startDate) {
+                    return <span style={{ color: '#9ca3af' }}>Chưa có đợt</span>;
+                }
+                return (
+                    <div>
+                        <div>{start}</div>
+                        <div className={styles.tourCode}>
+                            {count > 1 ? `${count} đợt` : '1 đợt'}
+                        </div>
+                    </div>
+                );
+            },
         },
         {
             key: 'spots',

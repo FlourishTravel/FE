@@ -148,8 +148,8 @@ function buildViewModel(detail) {
             },
             {
                 icon: 'sun',
-                label: 'Trạng thái',
-                value: detail.status === 'full' ? 'Một số đợt đã đầy' : 'Đang mở bán',
+                label: 'Đợt mở bán',
+                value: scheduled.length > 0 ? `${scheduled.length} đợt` : 'Chưa có đợt',
             },
             { icon: 'globe', label: 'Đồng hành', value: 'Đội ngũ Flourish & HDV (nếu có)' },
         ],
@@ -324,9 +324,11 @@ const TourDetail = () => {
     };
 
     const formatSessionLabel = () => {
-        if (!selectedSession?.startDate) return 'Chưa chọn lịch';
+        if (!selectedSession?.startDate) return 'Chưa chọn đợt';
+        const idx = bookableSessions.findIndex((s) => s.id === selectedSession.id);
+        const prefix = idx >= 0 ? `Đợt ${idx + 1} · ` : '';
         const end = selectedSession.endDate ? ` → ${formatIsoDateVi(selectedSession.endDate)}` : '';
-        return `${formatIsoDateVi(selectedSession.startDate)}${end}`;
+        return `${prefix}${formatIsoDateVi(selectedSession.startDate)}${end}`;
     };
 
     const handleReset = () => {
@@ -538,8 +540,12 @@ const TourDetail = () => {
                                 <div className={styles.calendarWrap}>
                                     <div className={styles.datePassengerHeader}>
                                         <div>
-                                            <div className={styles.datePassengerTitle}>Chọn lịch khởi hành</div>
-                                            <span className={styles.datePassengerSubtitle}>Theo đợt tour thực tế</span>
+                                            <div className={styles.datePassengerTitle}>Chọn đợt khởi hành</div>
+                                            <span className={styles.datePassengerSubtitle}>
+                                                {bookableSessions.length > 1
+                                                    ? `${bookableSessions.length} đợt còn chỗ — chọn ngày đi phù hợp`
+                                                    : 'Theo lịch tour thực tế'}
+                                            </span>
                                         </div>
                                     </div>
                                     <div className={styles.calendarSection}>
@@ -548,45 +554,42 @@ const TourDetail = () => {
                                                 Hiện chưa có đợt khởi hành còn chỗ. Vui lòng quay lại sau hoặc liên hệ hotline.
                                             </p>
                                         ) : (
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                                            <div className={styles.sessionPickerList}>
                                                 {scheduleConflict ? (
-                                                    <p
-                                                        style={{
-                                                            padding: '12px 14px',
-                                                            background: '#fef2f2',
-                                                            color: '#b91c1c',
-                                                            borderRadius: 12,
-                                                            fontSize: 14,
-                                                            margin: 0,
-                                                        }}
-                                                    >
-                                                        {scheduleConflict}
-                                                    </p>
+                                                    <p className={styles.sessionConflict}>{scheduleConflict}</p>
                                                 ) : null}
-                                                {bookableSessions.map((s) => {
+                                                {bookableSessions.map((s, idx) => {
                                                     const rem =
                                                         (s.maxParticipants ?? 0) - (s.currentParticipants ?? 0);
+                                                    const total = s.maxParticipants ?? 0;
+                                                    const pct = total > 0
+                                                        ? Math.min(100, ((s.currentParticipants ?? 0) / total) * 100)
+                                                        : 0;
                                                     const active = selectedSessionId === s.id;
                                                     return (
                                                         <button
                                                             key={s.id}
                                                             type="button"
                                                             onClick={() => setSelectedSessionId(s.id)}
-                                                            className={styles.bookingInfoDisplay}
-                                                            style={{
-                                                                textAlign: 'left',
-                                                                cursor: 'pointer',
-                                                                border: active ? '2px solid #0099ff' : undefined,
-                                                                background: active ? 'rgba(0,153,255,0.06)' : undefined,
-                                                            }}
+                                                            className={`${styles.sessionPickCard} ${active ? styles.sessionPickCardActive : ''}`}
                                                         >
-                                                            <Calendar className={styles.bookingInfoIcon} />
-                                                            <span className={styles.bookingInfoText}>
+                                                            <div className={styles.sessionPickTop}>
+                                                                <span className={styles.sessionPickIndex}>Đợt {idx + 1}</span>
+                                                                {active ? (
+                                                                    <span className={styles.sessionPickChosen}>Đã chọn</span>
+                                                                ) : null}
+                                                            </div>
+                                                            <div className={styles.sessionPickDates}>
+                                                                <Calendar className={styles.bookingInfoIcon} />
                                                                 {formatIsoDateVi(s.startDate)}
                                                                 {s.endDate ? ` → ${formatIsoDateVi(s.endDate)}` : ''}
-                                                                {' · '}
-                                                                Còn {rem} chỗ
-                                                            </span>
+                                                            </div>
+                                                            <div className={styles.sessionPickSlots}>
+                                                                <div className={styles.sessionPickBar}>
+                                                                    <div style={{ width: `${pct}%` }} />
+                                                                </div>
+                                                                Còn {rem}/{total} chỗ
+                                                            </div>
                                                         </button>
                                                     );
                                                 })}
@@ -841,7 +844,7 @@ const TourDetail = () => {
                             </div>
 
                             <div className={styles.fieldGroup}>
-                                <label className={styles.fieldLabel}>Lịch khởi hành</label>
+                                <label className={styles.fieldLabel}>Đợt khởi hành</label>
                                 <button type="button" className={styles.bookingInfoDisplay} onClick={scrollToDatePassenger}>
                                     <Calendar className={styles.bookingInfoIcon} />
                                     <span className={styles.bookingInfoText}>{formatSessionLabel()}</span>

@@ -627,6 +627,89 @@
 }
 
 /* Sessions */
+.addSessionForm {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding: 12px;
+    background: #f9fafb;
+    border: 1px dashed #d1d5db;
+    border-radius: 10px;
+}
+
+.addSessionFields {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    flex: 1;
+}
+
+.addSessionFields label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.addSessionFields input {
+    padding: 8px 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 13px;
+    min-width: 160px;
+}
+
+.addSessionBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #10b981;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.addSessionBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.sessionHint,
+.sessionMsg {
+    font-size: 12px;
+    color: #6b7280;
+    margin: 0 0 12px;
+}
+
+.sessionMsg {
+    color: #047857;
+}
+
+.sessionDeleteBtn {
+    background: none;
+    border: 1px solid #fecaca;
+    color: #b91c1c;
+    border-radius: 6px;
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.sessionDeleteBtn:hover {
+    background: #fef2f2;
+}
+
 .sessionTable {
     width: 100%;
     border-collapse: collapse;

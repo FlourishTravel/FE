@@ -1,9 +1,9 @@
-name: Deploy to GitHub Pages
+# Đã chuyển deploy sang VPS (deploy-vps.yml).
+# Bật lại GitHub Pages chỉ khi cần mirror tĩnh.
+name: Deploy to GitHub Pages (disabled)
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -24,8 +24,8 @@ jobs:
 
       - name: Install & Build
         env:
-          VITE_API_URL: https://flourishtravel.khanhtn45.id.vn/api
-          VITE_BASE: /FE/
+          VITE_API_URL: https://flourishtravelapp.khanhtn45.id.vn/api
+          VITE_BASE: /
         run: |
           cd website && npm ci && npm run build && touch dist/.nojekyll
 

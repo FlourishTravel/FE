@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './CreateTourModal.module.css';
 import { listCategories } from '../../../api/categories';
-import { createAdminSession, createTour } from '../../../api/tours';
+import { createTour } from '../../../api/tours';
 import AdminImageListField from './AdminImageListField';
 import AdminVideoListField from './AdminVideoListField';
+
+const EMPTY_DEPARTURE = { startDate: '', maxParticipants: '20' };
 
 const EMPTY_FORM = {
     title: '',
@@ -17,8 +19,7 @@ const EMPTY_FORM = {
     thumbnailUrl: '',
     imageUrls: [],
     videos: [],
-    departureDate: '',
-    maxParticipants: '20',
+    departures: [{ ...EMPTY_DEPARTURE }],
     marketSegment: '',
     destinationCity: '',
 };
@@ -47,7 +48,7 @@ const CreateTourModal = ({ isOpen, onClose, onCreated }) => {
 
     useEffect(() => {
         if (!isOpen) return;
-        setFormData(EMPTY_FORM);
+        setFormData({ ...EMPTY_FORM, departures: [{ ...EMPTY_DEPARTURE }] });
         setErrorMsg('');
         setSubmitting(false);
         listCategories()
@@ -82,6 +83,42 @@ const CreateTourModal = ({ isOpen, onClose, onCreated }) => {
                             : Number(v.durationSeconds),
                 }));
 
+            const departures = (formData.departures || [])
+                .map((row) => ({
+                    startDate: String(row.startDate || '').trim(),
+                    maxParticipants: Number(row.maxParticipants),
+                }))
+                .filter((row) => row.startDate);
+
+            if (!departures.length) {
+                setErrorMsg('Cần ít nhất một đợt khởi hành.');
+                setSubmitting(false);
+                return;
+            }
+
+            const startDates = new Set();
+            for (const row of departures) {
+                if (startDates.has(row.startDate)) {
+                    setErrorMsg(`Trùng ngày khởi hành: ${row.startDate}`);
+                    setSubmitting(false);
+                    return;
+                }
+                startDates.add(row.startDate);
+            }
+
+            const tripDays = Number(formData.durationDays);
+            const sessions = departures.map((row) => ({
+                startDate: row.startDate,
+                endDate: addDays(
+                    row.startDate,
+                    Number.isFinite(tripDays) && tripDays > 1 ? tripDays - 1 : 0
+                ),
+                maxParticipants:
+                    Number.isFinite(row.maxParticipants) && row.maxParticipants > 0
+                        ? row.maxParticipants
+                        : 20,
+            }));
+
             const payload = {
                 title: formData.title.trim(),
                 slug: formData.slug.trim() || null,
@@ -98,30 +135,11 @@ const CreateTourModal = ({ isOpen, onClose, onCreated }) => {
                 videos: videos.length ? videos : null,
                 marketSegment: formData.marketSegment || null,
                 destinationCity: formData.destinationCity.trim() || null,
+                sessions,
             };
             const created = await createTour(payload);
 
-            let departureWarning = '';
-            if (formData.departureDate && created?.id) {
-                const tripDays = Number(formData.durationDays);
-                const endDate = addDays(
-                    formData.departureDate,
-                    Number.isFinite(tripDays) && tripDays > 1 ? tripDays - 1 : 0
-                );
-                try {
-                    const maxPax = Number(formData.maxParticipants);
-                    await createAdminSession({
-                        tourId: created.id,
-                        startDate: formData.departureDate,
-                        endDate,
-                        maxParticipants: Number.isFinite(maxPax) && maxPax > 0 ? maxPax : 20,
-                    });
-                } catch (sessionErr) {
-                    departureWarning = sessionErr?.message || 'Tạo lịch khởi hành đầu tiên thất bại';
-                }
-            }
-
-            if (onCreated) onCreated(created, departureWarning);
+            if (onCreated) onCreated(created);
             onClose();
             if (created?.id) {
                 navigate(`/admin/tours/itinerary/${created.id}`);
@@ -261,31 +279,93 @@ const CreateTourModal = ({ isOpen, onClose, onCreated }) => {
                             />
                         </div>
 
-                        <div className={styles.formRow}>
-                            <div className={styles.formGroup}>
-                                <label htmlFor="tour-departure-date">Ngày khởi hành đầu tiên</label>
-                                <input
-                                    type="date"
-                                    id="tour-departure-date"
-                                    name="departureDate"
-                                    value={formData.departureDate}
-                                    onChange={handleChange}
-                                />
+                        <div className={styles.formGroup}>
+                            <div className={styles.departureHeader}>
+                                <label>Đợt khởi hành *</label>
+                                <button
+                                    type="button"
+                                    className={styles.addDepartureBtn}
+                                    onClick={() =>
+                                        setFormData((prev) => {
+                                            const last = prev.departures[prev.departures.length - 1];
+                                            return {
+                                                ...prev,
+                                                departures: [
+                                                    ...prev.departures,
+                                                    {
+                                                        startDate: '',
+                                                        maxParticipants: last?.maxParticipants || '20',
+                                                    },
+                                                ],
+                                            };
+                                        })
+                                    }
+                                >
+                                    <span className="material-icons-round">add</span>
+                                    Thêm đợt
+                                </button>
                             </div>
-                            <div className={styles.formGroup}>
-                                <label htmlFor="tour-max-pax">Số khách tối đa / đợt</label>
-                                <input
-                                    type="number"
-                                    id="tour-max-pax"
-                                    name="maxParticipants"
-                                    placeholder="VD: 20"
-                                    value={formData.maxParticipants}
-                                    onChange={handleChange}
-                                    min="1"
-                                    max="999"
-                                    title="Áp dụng cho lịch khởi hành đầu tiên (nếu có chọn ngày)"
-                                />
-                            </div>
+                            {(formData.departures || []).map((row, index) => (
+                                <div key={`dep-${index}`} className={styles.departureRow}>
+                                    <div className={styles.formGroup}>
+                                        <label htmlFor={`tour-departure-${index}`}>Ngày khởi hành</label>
+                                        <input
+                                            type="date"
+                                            id={`tour-departure-${index}`}
+                                            required
+                                            value={row.startDate}
+                                            onChange={(e) =>
+                                                setFormData((prev) => {
+                                                    const next = prev.departures.map((item, i) =>
+                                                        i === index
+                                                            ? { ...item, startDate: e.target.value }
+                                                            : item
+                                                    );
+                                                    return { ...prev, departures: next };
+                                                })
+                                            }
+                                        />
+                                    </div>
+                                    <div className={styles.formGroup}>
+                                        <label htmlFor={`tour-max-pax-${index}`}>Số khách tối đa</label>
+                                        <input
+                                            type="number"
+                                            id={`tour-max-pax-${index}`}
+                                            placeholder="VD: 20"
+                                            value={row.maxParticipants}
+                                            onChange={(e) =>
+                                                setFormData((prev) => {
+                                                    const next = prev.departures.map((item, i) =>
+                                                        i === index
+                                                            ? { ...item, maxParticipants: e.target.value }
+                                                            : item
+                                                    );
+                                                    return { ...prev, departures: next };
+                                                })
+                                            }
+                                            min="1"
+                                            max="999"
+                                        />
+                                    </div>
+                                    {formData.departures.length > 1 ? (
+                                        <button
+                                            type="button"
+                                            className={styles.removeDepartureBtn}
+                                            title="Xoá đợt này"
+                                            onClick={() =>
+                                                setFormData((prev) => ({
+                                                    ...prev,
+                                                    departures: prev.departures.filter((_, i) => i !== index),
+                                                }))
+                                            }
+                                        >
+                                            <span className="material-icons-round">close</span>
+                                        </button>
+                                    ) : (
+                                        <span className={styles.removeDepartureSpacer} />
+                                    )}
+                                </div>
+                            ))}
                         </div>
 
                         <div className={styles.formGroup}>
@@ -353,8 +433,8 @@ const CreateTourModal = ({ isOpen, onClose, onCreated }) => {
                             <div className="bg-blue-50 text-blue-800 p-3 rounded-md text-sm mt-4 flex items-start gap-2">
                                 <span className="material-icons-round text-blue-500">info</span>
                                 <p>
-                                    Chọn ngày khởi hành để tạo đợt đầu tiên (kèm số khách tối đa).
-                                    Bạn có thể bổ sung lịch trình chi tiết sau khi khởi tạo tour thành công.
+                                    Chọn ít nhất một ngày khởi hành. Có thể thêm nhiều đợt ngay lúc tạo tour;
+                                    ngày kết thúc được tính từ số ngày của tour. Lịch trình chi tiết bổ sung sau.
                                 </p>
                             </div>
                         )}

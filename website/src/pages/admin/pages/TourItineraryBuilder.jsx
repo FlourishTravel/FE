@@ -6,6 +6,9 @@ import {
     saveTourItinerary,
     saveTourLocations,
     getAdminTourDetail,
+    createAdminSession,
+    deleteAdminSession,
+    addDaysIso,
 } from '../../../api/tours';
 import { resolveActivityCoordinates } from '../../../api/geocode';
 import AdminImageField from '../components/AdminImageField';
@@ -304,6 +307,9 @@ const TourItineraryBuilder = () => {
     const [successMsg, setSuccessMsg] = useState('');
     const [dirty, setDirty] = useState(false);
     const [geoLookup, setGeoLookup] = useState(null);
+    const [newStartDate, setNewStartDate] = useState('');
+    const [newMaxPax, setNewMaxPax] = useState('20');
+    const [sessionBusy, setSessionBusy] = useState(false);
 
     const load = useCallback(async () => {
         if (!tourId) return;
@@ -348,6 +354,67 @@ const TourItineraryBuilder = () => {
     const activeDayHasActivities = (activeDay?.activities?.length || 0) > 0;
 
     const markDirty = () => setDirty(true);
+
+    const formatSessionDate = (value) => {
+        if (!value) return '—';
+        try {
+            return new Date(value).toLocaleDateString('vi-VN');
+        } catch {
+            return value;
+        }
+    };
+
+    const reloadTourMeta = async () => {
+        if (!tourId) return;
+        const detail = await getAdminTourDetail(tourId);
+        setTour(detail);
+    };
+
+    const handleAddSession = async (e) => {
+        e.preventDefault();
+        if (!tour?.id || !newStartDate) return;
+        setSessionBusy(true);
+        setErrorMsg('');
+        try {
+            const tripDays = Number(tour.durationDays);
+            await createAdminSession({
+                tourId: tour.id,
+                startDate: newStartDate,
+                endDate: addDaysIso(
+                    newStartDate,
+                    Number.isFinite(tripDays) && tripDays > 1 ? tripDays - 1 : 0
+                ),
+                maxParticipants: Number(newMaxPax) > 0 ? Number(newMaxPax) : 20,
+            });
+            setNewStartDate('');
+            setNewMaxPax('20');
+            setSuccessMsg('Đã thêm đợt khởi hành');
+            await reloadTourMeta();
+        } catch (err) {
+            setErrorMsg(err?.message || 'Không thêm được đợt khởi hành');
+        } finally {
+            setSessionBusy(false);
+        }
+    };
+
+    const handleDeleteSession = async (session) => {
+        if (!session?.id) return;
+        const ok = window.confirm(
+            `Xoá đợt ${formatSessionDate(session.startDate)}? Chỉ xoá được đợt chưa có khách đặt.`
+        );
+        if (!ok) return;
+        setSessionBusy(true);
+        setErrorMsg('');
+        try {
+            await deleteAdminSession(session.id);
+            setSuccessMsg('Đã xoá đợt khởi hành');
+            await reloadTourMeta();
+        } catch (err) {
+            setErrorMsg(err?.message || 'Không xoá được đợt');
+        } finally {
+            setSessionBusy(false);
+        }
+    };
 
     const updateDay = (key, patch) => {
         setDays((prev) => prev.map((d) => (d._key === key ? { ...d, ...patch } : d)));
@@ -756,6 +823,76 @@ const TourItineraryBuilder = () => {
                     </button>
                 </div>
             )}
+
+            <div className={styles.sessionsPanel}>
+                <div className={styles.sessionsPanelHeader}>
+                    <div>
+                        <h2>Đợt khởi hành</h2>
+                        <p>
+                            {(tour?.sessions?.length ?? 0) === 0
+                                ? 'Chưa có đợt — thêm ít nhất một lịch để mở bán.'
+                                : `${tour.sessions.length} đợt. Thêm lịch mới mà không ảnh hưởng lịch trình ngày.`}
+                        </p>
+                    </div>
+                    <form className={styles.sessionsAddForm} onSubmit={handleAddSession}>
+                        <input
+                            type="date"
+                            required
+                            value={newStartDate}
+                            onChange={(e) => setNewStartDate(e.target.value)}
+                            disabled={sessionBusy || !tour?.id}
+                        />
+                        <input
+                            type="number"
+                            min="1"
+                            max="999"
+                            value={newMaxPax}
+                            onChange={(e) => setNewMaxPax(e.target.value)}
+                            disabled={sessionBusy}
+                            title="Số khách tối đa"
+                            style={{ width: 88 }}
+                        />
+                        <button type="submit" disabled={sessionBusy || !tour?.id}>
+                            <span className="material-icons-round" style={{ fontSize: 16 }}>add</span>
+                            Thêm đợt
+                        </button>
+                    </form>
+                </div>
+                {tour?.sessions?.length ? (
+                    <div className={styles.sessionChips}>
+                        {tour.sessions.map((s, idx) => {
+                            const remaining = Math.max(
+                                0,
+                                (s.maxParticipants ?? 0) - (s.currentParticipants ?? 0)
+                            );
+                            return (
+                                <div key={s.id} className={styles.sessionChip}>
+                                    <strong>Đợt {idx + 1}</strong>
+                                    <span>
+                                        {formatSessionDate(s.startDate)}
+                                        {s.endDate ? ` → ${formatSessionDate(s.endDate)}` : ''}
+                                    </span>
+                                    <span>
+                                        {s.currentParticipants ?? 0}/{s.maxParticipants ?? 0} · còn {remaining}
+                                    </span>
+                                    {(s.currentParticipants ?? 0) === 0 ? (
+                                        <button
+                                            type="button"
+                                            onClick={() => handleDeleteSession(s)}
+                                            disabled={sessionBusy}
+                                            title="Xoá đợt"
+                                        >
+                                            <span className="material-icons-round" style={{ fontSize: 14 }}>
+                                                close
+                                            </span>
+                                        </button>
+                                    ) : null}
+                                </div>
+                            );
+                        })}
+                    </div>
+                ) : null}
+            </div>
 
             <div className={styles.builderLayout}>
                 {/* Left Column - Form */}

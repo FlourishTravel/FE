@@ -585,10 +585,10 @@ const Checkout = () => {
         }
         return (
             <div className={compact ? styles.sessionListCompact : styles.sessionList}>
-                {bookableSessions.map((s) => {
+                {bookableSessions.map((s, idx) => {
                     const rem = Math.max(0, (s.maxParticipants ?? 0) - (s.currentParticipants ?? 0));
                     const active = sessionIdParam === s.id;
-                    const dateLabel = `${formatIsoDateViDash(s.startDate)}${
+                    const dateLabel = `Đợt ${idx + 1} · ${formatIsoDateViDash(s.startDate)}${
                         s.endDate ? ` → ${formatIsoDateViDash(s.endDate)}` : ''
                     }`;
                     return (

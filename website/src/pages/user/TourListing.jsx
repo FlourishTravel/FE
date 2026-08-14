@@ -67,7 +67,9 @@ function formatStartDate(t) {
         const day = String(d.getDate()).padStart(2, '0');
         const month = String(d.getMonth() + 1).padStart(2, '0');
         const year = d.getFullYear();
-        return `${day}/${month}/${year}`;
+        const date = `${day}/${month}/${year}`;
+        const count = t?.sessionsCount ?? 0;
+        return count > 1 ? `${date} · ${count} đợt` : date;
     } catch {
         return 'Liên hệ';
     }
@@ -392,7 +394,7 @@ const TourListing = () => {
                                                 </div>
                                                 <div className={styles.infoItem}>
                                                     <Calendar className={styles.infoIcon} />
-                                                    <span className={styles.infoLabel}>Ngày khởi hành:</span>
+                                                    <span className={styles.infoLabel}>Đợt gần nhất:</span>
                                                     <span className={styles.infoValue}>{formatStartDate(tour)}</span>
                                                 </div>
                                                 <div className={styles.infoItem}>
@@ -400,6 +402,7 @@ const TourListing = () => {
                                                     <span className={styles.infoLabel}>Số chỗ nhận:</span>
                                                     <span className={styles.infoValue}>
                                                         {spots != null ? `${spots} chỗ` : 'Còn chỗ'}
+                                                        {(tour.sessionsCount ?? 0) > 1 ? ` · ${tour.sessionsCount} đợt` : ''}
                                                     </span>
                                                 </div>
                                                 <div className={styles.infoItem}>
@@ -419,7 +422,9 @@ const TourListing = () => {
                                                 </div>
                                                 <div className={styles.actionGroup}>
                                                     <Link to={`/tours/${tour.id}`} className={styles.detailBtn}>
-                                                        Xem ngày khác
+                                                        {(tour.sessionsCount ?? 0) > 1
+                                                            ? `Xem ${tour.sessionsCount} đợt`
+                                                            : 'Xem ngày khác'}
                                                     </Link>
                                                     <Link to={`/checkout/${tour.id}`} className={styles.bookNowBtn}>
                                                         Đặt ngay

@@ -99,7 +99,7 @@ export async function deleteTour(id) {
 }
 
 /**
- * Tạo lịch khởi hành đầu tiên cho tour vừa khởi tạo.
+ * Tạo lịch khởi hành thêm cho tour đã có.
  * Backend endpoint: POST /admin/sessions
  */
 export async function createAdminSession(payload) {
@@ -110,6 +110,32 @@ export async function createAdminSession(payload) {
   });
   const json = await parseJson(res);
   return json?.data;
+}
+
+export async function updateAdminSession(id, payload) {
+  const res = await fetch(`${API_BASE}/admin/sessions/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify(payload),
+  });
+  const json = await parseJson(res);
+  return json?.data;
+}
+
+export async function deleteAdminSession(id) {
+  const res = await fetch(`${API_BASE}/admin/sessions/${id}`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+  });
+  await parseJson(res);
+}
+
+/** Cộng ngày theo lịch (YYYY-MM-DD), không bị lệch timezone. */
+export function addDaysIso(isoDate, daysToAdd) {
+  const d = new Date(`${isoDate}T00:00:00`);
+  if (Number.isNaN(d.getTime())) return isoDate;
+  d.setDate(d.getDate() + daysToAdd);
+  return d.toISOString().slice(0, 10);
 }
 
 /**

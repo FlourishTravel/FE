@@ -185,6 +185,8 @@ const FeaturedDestinations = () => {
                 duration: formatDuration(t),
                 image: resolveMediaUrl(t.thumbnailUrl) || PLACEHOLDER_IMG,
                 spots: remainingSlots(t),
+                sessionsCount: t.sessionsCount ?? 0,
+                startDate: t.earliestSession?.startDate || null,
                 link: `/tours/${t.id}`,
                 showPlayBtn: false
             }));
@@ -257,6 +259,12 @@ const FeaturedDestinations = () => {
                                             <div className={styles.metaItem}>
                                                 <Users className={styles.metaIcon} />
                                                 <span>Còn {dest.spots} chỗ</span>
+                                            </div>
+                                        )}
+                                        {dest.sessionsCount > 1 && (
+                                            <div className={styles.metaItem}>
+                                                <Calendar className={styles.metaIcon} />
+                                                <span>{dest.sessionsCount} đợt</span>
                                             </div>
                                         )}
                                     </div>
