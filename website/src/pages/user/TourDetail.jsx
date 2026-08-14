@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import {
     MapPin, Star, Clock, Users, Sun, Globe, ChevronRight,
-    Calendar, CheckCircle, Layers, X, Minus, Plus, RefreshCw, Heart
+    Calendar, CheckCircle, Layers, X, Minus, Plus, RefreshCw, Heart, Play
 } from 'lucide-react';
 import bangkokImgNew from '../../assets/di-chuyen-di-lai-thai-lan-2.webp';
 import bangkokImg2 from '../../assets/366426-tour-thai-lan-5n4d-bangkok-pattaya.jpg';
@@ -102,6 +102,54 @@ function buildItineraryDays(detail) {
     ];
 }
 
+function youtubeVideoId(url) {
+    const s = String(url || '');
+    const match =
+        s.match(/youtu\.be\/([a-zA-Z0-9_-]{6,})/) ||
+        s.match(/[?&]v=([a-zA-Z0-9_-]{6,})/) ||
+        s.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]{6,})/) ||
+        s.match(/youtube\.com\/shorts\/([a-zA-Z0-9_-]{6,})/);
+    return match ? match[1] : null;
+}
+
+function vimeoVideoId(url) {
+    const match = String(url || '').match(/vimeo\.com\/(?:video\/)?(\d+)/);
+    return match ? match[1] : null;
+}
+
+function buildTourVideos(videos) {
+    return (videos || [])
+        .map((v) => {
+            const url = v?.videoUrl;
+            if (!url) return null;
+            const yt = youtubeVideoId(url);
+            if (yt) {
+                return {
+                    title: v.title || 'Video giới thiệu',
+                    thumbnailUrl: resolveMediaUrl(v.thumbnailUrl) || '',
+                    type: 'youtube',
+                    src: `https://www.youtube.com/embed/${yt}`,
+                };
+            }
+            const vm = vimeoVideoId(url);
+            if (vm) {
+                return {
+                    title: v.title || 'Video giới thiệu',
+                    thumbnailUrl: resolveMediaUrl(v.thumbnailUrl) || '',
+                    type: 'vimeo',
+                    src: `https://player.vimeo.com/video/${vm}`,
+                };
+            }
+            return {
+                title: v.title || 'Video giới thiệu',
+                thumbnailUrl: resolveMediaUrl(v.thumbnailUrl) || '',
+                type: 'file',
+                src: resolveMediaUrl(url),
+            };
+        })
+        .filter(Boolean);
+}
+
 function buildMapEmbedUrl(locations) {
     const loc = (locations || []).find((l) => l.latitude != null && l.longitude != null);
     if (!loc) return null;
@@ -156,6 +204,7 @@ function buildViewModel(detail) {
         itinerary,
         included: included.length ? included : ['Chi tiết dịch vụ theo xác nhận booking'],
         mapEmbedUrl: buildMapEmbedUrl(detail.locations),
+        videos: buildTourVideos(detail.videos),
     };
 }
 
@@ -518,6 +567,46 @@ const TourDetail = () => {
                         ))}
                     </div>
                 </div>
+
+                {tour.videos.length > 0 ? (
+                    <section className={styles.introVideoSection} aria-label="Video giới thiệu">
+                        <div className={styles.introVideoHeader}>
+                            <Play className={styles.introVideoIcon} />
+                            <h2 className={styles.introVideoTitle}>Video giới thiệu</h2>
+                        </div>
+                        <div className={styles.introVideoList}>
+                            {tour.videos.map((video, idx) => (
+                                <div key={`${video.src}-${idx}`} className={styles.introVideoCard}>
+                                    <div className={styles.introVideoFrame}>
+                                        {video.type === 'file' ? (
+                                            <video
+                                                className={styles.introVideoPlayer}
+                                                src={video.src}
+                                                poster={video.thumbnailUrl || undefined}
+                                                controls
+                                                preload="metadata"
+                                                playsInline
+                                            >
+                                                Trình duyệt không phát được video này.
+                                            </video>
+                                        ) : (
+                                            <iframe
+                                                className={styles.introVideoPlayer}
+                                                src={video.src}
+                                                title={video.title}
+                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                                allowFullScreen
+                                            />
+                                        )}
+                                    </div>
+                                    {video.title ? (
+                                        <div className={styles.introVideoCaption}>{video.title}</div>
+                                    ) : null}
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+                ) : null}
 
                 <div className={styles.bodyLayout}>
                     <div className={styles.mainInfo}>
