@@ -174,12 +174,17 @@ const BookingDetail = () => {
 
     const handleRefund = async () => {
         if (!bookingId || busy) return;
-        const reason = window.prompt('Lý do hoàn tiền (tuỳ chọn):', '') ?? '';
+        const reason = window.prompt('Lý do hoàn tiền (bắt buộc, tối thiểu 8 ký tự):', '');
+        if (reason == null) return;
+        if (!reason.trim() || reason.trim().length < 8) {
+            setActionMsg('Lý do hoàn tiền cần ít nhất 8 ký tự, mô tả rõ ràng.');
+            return;
+        }
         setBusy(true);
         setActionMsg('');
         try {
-            await requestBookingRefund(bookingId, reason.trim() || undefined);
-            setActionMsg('Đã gửi yêu cầu hoàn tiền.');
+            await requestBookingRefund(bookingId, reason.trim());
+            setActionMsg('Đã gửi yêu cầu hoàn tiền. Admin sẽ xác nhận lý do rồi PayOS chi hộ về tài khoản bạn đã thanh toán.');
             await load();
         } catch (e) {
             setActionMsg(e.message || 'Không gửi được yêu cầu.');

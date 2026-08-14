@@ -82,7 +82,7 @@ export async function requestBookingRefund(bookingId, reason) {
       'Content-Type': 'application/json',
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
-    body: JSON.stringify(reason ? { reason } : {}),
+    body: JSON.stringify({ reason: reason ? String(reason).trim() : '' }),
   });
   return parseJson(res);
 }

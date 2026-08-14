@@ -116,13 +116,29 @@ const BookingDetailModal = ({ bookingId, onClose, onUpdated }) => {
 
     const handleStatusChange = async (status) => {
         if (!detail) return;
-        if (!window.confirm(`Xác nhận chuyển trạng thái sang "${STATUS_INFO[status]?.label || status}"?`)) return;
+        let note;
+        if (status === 'cancelled') {
+            const reason = window.prompt(
+                'Nhập lý do hủy (bắt buộc, tối thiểu 8 ký tự).\nĐơn PayOS đã thanh toán sẽ được chi hộ hoàn tiền tự động.',
+            );
+            if (reason == null) return;
+            if (!reason.trim() || reason.trim().length < 8) {
+                setErrorMsg('Lý do hủy cần ít nhất 8 ký tự, mô tả rõ ràng.');
+                return;
+            }
+            note = reason.trim();
+            if (!window.confirm(`Xác nhận hủy đơn với lý do: "${note}"?`)) return;
+        } else if (!window.confirm(`Xác nhận chuyển trạng thái sang "${STATUS_INFO[status]?.label || status}"?`)) {
+            return;
+        }
         setSubmitting(true);
         setErrorMsg('');
         try {
-            const updated = await updateBookingStatus(detail.id, status);
+            const updated = await updateBookingStatus(detail.id, status, note);
             setDetail(updated);
-            setSuccessMsg(`Đã cập nhật trạng thái: ${STATUS_INFO[status]?.label || status}`);
+            setSuccessMsg(status === 'cancelled'
+                ? 'Đã hủy đơn. Nếu đã thanh toán PayOS, tiền đang được chi hộ hoàn về tài khoản khách.'
+                : `Đã cập nhật trạng thái: ${STATUS_INFO[status]?.label || status}`);
             onUpdated?.(updated);
         } catch (err) {
             setErrorMsg(err?.message || 'Không thể cập nhật trạng thái.');
@@ -153,7 +169,11 @@ const BookingDetailModal = ({ bookingId, onClose, onUpdated }) => {
 
     const handleApproveRefund = async () => {
         if (!detail || !pendingRefund) return;
-        if (!window.confirm('Xác nhận duyệt yêu cầu hoàn tiền?')) return;
+        if (!refundReason.trim() || refundReason.trim().length < 8) {
+            setErrorMsg('Nhập lý do duyệt hoàn tiền (tối thiểu 8 ký tự) trước khi xác nhận.');
+            return;
+        }
+        if (!window.confirm('Xác nhận duyệt? PayOS sẽ chi hộ hoàn tiền về tài khoản khách đã thanh toán.')) return;
         setSubmitting(true);
         setErrorMsg('');
         try {
@@ -161,10 +181,12 @@ const BookingDetailModal = ({ bookingId, onClose, onUpdated }) => {
             const updated = await approveBookingRefund(detail.id, {
                 refundId: pendingRefund.id,
                 amount,
-                reason: refundReason.trim() || undefined,
+                reason: refundReason.trim(),
             });
             setDetail(updated);
-            setSuccessMsg('Đã duyệt yêu cầu hoàn tiền.');
+            setRefundReason('');
+            setRefundAmount('');
+            setSuccessMsg('Đã duyệt và gửi lệnh chi hộ hoàn tiền PayOS.');
             onUpdated?.(updated);
         } catch (err) {
             setErrorMsg(err?.message || 'Không thể duyệt hoàn tiền.');
@@ -175,8 +197,8 @@ const BookingDetailModal = ({ bookingId, onClose, onUpdated }) => {
 
     const handleRejectRefund = async () => {
         if (!detail || !pendingRefund) return;
-        if (!refundReason.trim()) {
-            setErrorMsg('Vui lòng nhập lý do từ chối.');
+        if (!refundReason.trim() || refundReason.trim().length < 8) {
+            setErrorMsg('Vui lòng nhập lý do từ chối (tối thiểu 8 ký tự).');
             return;
         }
         setSubmitting(true);
@@ -508,7 +530,8 @@ const BookingDetailModal = ({ bookingId, onClose, onUpdated }) => {
                                     </div>
                                     <p className={styles.muted}>
                                         Số tiền KH yêu cầu hoàn: <strong>{formatVnd(pendingRefund.amount)}</strong>.
-                                        Để trống "Số tiền duyệt" để duyệt nguyên số trên.
+                                        Lý do duyệt/từ chối bắt buộc (tối thiểu 8 ký tự).
+                                        Đơn PayOS sẽ được chi hộ hoàn tiền tự động về tài khoản khách đã chuyển.
                                     </p>
                                     <div className={styles.manualRow}>
                                         <input
@@ -521,7 +544,7 @@ const BookingDetailModal = ({ bookingId, onClose, onUpdated }) => {
                                         />
                                         <input
                                             type="text"
-                                            placeholder="Ghi chú admin (bắt buộc khi từ chối)"
+                                            placeholder="Lý do admin (bắt buộc khi duyệt hoặc từ chối)"
                                             value={refundReason}
                                             onChange={(e) => setRefundReason(e.target.value)}
                                             className={styles.formInput}
@@ -544,7 +567,7 @@ const BookingDetailModal = ({ bookingId, onClose, onUpdated }) => {
                                             onClick={handleApproveRefund}
                                         >
                                             <span className="material-icons-round" style={{ fontSize: 18 }}>verified</span>
-                                            Duyệt hoàn tiền
+                                            Duyệt & hoàn PayOS
                                         </button>
                                     </div>
                                 </div>
