@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import styles from './GuideTourList.module.css';
 import { listMyGuideSessions } from '../../../api/guideTours';
 
@@ -11,6 +11,8 @@ const FILTERS = [
 
 const GuideTourList = () => {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const query = (searchParams.get('q') || '').trim().toLowerCase();
     const [activeFilter, setActiveFilter] = useState('upcoming');
     const [tours, setTours] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -35,8 +37,14 @@ const GuideTourList = () => {
     }, []);
 
     const filteredTours = useMemo(
-        () => tours.filter((tour) => (tour?.status || 'upcoming') === activeFilter),
-        [tours, activeFilter],
+        () =>
+            tours.filter((tour) => {
+                if ((tour?.status || 'upcoming') !== activeFilter) return false;
+                if (!query) return true;
+                const haystack = `${tour.tourTitle || ''} ${tour.tourCode || ''}`.toLowerCase();
+                return haystack.includes(query);
+            }),
+        [tours, activeFilter, query],
     );
 
     const toShortDate = (dateStr) => {

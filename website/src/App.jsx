@@ -79,6 +79,7 @@ import GuideGuestManagement from './pages/guide/pages/GuideGuestManagement';
 import GuideCommunication from './pages/guide/pages/GuideCommunication';
 import GuideOperations from './pages/guide/pages/GuideOperations';
 import GuideExpenses from './pages/guide/pages/GuideExpenses';
+import GuideProfile from './pages/guide/pages/GuideProfile';
 
 // Home page component (inline)
 const HomePage = () => (
@@ -176,6 +177,8 @@ function App() {
           <Route path="communication" element={<GuideCommunication />} />
           <Route path="operations" element={<GuideOperations />} />
           <Route path="expenses" element={<GuideExpenses />} />
+          <Route path="profile" element={<GuideProfile />} />
+          <Route path="settings" element={<GuideProfile />} />
         </Route>
       </Routes>
       <FloraGlobalAssistant />

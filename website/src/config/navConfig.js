@@ -2,6 +2,7 @@
 
 export const EXPLORE_MENU = [
     { label: 'Điểm đến', href: '/destinations', description: 'Khám phá điểm đến nổi bật' },
+    { label: 'Đội ngũ HDV', href: '/our-guides', description: 'Hướng dẫn viên Flourish Travel' },
     { label: 'Cẩm nang du lịch', href: '/travel-guide', description: 'Mẹo, checklist và kinh nghiệm' },
     { label: 'Blog du lịch', href: '/news', description: 'Tin tức và câu chuyện du lịch' },
     { label: 'Gợi ý theo mùa', href: '/stories', description: 'Hành trình theo mùa trong năm' },
@@ -93,6 +94,7 @@ export function isExploreActive(pathname) {
     return (
         pathMatchesPrefix(pathname, '/destinations')
         || pathname === '/travel-guide'
+        || pathMatchesPrefix(pathname, '/our-guides')
         || pathMatchesPrefix(pathname, '/news')
         || pathMatchesPrefix(pathname, '/stories')
         || pathMatchesPrefix(pathname, '/content')

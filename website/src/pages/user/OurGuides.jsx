@@ -133,8 +133,8 @@ function normalizeGuide(raw, fallbackIndex) {
         id: raw?.id || `fallback-${fallbackIndex}`,
         name: raw?.fullName || raw?.name || 'Hướng dẫn viên',
         avatar: resolveMediaUrl(raw?.avatarUrl || raw?.avatar) || 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&w=400&q=80',
-        role: raw?.title || raw?.role || 'Tour Guide',
-        location: raw?.location || raw?.baseLocation || 'Flourish Travel',
+        role: raw?.jobTitle || raw?.title || raw?.role || 'Hướng dẫn viên',
+        location: raw?.department || raw?.location || raw?.baseLocation || 'Flourish Travel',
         rating: Number(raw?.rating) || 4.8,
         reviewCount: Number(raw?.reviewCount) || 0,
         toursCompleted: Number(raw?.toursCompleted) || 0,
@@ -160,7 +160,7 @@ const OurGuides = () => {
                 const list = await listPublicGuides();
                 if (!alive) return;
                 const normalized = (Array.isArray(list) ? list : []).map((guide, index) => normalizeGuide(guide, index));
-                setGuides(normalized.length ? normalized : TOUR_GUIDES);
+                setGuides(normalized);
             } catch {
                 if (!alive) return;
                 setGuides(TOUR_GUIDES);

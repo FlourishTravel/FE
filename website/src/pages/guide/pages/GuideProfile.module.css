@@ -1,0 +1,171 @@
+.page {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 760px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.title {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.subtitle {
+    margin: 4px 0 0;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.muted {
+    color: #6b7280;
+    font-size: 13px;
+}
+
+.card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.avatarRow {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.avatarBtn {
+    position: relative;
+    border: none;
+    background: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+.avatar,
+.avatarFallback {
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #10b981;
+    color: white;
+    font-weight: 700;
+}
+
+.avatarHint {
+    display: block;
+    margin-top: 6px;
+    font-size: 12px;
+    color: #059669;
+    font-weight: 600;
+}
+
+.namePreview {
+    font-size: 18px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.field input,
+.field select {
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-weight: 400;
+    font-family: inherit;
+}
+
+.field input:disabled {
+    background: #f9fafb;
+    color: #6b7280;
+}
+
+.full {
+    grid-column: 1 / -1;
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+}
+
+.saveBtn,
+.ghostBtn {
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.saveBtn {
+    border: none;
+    background: #10b981;
+    color: white;
+}
+
+.saveBtn:disabled {
+    opacity: 0.7;
+    cursor: default;
+}
+
+.ghostBtn {
+    border: 1px solid #d1d5db;
+    background: white;
+    color: #374151;
+}
+
+.bannerError,
+.bannerSuccess {
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+}
+
+.bannerError {
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+.bannerSuccess {
+    background: #ecfdf5;
+    color: #047857;
+}
+
+@media (max-width: 700px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
+}
