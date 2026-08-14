@@ -28,6 +28,18 @@ function mapUrl(lat, lon) {
   return `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`;
 }
 
+function todayIsoVn() {
+  return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' });
+}
+
+/** Trước ngày khởi hành: "Sắp tới". Đúng ngày tour trở đi: "Hôm nay". */
+function dayProgramLabel(journey) {
+  if (journey?.journeyStatus === 'UPCOMING') return 'Sắp tới';
+  const start = journey?.sessionStartDate;
+  if (start && todayIsoVn() < String(start).slice(0, 10)) return 'Sắp tới';
+  return 'Hôm nay';
+}
+
 /**
  * Active-tour briefing panel — activity-level journey from Flora API.
  */
@@ -167,7 +179,7 @@ export default function FloraCompanion({ bookingId, onChatFlora }) {
       )}
       {!current && journey.currentScheduleItem && (
         <p className={styles.line}>
-          <strong>Hôm nay:</strong> {journey.currentScheduleItem.title}
+          <strong>{dayProgramLabel(journey)}:</strong> {journey.currentScheduleItem.title}
         </p>
       )}
 
