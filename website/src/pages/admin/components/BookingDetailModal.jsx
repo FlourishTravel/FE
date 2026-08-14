@@ -370,7 +370,8 @@ const BookingDetailModal = ({ bookingId, onClose, onUpdated }) => {
                                         <tr>
                                             <th>#</th>
                                             <th>Họ tên</th>
-                                            <th>CCCD/CMND</th>
+                                            <th>Giấy tờ</th>
+                                            <th>Hộ chiếu hết hạn</th>
                                             <th>Ngày sinh</th>
                                             <th>Tuổi khi khởi hành</th>
                                         </tr>
@@ -380,7 +381,14 @@ const BookingDetailModal = ({ bookingId, onClose, onUpdated }) => {
                                             <tr key={g.id || idx}>
                                                 <td>{idx + 1}</td>
                                                 <td>{g.fullName}</td>
-                                                <td>{g.maskedIdNumber || '—'}</td>
+                                                <td>
+                                                    {g.maskedPassportNumber
+                                                        ? `Hộ chiếu ${g.maskedPassportNumber}`
+                                                        : g.maskedIdNumber
+                                                          ? `CCCD ${g.maskedIdNumber}`
+                                                          : '—'}
+                                                </td>
+                                                <td>{g.passportExpiry ? formatDate(g.passportExpiry) : '—'}</td>
                                                 <td>{formatDate(g.dateOfBirth)}</td>
                                                 <td>{g.ageAtDeparture != null ? `${g.ageAtDeparture} tuổi` : '—'}</td>
                                             </tr>

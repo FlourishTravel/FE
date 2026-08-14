@@ -419,7 +419,8 @@ const BookingDetail = () => {
                                     <tr>
                                         <th>#</th>
                                         <th>Họ tên</th>
-                                        <th>CCCD (che)</th>
+                                        <th>Giấy tờ</th>
+                                        <th>Hộ chiếu hết hạn</th>
                                         <th>Ngày sinh</th>
                                     </tr>
                                 </thead>
@@ -428,7 +429,14 @@ const BookingDetail = () => {
                                         <tr key={g.guestId || i}>
                                             <td>{i + 1}</td>
                                             <td>{g.fullName}</td>
-                                            <td>{g.maskedIdNumber || '—'}</td>
+                                            <td>
+                                                {g.maskedPassportNumber
+                                                    ? `Hộ chiếu ${g.maskedPassportNumber}`
+                                                    : g.maskedIdNumber
+                                                      ? `CCCD ${g.maskedIdNumber}`
+                                                      : '—'}
+                                            </td>
+                                            <td>{g.passportExpiry ? formatIsoDateVi(g.passportExpiry) : '—'}</td>
                                             <td>{g.dateOfBirth ? formatIsoDateVi(g.dateOfBirth) : '—'}</td>
                                         </tr>
                                     ))}

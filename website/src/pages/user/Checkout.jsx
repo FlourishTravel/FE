@@ -90,7 +90,124 @@ function emptyGuestSlot() {
         gender: 'Nam',
         phone: '',
         idNumber: '',
+        passportNumber: '',
+        passExpDay: '',
+        passExpMonth: '',
+        passExpYear: '',
+        nationality: 'Việt Nam',
     };
+}
+
+function isInternationalTour(liveTour, tourId, title, location) {
+    const seg = String(liveTour?.marketSegment || '').toLowerCase();
+    if (seg === 'international') return true;
+    if (seg === 'domestic' || seg === 'school' || seg === 'corporate') return false;
+    const cat = String(liveTour?.category?.slug || liveTour?.category?.name || '').toLowerCase();
+    const blob = [
+        liveTour?.slug,
+        cat,
+        liveTour?.destinationCity,
+        liveTour?.title,
+        title,
+        location,
+        String(tourId || ''),
+    ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
+    return /thai-lan|thailand|bangkok|pattaya|phuket|chiang|samui|ayutthaya|\bthai\b/.test(blob);
+}
+
+function slotPassportExpiryIso(d) {
+    if (!d) return '';
+    return dmyToIso(d.passExpDay, d.passExpMonth, d.passExpYear);
+}
+
+function addMonthsDate(fromIso, months) {
+    const base = fromIso ? new Date(`${fromIso}T00:00:00`) : new Date();
+    return new Date(base.getFullYear(), base.getMonth() + months, base.getDate());
+}
+
+function isoDateOnOrAfter(iso, minDate) {
+    if (!iso || !minDate) return false;
+    const d = new Date(`${iso}T00:00:00`);
+    const min = new Date(minDate.getFullYear(), minDate.getMonth(), minDate.getDate());
+    return d >= min;
+}
+
+function normalizePassportNo(v) {
+    return String(v || '').replace(/\s+/g, '').toUpperCase();
+}
+
+function PassportDocFields({ s, d, patchSlot, styles, minLabel }) {
+    return (
+        <>
+            <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Số hộ chiếu (*)</label>
+                <input
+                    className={styles.formInput}
+                    value={d.passportNumber}
+                    onChange={(e) =>
+                        patchSlot(s.key, { passportNumber: normalizePassportNo(e.target.value) })
+                    }
+                    placeholder="VD: C1234567"
+                    autoComplete="off"
+                />
+            </div>
+            <div className={`${styles.formGroup} ${styles.guestFieldFull}`}>
+                <label className={styles.formLabel}>Ngày hết hạn hộ chiếu (*)</label>
+                <div className={styles.dobRow}>
+                    <input
+                        className={styles.formInput}
+                        inputMode="numeric"
+                        maxLength={2}
+                        placeholder="dd"
+                        value={d.passExpDay}
+                        onChange={(e) =>
+                            patchSlot(s.key, { passExpDay: e.target.value.replace(/\D/g, '').slice(0, 2) })
+                        }
+                    />
+                    <input
+                        className={styles.formInput}
+                        inputMode="numeric"
+                        maxLength={2}
+                        placeholder="mm"
+                        value={d.passExpMonth}
+                        onChange={(e) =>
+                            patchSlot(s.key, { passExpMonth: e.target.value.replace(/\D/g, '').slice(0, 2) })
+                        }
+                    />
+                    <input
+                        className={styles.formInput}
+                        inputMode="numeric"
+                        maxLength={4}
+                        placeholder="yyyy"
+                        value={d.passExpYear}
+                        onChange={(e) =>
+                            patchSlot(s.key, { passExpYear: e.target.value.replace(/\D/g, '').slice(0, 4) })
+                        }
+                    />
+                </div>
+                <div className={styles.dobLabels}>
+                    <span className={styles.dobHint}>dd</span>
+                    <span className={styles.dobHint}>mm</span>
+                    <span className={styles.dobHint}>yyyy</span>
+                </div>
+                <p className={styles.dobHint} style={{ marginTop: 6 }}>
+                    Còn hạn ít nhất đến {minLabel} (6 tháng sau ngày khởi hành)
+                </p>
+            </div>
+            <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Quốc tịch (*)</label>
+                <input
+                    className={styles.formInput}
+                    value={d.nationality}
+                    onChange={(e) => patchSlot(s.key, { nationality: e.target.value })}
+                    placeholder="Việt Nam"
+                />
+            </div>
+        </>
+    );
 }
 
 function dmyToIso(day, month, year) {
@@ -232,6 +349,18 @@ const Checkout = () => {
         if (!liveTour?.sessions || !sessionIdParam) return null;
         return liveTour.sessions.find((s) => s.id === sessionIdParam) || null;
     }, [liveTour, sessionIdParam]);
+
+    const isInternational = useMemo(
+        () => isInternationalTour(liveTour, tourId, tour?.title, tour?.location),
+        [liveTour, tourId, tour],
+    );
+
+    const passportMinDate = useMemo(
+        () => addMonthsDate(selectedSession?.startDate, 6),
+        [selectedSession?.startDate],
+    );
+
+    const passportMinLabel = useMemo(() => formatDdMmYyyyFromDate(passportMinDate), [passportMinDate]);
 
     const date = useMemo(() => {
         if (selectedSession?.startDate) {
@@ -414,12 +543,26 @@ const Checkout = () => {
         if (!agreeTerms) newErrors.terms = 'Vui lòng đồng ý điều khoản';
 
         for (const s of slotList) {
-            if (s.kind === 'infant') continue;
+            if (!isInternational && s.kind === 'infant') continue;
             const d = slotDisplayData(slotData[s.key]);
             if (!d.fullName.trim()) {
-                newErrors[`slot_${s.key}`] = 'Nhập họ tên hành khách';
+                newErrors[`slot_${s.key}`] = isInternational
+                    ? 'Nhập họ tên đúng hộ chiếu'
+                    : 'Nhập họ tên hành khách';
             } else if (!slotDobIso(d)) {
                 newErrors[`slot_${s.key}`] = 'Nhập ngày sinh hợp lệ (dd/mm/yyyy)';
+            } else if (isInternational) {
+                const pass = normalizePassportNo(d.passportNumber);
+                const expIso = slotPassportExpiryIso(d);
+                if (!pass || pass.length < 6) {
+                    newErrors[`slot_${s.key}`] = 'Nhập số hộ chiếu';
+                } else if (!expIso) {
+                    newErrors[`slot_${s.key}`] = 'Nhập ngày hết hạn hộ chiếu (dd/mm/yyyy)';
+                } else if (!isoDateOnOrAfter(expIso, passportMinDate)) {
+                    newErrors[`slot_${s.key}`] = `Hộ chiếu cần còn hạn đến ít nhất ${passportMinLabel}`;
+                } else if (!phoneOptionalOk(d.phone)) {
+                    newErrors[`slot_${s.key}`] = 'Số điện thoại hành khách không hợp lệ';
+                }
             } else if (s.kind === 'adult' && !d.idNumber?.trim()) {
                 newErrors[`slot_${s.key}`] = 'Nhập số CCCD/CMND';
             } else if (!phoneOptionalOk(d.phone)) {
@@ -434,13 +577,19 @@ const Checkout = () => {
     const step1Complete = useMemo(() => {
         if (!formData.fullName.trim() || !formData.email.trim() || !phoneOk(formData.phone) || !agreeTerms) return false;
         for (const s of slotList) {
-            if (s.kind === 'infant') continue;
+            if (!isInternational && s.kind === 'infant') continue;
             const d = slotDisplayData(slotData[s.key]);
-            const idOk = s.kind !== 'adult' || !!d.idNumber?.trim();
-            if (!d.fullName.trim() || !slotDobIso(d) || !idOk || !phoneOptionalOk(d.phone)) return false;
+            if (!d.fullName.trim() || !slotDobIso(d) || !phoneOptionalOk(d.phone)) return false;
+            if (isInternational) {
+                const pass = normalizePassportNo(d.passportNumber);
+                const expIso = slotPassportExpiryIso(d);
+                if (!pass || pass.length < 6 || !isoDateOnOrAfter(expIso, passportMinDate)) return false;
+            } else if (s.kind === 'adult' && !d.idNumber?.trim()) {
+                return false;
+            }
         }
         return true;
-    }, [formData, agreeTerms, slotList, slotData]);
+    }, [formData, agreeTerms, slotList, slotData, isInternational, passportMinDate]);
 
     const goStep2 = () => {
         if (validateStep1()) {
@@ -477,13 +626,12 @@ const Checkout = () => {
     const buildGuestsPayload = () => {
         const guests = [];
         for (const s of slotList) {
-            if (s.kind === 'infant') {
+            if (!isInternational && s.kind === 'infant') {
                 const d = slotDisplayData(slotData[s.key]);
                 if (d?.fullName?.trim()) {
                     const dob = slotDobIso(d);
                     guests.push({
                         fullName: d.fullName.trim(),
-                        idNumber: d.idNumber?.trim() || undefined,
                         dateOfBirth: dob || undefined,
                     });
                 }
@@ -492,11 +640,18 @@ const Checkout = () => {
             const d = slotDisplayData(slotData[s.key]);
             if (!d?.fullName?.trim()) continue;
             const dob = slotDobIso(d);
-            guests.push({
+            const row = {
                 fullName: d.fullName.trim(),
-                idNumber: d.idNumber?.trim() || undefined,
                 dateOfBirth: dob || undefined,
-            });
+            };
+            if (isInternational) {
+                row.passportNumber = normalizePassportNo(d.passportNumber) || undefined;
+                row.passportExpiry = slotPassportExpiryIso(d) || undefined;
+                row.nationality = (d.nationality || 'Việt Nam').trim();
+            } else {
+                row.idNumber = d.idNumber?.trim() || undefined;
+            }
+            guests.push(row);
         }
         return guests.length ? guests : undefined;
     };
@@ -928,6 +1083,12 @@ const Checkout = () => {
                                         <FileText className={styles.sectionIcon} />
                                         Thông tin hành khách
                                     </h2>
+                                    {isInternational ? (
+                                        <div className={styles.passengerHintBox}>
+                                            Tour quốc tế: điền họ tên đúng hộ chiếu. Mỗi khách (kể cả trẻ em và em bé) cần
+                                            số hộ chiếu còn hạn ít nhất 6 tháng.
+                                        </div>
+                                    ) : null}
                                     {adults > 0 && (
                                         <>
                                             <div className={styles.passengerHintBox}>{SINGLE_ROOM_HINT}</div>
@@ -954,7 +1115,11 @@ const Checkout = () => {
                                                                         className={`${styles.formInput} ${errors[`slot_${s.key}`] ? styles.inputError : ''}`}
                                                                         value={d.fullName}
                                                                         onChange={(e) => patchSlot(s.key, { fullName: e.target.value })}
-                                                                        placeholder="Ví dụ: Nguyễn Văn A"
+                                                                        placeholder={
+                                                                            isInternational
+                                                                                ? 'Họ tên đúng hộ chiếu'
+                                                                                : 'Ví dụ: Nguyễn Văn A'
+                                                                        }
                                                                     />
                                                                 </div>
                                                                 <div className={`${styles.formGroup} ${styles.guestFieldFull}`}>
@@ -1036,15 +1201,25 @@ const Checkout = () => {
                                                                         placeholder="Ví dụ: 0901234567 / +84901234567"
                                                                     />
                                                                 </div>
-                                                                <div className={styles.formGroup}>
-                                                                    <label className={styles.formLabel}>CCCD / CMND (*)</label>
-                                                                    <input
-                                                                        className={styles.formInput}
-                                                                        value={d.idNumber}
-                                                                        onChange={(e) => patchSlot(s.key, { idNumber: e.target.value })}
-                                                                        placeholder="Số giấy tờ"
+                                                                {isInternational ? (
+                                                                    <PassportDocFields
+                                                                        s={s}
+                                                                        d={d}
+                                                                        patchSlot={patchSlot}
+                                                                        styles={styles}
+                                                                        minLabel={passportMinLabel}
                                                                     />
-                                                                </div>
+                                                                ) : (
+                                                                    <div className={styles.formGroup}>
+                                                                        <label className={styles.formLabel}>CCCD / CMND (*)</label>
+                                                                        <input
+                                                                            className={styles.formInput}
+                                                                            value={d.idNumber}
+                                                                            onChange={(e) => patchSlot(s.key, { idNumber: e.target.value })}
+                                                                            placeholder="Số giấy tờ"
+                                                                        />
+                                                                    </div>
+                                                                )}
                                                             </div>
                                                             <div className={styles.singleRoomRow}>
                                                                 <span>Phòng đơn</span>
@@ -1091,7 +1266,11 @@ const Checkout = () => {
                                                                 className={`${styles.formInput} ${errors[`slot_${s.key}`] ? styles.inputError : ''}`}
                                                                 value={d.fullName}
                                                                 onChange={(e) => patchSlot(s.key, { fullName: e.target.value })}
-                                                                placeholder="Ví dụ: Nguyễn Văn A"
+                                                                placeholder={
+                                                                    isInternational
+                                                                        ? 'Họ tên đúng hộ chiếu'
+                                                                        : 'Ví dụ: Nguyễn Văn A'
+                                                                }
                                                             />
                                                         </div>
                                                         <div className={`${styles.formGroup} ${styles.guestFieldFull}`}>
@@ -1173,6 +1352,15 @@ const Checkout = () => {
                                                                 placeholder="Ví dụ: 0901234567 / +84901234567"
                                                             />
                                                         </div>
+                                                        {isInternational ? (
+                                                            <PassportDocFields
+                                                                s={s}
+                                                                d={d}
+                                                                patchSlot={patchSlot}
+                                                                styles={styles}
+                                                                minLabel={passportMinLabel}
+                                                            />
+                                                        ) : null}
                                                     </div>
                                                     {errors[`slot_${s.key}`] ? (
                                                         <div className={styles.errorText}>{errors[`slot_${s.key}`]}</div>
@@ -1184,7 +1372,12 @@ const Checkout = () => {
                                     {infants > 0 ? (
                                         <>
                                             <p style={{ fontSize: 13, fontWeight: 600, color: '#111', margin: '18px 0 10px' }}>
-                                                Em bé <span style={{ fontWeight: 400, color: '#6b7280' }}>(Dưới 2 tuổi — tuỳ chọn)</span>
+                                                Em bé{' '}
+                                                <span style={{ fontWeight: 400, color: '#6b7280' }}>
+                                                    {isInternational
+                                                        ? '(Dưới 2 tuổi — cần hộ chiếu riêng)'
+                                                        : '(Dưới 2 tuổi — tuỳ chọn)'}
+                                                </span>
                                             </p>
                                             {slotList
                                                 .filter((s) => s.kind === 'infant')
@@ -1198,16 +1391,20 @@ const Checkout = () => {
                                                             </div>
                                                             <div className={styles.guestFieldGrid}>
                                                                 <div className={`${styles.formGroup} ${styles.guestFieldFull}`}>
-                                                                    <label className={styles.formLabel}>Họ tên</label>
+                                                                    <label className={styles.formLabel}>
+                                                                        {isInternational ? 'Họ tên (*)' : 'Họ tên'}
+                                                                    </label>
                                                                     <input
-                                                                        className={styles.formInput}
+                                                                        className={`${styles.formInput} ${errors[`slot_${s.key}`] ? styles.inputError : ''}`}
                                                                         value={d.fullName}
                                                                         onChange={(e) => patchSlot(s.key, { fullName: e.target.value })}
-                                                                        placeholder="Tuỳ chọn"
+                                                                        placeholder={isInternational ? 'Họ tên đúng hộ chiếu' : 'Tuỳ chọn'}
                                                                     />
                                                                 </div>
                                                                 <div className={`${styles.formGroup} ${styles.guestFieldFull}`}>
-                                                                    <label className={styles.formLabel}>Ngày sinh (tuỳ chọn)</label>
+                                                                    <label className={styles.formLabel}>
+                                                                        {isInternational ? 'Ngày sinh (*)' : 'Ngày sinh (tuỳ chọn)'}
+                                                                    </label>
                                                                     <div className={styles.dobRow}>
                                                                         <input
                                                                             className={styles.formInput}
@@ -1252,7 +1449,19 @@ const Checkout = () => {
                                                                         <span className={styles.dobHint}>yyyy</span>
                                                                     </div>
                                                                 </div>
+                                                                {isInternational ? (
+                                                                    <PassportDocFields
+                                                                        s={s}
+                                                                        d={d}
+                                                                        patchSlot={patchSlot}
+                                                                        styles={styles}
+                                                                        minLabel={passportMinLabel}
+                                                                    />
+                                                                ) : null}
                                                             </div>
+                                                            {errors[`slot_${s.key}`] ? (
+                                                                <div className={styles.errorText}>{errors[`slot_${s.key}`]}</div>
+                                                            ) : null}
                                                         </div>
                                                     );
                                                 })}
