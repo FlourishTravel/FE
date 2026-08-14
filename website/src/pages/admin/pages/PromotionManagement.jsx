@@ -7,6 +7,7 @@ import {
   toggleAdminPromotionActive,
   updateAdminPromotion,
 } from '../../../api/adminPromotions';
+import GiftPromotionModal from './GiftPromotionModal';
 import styles from './PromotionManagement.module.css';
 
 const EMPTY_FORM = {
@@ -20,6 +21,7 @@ const EMPTY_FORM = {
   startAt: '',
   endAt: '',
   active: true,
+  isPublic: true,
 };
 
 function pad(n) {
@@ -65,6 +67,7 @@ const PromotionManagement = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [formData, setFormData] = useState(EMPTY_FORM);
+  const [giftingItem, setGiftingItem] = useState(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -116,6 +119,7 @@ const PromotionManagement = () => {
       startAt: toDatetimeLocal(startAt),
       endAt: toDatetimeLocal(endAt),
       active: item.isActive !== false && item.active !== false,
+      isPublic: item.isPublic !== false,
     });
     setModalOpen(true);
   };
@@ -146,6 +150,7 @@ const PromotionManagement = () => {
         validFrom: toInstant(formData.startAt) || new Date().toISOString(),
         validTo: toInstant(formData.endAt) || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
         isActive: !!formData.active,
+        isPublic: !!formData.isPublic,
       };
       if (editingItem?.id) {
         await updateAdminPromotion(editingItem.id, payload);
@@ -216,6 +221,22 @@ const PromotionManagement = () => {
       },
     },
     {
+      key: 'isPublic',
+      label: 'Hiển thị',
+      render: (_, row) => {
+        const pub = row.isPublic !== false;
+        const gifted = row.assignedCount ?? 0;
+        return (
+          <div>
+            <span className={`${styles.statusBadge} ${pub ? styles.badgeSuccess : styles.badgeWarning}`}>
+              {pub ? 'Công khai' : 'Tặng riêng'}
+            </span>
+            {gifted > 0 && <div className={styles.subText}>Đã tặng {gifted}</div>}
+          </div>
+        );
+      },
+    },
+    {
       key: 'active',
       label: 'Trạng thái',
       render: (v, row) => {
@@ -234,6 +255,9 @@ const PromotionManagement = () => {
         <div className={styles.actions}>
           <button className={styles.actionBtn} onClick={() => openEdit(row)} title="Chỉnh sửa">
             <span className="material-icons-round" style={{ fontSize: 18 }}>edit</span>
+          </button>
+          <button className={styles.actionBtn} onClick={() => setGiftingItem(row)} title="Tặng cho khách">
+            <span className="material-icons-round" style={{ fontSize: 18 }}>card_giftcard</span>
           </button>
           <button
             className={`${styles.actionBtn} ${(row.isActive !== false && row.active !== false) ? styles.actionDanger : styles.actionSuccess}`}
@@ -450,8 +474,19 @@ const PromotionManagement = () => {
                     checked={!!formData.active}
                     onChange={(e) => setFormData((p) => ({ ...p, active: e.target.checked }))}
                   />
-                  Công khai — khách thấy mã và dùng khi thanh toán
+                  Kích hoạt — mã còn dùng được khi thanh toán
                 </label>
+                <label className={styles.checkLabel}>
+                  <input
+                    type="checkbox"
+                    checked={formData.isPublic !== false}
+                    onChange={(e) => setFormData((p) => ({ ...p, isPublic: e.target.checked }))}
+                  />
+                  Công khai — hiện trên trang Voucher của mọi khách
+                </label>
+                <span className={styles.formHint}>
+                  Tắt Công khai nếu đây là voucher tặng VIP. Sau khi lưu, bấm biểu tượng quà trên danh sách để chọn khách.
+                </span>
               </div>
               <div className={styles.modalFooter}>
                 <button type="button" className={styles.cancelBtn} onClick={() => setModalOpen(false)}>Hủy</button>
@@ -460,6 +495,14 @@ const PromotionManagement = () => {
             </form>
           </div>
         </div>
+      )}
+
+      {giftingItem && (
+        <GiftPromotionModal
+          promotion={giftingItem}
+          onClose={() => setGiftingItem(null)}
+          onChanged={fetchData}
+        />
       )}
     </div>
   );

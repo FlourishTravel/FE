@@ -51,6 +51,10 @@
     @apply bg-gray-100 text-gray-600;
 }
 
+.badgeGift {
+    @apply bg-amber-50 text-amber-800;
+}
+
 .amount {
     @apply text-lg font-bold text-emerald-700;
 }

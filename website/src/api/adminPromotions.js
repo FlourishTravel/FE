@@ -17,6 +17,8 @@ function mapPromotionRow(row) {
     minOrderAmount: row.minOrderAmount ?? null,
     usageLimit: row.usageLimit ?? null,
     usedCount: row.usedCount ?? 0,
+    isPublic: row.isPublic !== false,
+    assignedCount: row.assignedCount ?? 0,
     startAt: row.startAt ?? row.validFrom,
     endAt: row.endAt ?? row.validTo,
     validFrom: row.validFrom ?? row.startAt,
@@ -45,4 +47,17 @@ export async function toggleAdminPromotionActive(id, active) {
     return adminSend(`/admin/promotions/${id}/deactivate`, { method: 'POST' });
   }
   return adminSend(`/admin/promotions/${id}`, { method: 'PUT', body: { isActive: true } });
+}
+
+export async function listAdminPromotionGrants(id) {
+  const result = await adminGet(`/admin/promotions/${id}/grants`);
+  return Array.isArray(result.content) ? result.content : [];
+}
+
+export async function grantAdminPromotion(id, userIds) {
+  return adminSend(`/admin/promotions/${id}/grants`, { method: 'POST', body: { userIds } });
+}
+
+export async function revokeAdminPromotionGrant(id, userId) {
+  return adminSend(`/admin/promotions/${id}/grants/${userId}`, { method: 'DELETE' });
 }

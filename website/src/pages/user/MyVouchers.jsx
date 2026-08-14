@@ -54,7 +54,7 @@ const MyVouchers = () => {
                         Voucher & Mã giảm giá
                     </h1>
                     <p className={styles.subtitle}>
-                        Mã đang hiệu lực — nhập khi thanh toán tour tại bước checkout.
+                        Mã công khai và voucher được tặng riêng cho tài khoản của bạn — nhập khi thanh toán tour.
                     </p>
                 </header>
 
@@ -63,7 +63,7 @@ const MyVouchers = () => {
 
                 {!loading && !error && promos.length === 0 && (
                     <div className={styles.empty}>
-                        <p>Hiện chưa có mã khuyến mãi công khai.</p>
+                        <p>Hiện chưa có mã khuyến mãi dành cho bạn.</p>
                         <Link to="/tours" className={styles.linkBtn}>
                             Xem tour <ArrowRight size={16} />
                         </Link>
@@ -76,6 +76,9 @@ const MyVouchers = () => {
                         <div className={styles.codeBox}>{p.code}</div>
                         <div className={styles.cardMeta} style={{ marginTop: 12 }}>
                             <span className={styles.badge}>{formatDiscount(p)}</span>
+                            {(p.gifted || p.isPublic === false) && (
+                                <span className={`${styles.badge} ${styles.badgeGift}`}>Tặng riêng</span>
+                            )}
                             <span>HSD: {formatDate(p.validTo)}</span>
                             {p.minOrderAmount != null && (
                                 <span>Đơn tối thiểu {Number(p.minOrderAmount).toLocaleString('vi-VN')} ₫</span>
