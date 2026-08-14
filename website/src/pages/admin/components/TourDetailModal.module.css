@@ -892,6 +892,9 @@
 }
 
 .btnGhost {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     padding: 9px 16px;
     background: white;
     border: 1px solid #d1d5db;

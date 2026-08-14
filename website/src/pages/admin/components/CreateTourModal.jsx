@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './CreateTourModal.module.css';
 import { listCategories } from '../../../api/categories';
-import { createTour } from '../../../api/tours';
+import { createTour, getAdminTourDetail, updateTour } from '../../../api/tours';
 import AdminImageListField from './AdminImageListField';
 import AdminVideoListField from './AdminVideoListField';
 
@@ -32,22 +32,73 @@ const MARKET_SEGMENTS = [
     { value: 'corporate', label: 'Doanh nghiệp' },
 ];
 
-const CreateTourModal = ({ isOpen, onClose, onCreated }) => {
+function tourToForm(detail) {
+    const imageUrls = (detail?.images || []).map((img) => img?.imageUrl).filter(Boolean);
+    const videos = (detail?.videos || []).map((v) => ({
+        videoUrl: v?.videoUrl || '',
+        title: v?.title || '',
+        thumbnailUrl: v?.thumbnailUrl || '',
+        durationSeconds: v?.durationSeconds ?? '',
+    }));
+    return {
+        title: detail?.title || '',
+        slug: detail?.slug || '',
+        description: detail?.description || '',
+        basePrice: detail?.basePrice ?? '',
+        durationDays: detail?.durationDays ?? '',
+        durationNights: detail?.durationNights ?? '',
+        categoryId: detail?.category?.id || '',
+        thumbnailUrl: detail?.thumbnailUrl || '',
+        imageUrls,
+        videos,
+        departures: [{ ...EMPTY_DEPARTURE }],
+        marketSegment: detail?.marketSegment || '',
+        destinationCity: detail?.destinationCity || '',
+    };
+}
+
+const CreateTourModal = ({ isOpen, onClose, onCreated, onUpdated, tourId }) => {
     const navigate = useNavigate();
+    const isEdit = Boolean(tourId);
     const [formData, setFormData] = useState(EMPTY_FORM);
     const [categories, setCategories] = useState([]);
     const [submitting, setSubmitting] = useState(false);
+    const [loadingDetail, setLoadingDetail] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
 
     useEffect(() => {
         if (!isOpen) return;
-        setFormData({ ...EMPTY_FORM, departures: [{ ...EMPTY_DEPARTURE }] });
         setErrorMsg('');
         setSubmitting(false);
         listCategories()
             .then((data) => setCategories(Array.isArray(data) ? data : []))
             .catch(() => setCategories([]));
-    }, [isOpen]);
+
+        if (!tourId) {
+            setFormData({ ...EMPTY_FORM, departures: [{ ...EMPTY_DEPARTURE }] });
+            setLoadingDetail(false);
+            return undefined;
+        }
+
+        let cancelled = false;
+        setLoadingDetail(true);
+        getAdminTourDetail(tourId)
+            .then((detail) => {
+                if (!cancelled) setFormData(tourToForm(detail));
+            })
+            .catch((err) => {
+                if (!cancelled) {
+                    setFormData({ ...EMPTY_FORM, departures: [{ ...EMPTY_DEPARTURE }] });
+                    setErrorMsg(err?.message || 'Không tải được thông tin tour để chỉnh sửa.');
+                }
+            })
+            .finally(() => {
+                if (!cancelled) setLoadingDetail(false);
+            });
+        return () => {
+            cancelled = true;
+        };
+    }, [isOpen, tourId]);
 
     if (!isOpen) return null;
 
@@ -76,6 +127,31 @@ const CreateTourModal = ({ isOpen, onClose, onCreated }) => {
                             : Number(v.durationSeconds),
                 }));
 
+            const payload = {
+                title: formData.title.trim(),
+                slug: formData.slug.trim() || null,
+                description: formData.description.trim() || null,
+                basePrice:
+                    formData.basePrice === '' ? null : Number(formData.basePrice),
+                durationDays:
+                    formData.durationDays === '' ? null : Number(formData.durationDays),
+                durationNights:
+                    formData.durationNights === '' ? null : Number(formData.durationNights),
+                categoryId: formData.categoryId || null,
+                thumbnailUrl: imageUrls[0] || formData.thumbnailUrl.trim() || null,
+                imageUrls,
+                videos,
+                marketSegment: formData.marketSegment || null,
+                destinationCity: formData.destinationCity.trim() || null,
+            };
+
+            if (isEdit) {
+                const updated = await updateTour(tourId, payload);
+                if (onUpdated) onUpdated(updated);
+                onClose();
+                return;
+            }
+
             const departures = (formData.departures || [])
                 .map((row) => ({
                     startDate: String(row.startDate || '').trim(),
@@ -99,32 +175,13 @@ const CreateTourModal = ({ isOpen, onClose, onCreated }) => {
                 startDates.add(row.startDate);
             }
 
-            const sessions = departures.map((row) => ({
+            payload.sessions = departures.map((row) => ({
                 startDate: row.startDate,
                 maxParticipants:
                     Number.isFinite(row.maxParticipants) && row.maxParticipants > 0
                         ? row.maxParticipants
                         : 20,
             }));
-
-            const payload = {
-                title: formData.title.trim(),
-                slug: formData.slug.trim() || null,
-                description: formData.description.trim() || null,
-                basePrice:
-                    formData.basePrice === '' ? null : Number(formData.basePrice),
-                durationDays:
-                    formData.durationDays === '' ? null : Number(formData.durationDays),
-                durationNights:
-                    formData.durationNights === '' ? null : Number(formData.durationNights),
-                categoryId: formData.categoryId || null,
-                thumbnailUrl: imageUrls[0] || formData.thumbnailUrl.trim() || null,
-                imageUrls: imageUrls.length ? imageUrls : null,
-                videos: videos.length ? videos : null,
-                marketSegment: formData.marketSegment || null,
-                destinationCity: formData.destinationCity.trim() || null,
-                sessions,
-            };
             const created = await createTour(payload);
 
             if (onCreated) onCreated(created);
@@ -133,7 +190,12 @@ const CreateTourModal = ({ isOpen, onClose, onCreated }) => {
                 navigate(`/admin/tours/itinerary/${created.id}`);
             }
         } catch (err) {
-            setErrorMsg(err?.message || 'Không tạo được tour. Vui lòng thử lại.');
+            setErrorMsg(
+                err?.message ||
+                    (isEdit
+                        ? 'Không lưu được tour. Vui lòng thử lại.'
+                        : 'Không tạo được tour. Vui lòng thử lại.')
+            );
         } finally {
             setSubmitting(false);
         }
@@ -143,7 +205,7 @@ const CreateTourModal = ({ isOpen, onClose, onCreated }) => {
         <div className={styles.modalOverlay} onClick={onClose}>
             <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
                 <div className={styles.modalHeader}>
-                    <h2>Khởi tạo Tour Mới</h2>
+                    <h2>{isEdit ? 'Chỉnh sửa Tour' : 'Khởi tạo Tour Mới'}</h2>
                     <button className={styles.closeBtn} onClick={onClose} title="Đóng" type="button">
                         <span className="material-icons-round">close</span>
                     </button>
@@ -151,6 +213,12 @@ const CreateTourModal = ({ isOpen, onClose, onCreated }) => {
 
                 <form onSubmit={handleSubmit}>
                     <div className={styles.modalBody}>
+                        {loadingDetail ? (
+                            <p style={{ color: '#6b7280', margin: '8px 0 16px' }}>
+                                Đang tải thông tin tour...
+                            </p>
+                        ) : null}
+                        <fieldset disabled={loadingDetail} style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}>
                         <div className={styles.formGroup}>
                             <label htmlFor="tour-title">Tên Tour *</label>
                             <input
@@ -267,6 +335,7 @@ const CreateTourModal = ({ isOpen, onClose, onCreated }) => {
                             />
                         </div>
 
+                        {!isEdit ? (
                         <div className={styles.formGroup}>
                             <div className={styles.departureHeader}>
                                 <label>Đợt khởi hành *</label>
@@ -355,6 +424,11 @@ const CreateTourModal = ({ isOpen, onClose, onCreated }) => {
                                 </div>
                             ))}
                         </div>
+                        ) : (
+                            <p style={{ color: '#6b7280', fontSize: 13, margin: '0 0 8px' }}>
+                                Đợt khởi hành chỉnh trong chi tiết tour hoặc trang lịch trình.
+                            </p>
+                        )}
 
                         <div className={styles.formGroup}>
                             <AdminImageListField
@@ -421,11 +495,13 @@ const CreateTourModal = ({ isOpen, onClose, onCreated }) => {
                             <div className="bg-blue-50 text-blue-800 p-3 rounded-md text-sm mt-4 flex items-start gap-2">
                                 <span className="material-icons-round text-blue-500">info</span>
                                 <p>
-                                    Chọn ít nhất một ngày khởi hành. Có thể thêm nhiều đợt ngay lúc tạo tour;
-                                    ngày kết thúc được tính từ số ngày của tour. Lịch trình chi tiết bổ sung sau.
+                                    {isEdit
+                                        ? 'Lưu để cập nhật tên, giá, mô tả, ảnh. Đợt khởi hành và lịch trình chỉnh riêng.'
+                                        : 'Chọn ít nhất một ngày khởi hành. Có thể thêm nhiều đợt ngay lúc tạo tour; ngày kết thúc được tính từ số ngày của tour. Lịch trình chi tiết bổ sung sau.'}
                                 </p>
                             </div>
                         )}
+                        </fieldset>
                     </div>
 
                     <div className={styles.modalFooter}>
@@ -437,10 +513,35 @@ const CreateTourModal = ({ isOpen, onClose, onCreated }) => {
                         >
                             Hủy
                         </button>
-                        <button type="submit" className={styles.submitBtn} disabled={submitting}>
-                            {submitting ? 'Đang tạo...' : 'Tạo & Tiếp tục'}
+                        {isEdit && tourId ? (
+                            <button
+                                type="button"
+                                className={styles.cancelBtn}
+                                disabled={submitting || loadingDetail}
+                                onClick={() => {
+                                    onClose();
+                                    navigate(`/admin/tours/itinerary/${tourId}`);
+                                }}
+                            >
+                                Lịch trình
+                            </button>
+                        ) : null}
+                        <button
+                            type="submit"
+                            className={styles.submitBtn}
+                            disabled={submitting || loadingDetail}
+                        >
+                            {submitting
+                                ? isEdit
+                                    ? 'Đang lưu...'
+                                    : 'Đang tạo...'
+                                : isEdit
+                                  ? 'Lưu thay đổi'
+                                  : 'Tạo & Tiếp tục'}
                             {!submitting && (
-                                <span className="material-icons-round">arrow_forward</span>
+                                <span className="material-icons-round">
+                                    {isEdit ? 'save' : 'arrow_forward'}
+                                </span>
                             )}
                         </button>
                     </div>

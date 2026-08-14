@@ -59,6 +59,7 @@ const TourManagement = () => {
     const [filterStatus, setFilterStatus] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [editingTourId, setEditingTourId] = useState(null);
     const [detailTourId, setDetailTourId] = useState(null);
 
     const fetchTours = useCallback(async () => {
@@ -122,7 +123,21 @@ const TourManagement = () => {
         fetchTours();
     };
 
+    const handleUpdated = () => {
+        setSuccessMsg('Đã cập nhật tour');
+        fetchTours();
+    };
+
+    const closeTourForm = () => {
+        setIsCreateModalOpen(false);
+        setEditingTourId(null);
+    };
+
     const handleEdit = (row) => {
+        setEditingTourId(row.id);
+    };
+
+    const handleItinerary = (row) => {
         navigate(`/admin/tours/itinerary/${row.id}`);
     };
 
@@ -131,6 +146,11 @@ const TourManagement = () => {
     };
 
     const handleEditFromDetail = (detail) => {
+        setDetailTourId(null);
+        if (detail?.id) setEditingTourId(detail.id);
+    };
+
+    const handleItineraryFromDetail = (detail) => {
         setDetailTourId(null);
         if (detail?.id) navigate(`/admin/tours/itinerary/${detail.id}`);
     };
@@ -271,11 +291,20 @@ const TourManagement = () => {
                 <div className={styles.actions}>
                     <button
                         className={styles.actionBtn}
-                        title="Chỉnh sửa & lịch trình"
+                        title="Chỉnh sửa tour"
                         onClick={() => handleEdit(row)}
                     >
                         <span className="material-icons-round" style={{ fontSize: '18px' }}>
                             edit
+                        </span>
+                    </button>
+                    <button
+                        className={styles.actionBtn}
+                        title="Lịch trình"
+                        onClick={() => handleItinerary(row)}
+                    >
+                        <span className="material-icons-round" style={{ fontSize: '18px' }}>
+                            event_note
                         </span>
                     </button>
                     <button
@@ -463,9 +492,11 @@ const TourManagement = () => {
             />
 
             <CreateTourModal
-                isOpen={isCreateModalOpen}
-                onClose={() => setIsCreateModalOpen(false)}
+                isOpen={isCreateModalOpen || Boolean(editingTourId)}
+                tourId={editingTourId}
+                onClose={closeTourForm}
                 onCreated={handleCreated}
+                onUpdated={handleUpdated}
             />
 
             <TourDetailModal
@@ -473,6 +504,7 @@ const TourManagement = () => {
                 tourId={detailTourId}
                 onClose={() => setDetailTourId(null)}
                 onEdit={handleEditFromDetail}
+                onItinerary={handleItineraryFromDetail}
             />
         </div>
     );

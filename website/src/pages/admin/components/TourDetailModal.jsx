@@ -85,7 +85,7 @@ const formatActivityTimeWindow = (a) => {
     return '';
 };
 
-const TourDetailModal = ({ isOpen, tourId, onClose, onEdit }) => {
+const TourDetailModal = ({ isOpen, tourId, onClose, onEdit, onItinerary }) => {
     const [tab, setTab] = useState('overview');
     const [detail, setDetail] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -681,16 +681,28 @@ const TourDetailModal = ({ isOpen, tourId, onClose, onEdit }) => {
                         Đóng
                     </button>
                     {detail?.id && (
-                        <button
-                            className={styles.btnPrimary}
-                            onClick={() => onEdit && onEdit(detail)}
-                            type="button"
-                        >
-                            <span className="material-icons-round" style={{ fontSize: 18 }}>
-                                edit
-                            </span>
-                            Chỉnh sửa & lịch trình
-                        </button>
+                        <>
+                            <button
+                                className={styles.btnGhost}
+                                onClick={() => onItinerary && onItinerary(detail)}
+                                type="button"
+                            >
+                                <span className="material-icons-round" style={{ fontSize: 18 }}>
+                                    event_note
+                                </span>
+                                Lịch trình
+                            </button>
+                            <button
+                                className={styles.btnPrimary}
+                                onClick={() => onEdit && onEdit(detail)}
+                                type="button"
+                            >
+                                <span className="material-icons-round" style={{ fontSize: 18 }}>
+                                    edit
+                                </span>
+                                Chỉnh sửa
+                            </button>
+                        </>
                     )}
                 </div>
             </div>
