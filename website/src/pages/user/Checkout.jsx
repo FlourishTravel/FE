@@ -420,7 +420,7 @@ const Checkout = () => {
                 newErrors[`slot_${s.key}`] = 'Nhập họ tên hành khách';
             } else if (!slotDobIso(d)) {
                 newErrors[`slot_${s.key}`] = 'Nhập ngày sinh hợp lệ (dd/mm/yyyy)';
-            } else if (!d.idNumber?.trim()) {
+            } else if (s.kind === 'adult' && !d.idNumber?.trim()) {
                 newErrors[`slot_${s.key}`] = 'Nhập số CCCD/CMND';
             } else if (!phoneOptionalOk(d.phone)) {
                 newErrors[`slot_${s.key}`] = 'Số điện thoại hành khách không hợp lệ';
@@ -436,7 +436,8 @@ const Checkout = () => {
         for (const s of slotList) {
             if (s.kind === 'infant') continue;
             const d = slotDisplayData(slotData[s.key]);
-            if (!d.fullName.trim() || !slotDobIso(d) || !d.idNumber?.trim() || !phoneOptionalOk(d.phone)) return false;
+            const idOk = s.kind !== 'adult' || !!d.idNumber?.trim();
+            if (!d.fullName.trim() || !slotDobIso(d) || !idOk || !phoneOptionalOk(d.phone)) return false;
         }
         return true;
     }, [formData, agreeTerms, slotList, slotData]);
@@ -1170,15 +1171,6 @@ const Checkout = () => {
                                                                 value={d.phone}
                                                                 onChange={(e) => patchSlot(s.key, { phone: e.target.value })}
                                                                 placeholder="Ví dụ: 0901234567 / +84901234567"
-                                                            />
-                                                        </div>
-                                                        <div className={styles.formGroup}>
-                                                            <label className={styles.formLabel}>CCCD / CMND (*)</label>
-                                                            <input
-                                                                className={styles.formInput}
-                                                                value={d.idNumber}
-                                                                onChange={(e) => patchSlot(s.key, { idNumber: e.target.value })}
-                                                                placeholder="Số giấy tờ"
                                                             />
                                                         </div>
                                                     </div>
