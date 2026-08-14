@@ -4,6 +4,19 @@ import DataTable from '../components/DataTable';
 import { featureAdminReview, listAdminReviews, publishAdminReview } from '../../../api/adminReviews';
 import styles from './PromotionManagement.module.css';
 
+const FILTERS = [
+  { key: 'all', label: 'Tất cả' },
+  { key: 'published', label: 'Đã đăng' },
+  { key: 'hidden', label: 'Đang ẩn' },
+  { key: 'featured', label: 'Nổi bật' },
+];
+
+function truncate(text, max = 90) {
+  const value = String(text || '').trim();
+  if (!value) return '—';
+  return value.length > max ? `${value.slice(0, max)}…` : value;
+}
+
 const ReviewModeration = () => {
   const [items, setItems] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -16,18 +29,31 @@ const ReviewModeration = () => {
     setLoading(true);
     setErrorMsg('');
     try {
-      const data = await listAdminReviews({ q: searchQuery, status: statusFilter, size: 100 });
+      const data = await listAdminReviews({ size: 100 });
       setItems(Array.isArray(data?.content) ? data.content : []);
     } catch (err) {
-      setErrorMsg(err?.message || 'Khong the tai danh sach danh gia');
+      setErrorMsg(err?.message || 'Không tải được danh sách đánh giá.');
     } finally {
       setLoading(false);
     }
-  }, [searchQuery, statusFilter]);
+  }, []);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  const filteredItems = useMemo(() => {
+    let rows = items;
+    if (statusFilter === 'published') rows = rows.filter((i) => i.published);
+    else if (statusFilter === 'hidden') rows = rows.filter((i) => !i.published);
+    else if (statusFilter === 'featured') rows = rows.filter((i) => i.featured);
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return rows;
+    return rows.filter((row) => {
+      const hay = `${row.authorName || ''} ${row.tourTitle || ''} ${row.content || ''}`.toLowerCase();
+      return hay.includes(q);
+    });
+  }, [items, searchQuery, statusFilter]);
 
   const stats = useMemo(() => ({
     total: items.length,
@@ -38,60 +64,84 @@ const ReviewModeration = () => {
   const togglePublish = async (row) => {
     try {
       await publishAdminReview(row.id, !row.published);
-      setSuccessMsg(row.published ? 'Da an danh gia' : 'Da dang danh gia');
+      setSuccessMsg(row.published ? 'Đã ẩn đánh giá khỏi trang khách.' : 'Đã đăng đánh giá công khai.');
       fetchData();
     } catch (err) {
-      setErrorMsg(err?.message || 'Khong the cap nhat trang thai');
+      setErrorMsg(err?.message || 'Không cập nhật được trạng thái đăng.');
     }
   };
 
   const toggleFeature = async (row) => {
     try {
       await featureAdminReview(row.id, !row.featured);
-      setSuccessMsg(row.featured ? 'Da bo noi bat danh gia' : 'Da gan danh gia noi bat');
+      setSuccessMsg(row.featured ? 'Đã bỏ đánh giá nổi bật.' : 'Đã gán đánh giá nổi bật.');
       fetchData();
     } catch (err) {
-      setErrorMsg(err?.message || 'Khong the cap nhat noi bat');
+      setErrorMsg(err?.message || 'Không cập nhật được trạng thái nổi bật.');
     }
   };
 
   const columns = [
     {
       key: 'authorName',
-      label: 'Nguoi danh gia',
+      label: 'Người đánh giá',
       render: (_, row) => (
         <div>
-          <div className={styles.nameTitle}>{row.authorName || row.customerName || 'Khach hang'}</div>
-          <div className={styles.subText}>Tour: {row.tourTitle || row.tourName || 'N/A'}</div>
+          <div className={styles.nameTitle}>{row.authorName || row.customerName || 'Khách hàng'}</div>
+          <div className={styles.subText}>Tour: {row.tourTitle || row.tourName || 'Không rõ'}</div>
         </div>
       ),
     },
     {
       key: 'rating',
-      label: 'Diem',
+      label: 'Điểm',
       render: (v) => `${v || 0}/5`,
     },
-    { key: 'content', label: 'Noi dung', render: (v) => v || '—' },
+    {
+      key: 'content',
+      label: 'Nội dung',
+      render: (v) => truncate(v, 100),
+    },
     {
       key: 'published',
-      label: 'Cong khai',
-      render: (v) => <span className={`${styles.statusBadge} ${v ? styles.badgeSuccess : styles.badgeNeutral}`}>{v ? 'Da dang' : 'Ban nhap'}</span>,
+      label: 'Công khai',
+      render: (v) => (
+        <span className={`${styles.statusBadge} ${v ? styles.badgeSuccess : styles.badgeNeutral}`}>
+          {v ? 'Đã đăng' : 'Đang ẩn'}
+        </span>
+      ),
     },
     {
       key: 'featured',
-      label: 'Noi bat',
-      render: (v) => <span className={`${styles.statusBadge} ${v ? styles.badgeWarning : styles.badgeNeutral}`}>{v ? 'Noi bat' : 'Thuong'}</span>,
+      label: 'Nổi bật',
+      render: (v) => (
+        <span className={`${styles.statusBadge} ${v ? styles.badgeWarning : styles.badgeNeutral}`}>
+          {v ? 'Nổi bật' : 'Thường'}
+        </span>
+      ),
     },
     {
       key: 'actions',
       label: '',
       render: (_, row) => (
         <div className={styles.actions}>
-          <button className={`${styles.actionBtn} ${row.published ? styles.actionDanger : styles.actionSuccess}`} onClick={() => togglePublish(row)} title="Dang/An">
-            <span className="material-icons-round" style={{ fontSize: 18 }}>{row.published ? 'visibility_off' : 'visibility'}</span>
+          <button
+            className={`${styles.actionBtn} ${row.published ? styles.actionDanger : styles.actionSuccess}`}
+            onClick={() => togglePublish(row)}
+            title={row.published ? 'Ẩn đánh giá' : 'Đăng công khai'}
+          >
+            <span className="material-icons-round" style={{ fontSize: 18 }}>
+              {row.published ? 'visibility_off' : 'visibility'}
+            </span>
           </button>
-          <button className={`${styles.actionBtn} ${styles.actionSuccess}`} onClick={() => toggleFeature(row)} title="Noi bat">
-            <span className="material-icons-round" style={{ fontSize: 18 }}>{row.featured ? 'star' : 'star_outline'}</span>
+          <button
+            className={`${styles.actionBtn} ${styles.actionSuccess}`}
+            onClick={() => toggleFeature(row)}
+            title={row.featured ? 'Bỏ nổi bật' : 'Gán nổi bật'}
+          >
+            <span className="material-icons-round" style={{ fontSize: 18 }}>
+              {row.featured ? 'star' : 'star_outline'}
+            </span>
           </button>
         </div>
       ),
@@ -102,16 +152,18 @@ const ReviewModeration = () => {
     <div className={styles.page}>
       <div className={styles.pageHeader}>
         <div>
-          <h1 className={styles.pageTitle}>Kiem Duyet Danh Gia</h1>
-          <p className={styles.pageSubtitle}>Cong khai, an hoac gan noi bat cac danh gia cua khach hang</p>
+          <h1 className={styles.pageTitle}>Kiểm duyệt đánh giá</h1>
+          <p className={styles.pageSubtitle}>
+            Đăng công khai, ẩn hoặc gán nổi bật các đánh giá của khách sau tour.
+          </p>
         </div>
-        <button className={styles.refreshBtn} onClick={fetchData} disabled={loading}>Tai lai</button>
+        <button className={styles.refreshBtn} onClick={fetchData} disabled={loading}>Tải lại</button>
       </div>
 
       <div className={styles.statsGrid}>
-        <StatCard icon="reviews" label="Tong danh gia" value={String(stats.total)} color="blue" />
-        <StatCard icon="visibility" label="Da dang" value={String(stats.published)} color="green" />
-        <StatCard icon="star" label="Noi bat" value={String(stats.featured)} color="orange" />
+        <StatCard icon="reviews" label="Tổng đánh giá" value={String(stats.total)} color="blue" />
+        <StatCard icon="visibility" label="Đã đăng" value={String(stats.published)} color="green" />
+        <StatCard icon="star" label="Nổi bật" value={String(stats.featured)} color="orange" />
       </div>
 
       {(errorMsg || successMsg) && (
@@ -126,19 +178,33 @@ const ReviewModeration = () => {
 
       <div className={styles.filterBar}>
         <div className={styles.filterTabs}>
-          {['all', 'PUBLISHED', 'DRAFT'].map((tab) => (
-            <button key={tab} className={`${styles.filterTab} ${statusFilter === tab ? styles.filterTabActive : ''}`} onClick={() => setStatusFilter(tab)}>
-              {tab === 'all' ? 'Tat ca' : tab}
+          {FILTERS.map((tab) => (
+            <button
+              key={tab.key}
+              className={`${styles.filterTab} ${statusFilter === tab.key ? styles.filterTabActive : ''}`}
+              onClick={() => setStatusFilter(tab.key)}
+            >
+              {tab.label}
             </button>
           ))}
         </div>
         <div className={styles.filterSearch}>
           <span className="material-icons-round" style={{ fontSize: 18, color: '#9ca3af' }}>search</span>
-          <input className={styles.filterInput} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Tim theo ten hoac noi dung..." />
+          <input
+            className={styles.filterInput}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Tìm theo tên khách, tour hoặc nội dung..."
+          />
         </div>
       </div>
 
-      <DataTable columns={columns} data={items} totalLabel="danh gia" emptyMessage={loading ? 'Dang tai...' : 'Chua co danh gia'} />
+      <DataTable
+        columns={columns}
+        data={filteredItems}
+        totalLabel="đánh giá"
+        emptyMessage={loading ? 'Đang tải...' : 'Chưa có đánh giá nào'}
+      />
     </div>
   );
 };
