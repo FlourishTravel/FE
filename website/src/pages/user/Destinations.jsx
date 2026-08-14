@@ -68,6 +68,10 @@ function formatDestinationDuration(destination) {
         return `${destination.durationDays} ngày ${destination.durationNights} đêm`;
     }
     if (destination?.durationDays) return `${destination.durationDays} ngày`;
+    if (destination?.idealDaysMin && destination?.idealDaysMax) {
+        return `${destination.idealDaysMin}–${destination.idealDaysMax} ngày`;
+    }
+    if (destination?.idealDaysMin) return `${destination.idealDaysMin} ngày`;
     return 'Nhiều lịch trình';
 }
 
@@ -96,9 +100,9 @@ const Destinations = () => {
             return destinations.map((item, index) => ({
                 id: item.id || item.slug || index,
                 title: item.title || item.name || item.slug || 'Điểm đến',
-                country: item.country || item.region || 'Flourish',
+                country: item.country || item.region || item.locationLabel || 'Flourish',
                 duration: formatDestinationDuration(item),
-                description: item.description || 'Khám phá hành trình độc đáo cùng Flourish.',
+                description: item.description || item.summary || 'Khám phá hành trình độc đáo cùng Flourish.',
                 image: resolveMediaUrl(item.heroImageUrl || item.thumbnailUrl || item.imageUrl) || FALLBACK_DESTINATIONS[0].image,
                 slug: item.slug || '',
             }));

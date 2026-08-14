@@ -256,7 +256,12 @@ const DestinationManagement = () => {
                                 </div>
                                 <div className={styles.formGroup}>
                                     <label className={styles.formLabel}>Mô tả</label>
-                                    <textarea className={styles.formTextarea} value={formData.description} onChange={(e) => setFormData((p) => ({ ...p, description: e.target.value }))} />
+                                    <textarea
+                                        className={styles.formTextarea}
+                                        rows={8}
+                                        value={formData.description}
+                                        onChange={(e) => setFormData((p) => ({ ...p, description: e.target.value }))}
+                                    />
                                 </div>
                                 <div className={styles.formRow}>
                                     <div className={styles.formGroup}>
