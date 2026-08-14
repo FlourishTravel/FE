@@ -33,6 +33,8 @@ function mapNotificationRow(row) {
     ...row,
     message: row.message ?? row.body,
     audience: row.audience ?? row.recipientEmail ?? '—',
+    recipientEmail: row.recipientEmail || row.audience || '—',
+    type: row.type || 'general',
     channel: row.channel ?? 'IN_APP',
     status: row.status ?? 'SENT',
   };
