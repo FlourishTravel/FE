@@ -150,6 +150,29 @@ function buildTourVideos(videos) {
         .filter(Boolean);
 }
 
+function uniqueGuideNames(sessions) {
+    const names = [];
+    const seen = new Set();
+    for (const session of sessions || []) {
+        const name = session?.tourGuide?.fullName?.trim();
+        if (!name) continue;
+        const key = name.toLowerCase();
+        if (seen.has(key)) continue;
+        seen.add(key);
+        names.push(name);
+    }
+    return names;
+}
+
+function formatCompanionLabel(sessions, selectedSession) {
+    const selectedName = selectedSession?.tourGuide?.fullName?.trim();
+    if (selectedName) return `HDV ${selectedName}`;
+    const names = uniqueGuideNames(sessions);
+    if (names.length === 1) return `HDV ${names[0]}`;
+    if (names.length > 1) return names.map((n) => `HDV ${n}`).join(' · ');
+    return 'Đội ngũ Flourish';
+}
+
 function buildMapEmbedUrl(locations) {
     const loc = (locations || []).find((l) => l.latitude != null && l.longitude != null);
     if (!loc) return null;
@@ -199,7 +222,11 @@ function buildViewModel(detail) {
                 label: 'Đợt mở bán',
                 value: scheduled.length > 0 ? `${scheduled.length} đợt` : 'Chưa có đợt',
             },
-            { icon: 'globe', label: 'Đồng hành', value: 'Đội ngũ Flourish & HDV (nếu có)' },
+            {
+                icon: 'globe',
+                label: 'Đồng hành',
+                value: formatCompanionLabel(detail.sessions),
+            },
         ],
         itinerary,
         included: included.length ? included : ['Chi tiết dịch vụ theo xác nhận booking'],
@@ -286,6 +313,11 @@ const TourDetail = () => {
     const selectedSession = useMemo(
         () => bookableSessions.find((s) => s.id === selectedSessionId),
         [bookableSessions, selectedSessionId],
+    );
+
+    const companionLabel = useMemo(
+        () => formatCompanionLabel(detail?.sessions, selectedSession),
+        [detail, selectedSession],
     );
 
     useEffect(() => {
@@ -618,7 +650,9 @@ const TourDetail = () => {
                                     <div key={idx} className={styles.highlightCard}>
                                         <div className={styles.highlightIconCircle}>{getHighlightIcon(h.icon)}</div>
                                         <div className={styles.highlightLabel}>{h.label}</div>
-                                        <div className={styles.highlightValue}>{h.value}</div>
+                                        <div className={styles.highlightValue}>
+                                            {h.icon === 'globe' ? companionLabel : h.value}
+                                        </div>
                                     </div>
                                 ))}
                             </div>
@@ -673,6 +707,11 @@ const TourDetail = () => {
                                                                 {formatIsoDateVi(s.startDate)}
                                                                 {s.endDate ? ` → ${formatIsoDateVi(s.endDate)}` : ''}
                                                             </div>
+                                                            {s.tourGuide?.fullName ? (
+                                                                <div className={styles.sessionPickGuide}>
+                                                                    HDV {s.tourGuide.fullName}
+                                                                </div>
+                                                            ) : null}
                                                             <div className={styles.sessionPickSlots}>
                                                                 <div className={styles.sessionPickBar}>
                                                                     <div style={{ width: `${pct}%` }} />

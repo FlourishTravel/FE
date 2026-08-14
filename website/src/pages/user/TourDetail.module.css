@@ -349,6 +349,7 @@
 
 .highlightValue {
     @apply text-xs text-gray-500;
+    word-break: break-word;
 }
 
 /* ===== MAP + ITINERARY ===== */
@@ -1150,6 +1151,12 @@
     font-size: 14px;
     font-weight: 600;
     color: #111827;
+}
+
+.sessionPickGuide {
+    font-size: 12px;
+    color: #047857;
+    font-weight: 600;
 }
 
 .sessionPickSlots {
