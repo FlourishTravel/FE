@@ -68,6 +68,7 @@ const Help = () => {
         ? helpArticles.map((a) => ({
             title: a.title,
             updated: a.category || 'Bài viết trợ giúp',
+            slug: a.slug,
             body: a.summary || a.body,
         }))
         : [
@@ -164,17 +165,28 @@ const Help = () => {
                     <div className={styles.articlesSection}>
                         <h2 className={styles.articlesTitle}>Popular Articles</h2>
                         <div className={styles.articlesList}>
-                            {popularArticles.map((article, index) => (
-                                <div key={index} className={styles.articleItem}>
-                                    <div className={styles.articleIcon}>
-                                        <FaFileAlt />
+                            {popularArticles.map((article, index) => {
+                                const inner = (
+                                    <>
+                                        <div className={styles.articleIcon}>
+                                            <FaFileAlt />
+                                        </div>
+                                        <div className={styles.articleContent}>
+                                            <h4 className={styles.articleTitle}>{article.title}</h4>
+                                            <span className={styles.articleDate}>{article.updated}</span>
+                                        </div>
+                                    </>
+                                );
+                                return article.slug ? (
+                                    <Link key={article.slug} to={`/content/${article.slug}`} className={styles.articleItem}>
+                                        {inner}
+                                    </Link>
+                                ) : (
+                                    <div key={index} className={styles.articleItem}>
+                                        {inner}
                                     </div>
-                                    <div className={styles.articleContent}>
-                                        <h4 className={styles.articleTitle}>{article.title}</h4>
-                                        <span className={styles.articleDate}>{article.updated}</span>
-                                    </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
                 </div>

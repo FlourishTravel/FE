@@ -4,28 +4,16 @@ import { MapPin, Briefcase, ArrowRight } from 'lucide-react';
 import styles from './Careers.module.css';
 import { useSiteContent } from '../../hooks/useSiteContent';
 
-const JOBS_FALLBACK = [
-    {
-        id: 1,
-        title: 'Travel Experience Designer',
-        location: 'Hồ Chí Minh (hybrid)',
-        type: 'Full-time',
-        excerpt: 'Thiết kế và phát triển các tour trải nghiệm mới, làm việc với đối tác địa phương.',
-    },
-];
-
 const Careers = () => {
-    const { items: raw, loading } = useSiteContent('career', []);
-    const jobs = raw.length > 0
-        ? raw.map((item) => ({
-            id: item.id,
-            slug: item.slug,
-            title: item.title,
-            location: item.summary?.split('·')[1]?.trim() || item.category || 'TP.HCM',
-            type: item.summary?.split('·')[0]?.trim() || 'Full-time',
-            excerpt: item.body || item.excerpt,
-        }))
-        : JOBS_FALLBACK;
+    const { items: raw, loading } = useSiteContent('career');
+    const jobs = raw.map((item) => ({
+        id: item.id,
+        slug: item.slug,
+        title: item.title,
+        location: item.category || 'TP.HCM',
+        type: 'Toàn thời gian',
+        excerpt: item.excerpt || item.body,
+    }));
 
     return (
         <div className={styles.pageContainer}>
@@ -47,6 +35,9 @@ const Careers = () => {
                 <section className={styles.jobsSection}>
                     <h2 className={styles.sectionTitle}>Vị trí đang tuyển</h2>
                     {loading && <p>Đang tải vị trí...</p>}
+                    {!loading && jobs.length === 0 && (
+                        <p>Chưa có vị trí tuyển dụng. Bài đã đăng ở Admin → Nội dung → Tuyển dụng sẽ hiện tại đây.</p>
+                    )}
                     <div className={styles.jobList}>
                         {jobs.map((job) => (
                             <div key={job.id} className={styles.jobCard}>

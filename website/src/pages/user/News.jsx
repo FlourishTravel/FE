@@ -4,18 +4,8 @@ import { Calendar, ArrowRight } from 'lucide-react';
 import styles from './News.module.css';
 import { useSiteContent } from '../../hooks/useSiteContent';
 
-const NEWS_FALLBACK = [
-    {
-        id: 1,
-        title: 'Flourish Tourism ra mắt chuỗi tour "Sống chậm" tại Thái Lan và Bali',
-        date: '15/02/2025',
-        excerpt: 'Các tour 5–7 ngày tập trung vào trải nghiệm địa phương, homestay và ẩm thực.',
-        image: 'https://images.unsplash.com/photo-1508009603885-027cf6d0bf6b?auto=format&fit=crop&w=600&q=80',
-    },
-];
-
 const News = () => {
-    const { items, loading } = useSiteContent('news', NEWS_FALLBACK);
+    const { items, loading } = useSiteContent('news');
 
     return (
         <div className={styles.pageContainer}>
@@ -27,6 +17,9 @@ const News = () => {
             </div>
             <div className={styles.container}>
                 {loading && <p className={styles.loading}>Đang tải tin tức...</p>}
+                {!loading && items.length === 0 && (
+                    <p className={styles.loading}>Chưa có tin tức. Bài đã đăng ở Admin → Nội dung → Tin tức sẽ hiện tại đây.</p>
+                )}
                 <div className={styles.newsList}>
                     {items.map((item) => (
                         <article key={item.id} className={styles.newsCard}>

@@ -10,14 +10,14 @@ import {
 import styles from './PromotionManagement.module.css';
 
 const CONTENT_TABS = [
-  { key: 'news', label: 'Tin tức', hint: 'Hiện ở trang Blog / Tin tức' },
-  { key: 'story', label: 'Câu chuyện', hint: 'Hiện ở trang Gợi ý theo mùa' },
-  { key: 'career', label: 'Tuyển dụng', hint: 'Hiện ở trang Sự nghiệp' },
-  { key: 'help', label: 'Trợ giúp', hint: 'Hiện ở trang Trợ giúp' },
-  { key: 'guide', label: 'Cẩm nang', hint: 'Hiện ở trang Cẩm nang du lịch' },
+  { key: 'news', label: 'Tin tức', href: '/news', hint: 'Hiện ở Khám phá → Blog du lịch (/news)' },
+  { key: 'story', label: 'Câu chuyện', href: '/stories', hint: 'Hiện ở Khám phá → Gợi ý theo mùa (/stories)' },
+  { key: 'career', label: 'Tuyển dụng', href: '/careers', hint: 'Hiện ở trang Tuyển dụng (/careers)' },
+  { key: 'help', label: 'Trợ giúp', href: '/help', hint: 'Hiện ở trang Trợ giúp (/help)' },
+  { key: 'guide', label: 'Cẩm nang', href: '/travel-guide', hint: 'Hiện ở Khám phá → Cẩm nang du lịch (/travel-guide)' },
 ];
 
-const EMPTY_FORM = { title: '', slug: '', summary: '', body: '', published: true };
+const EMPTY_FORM = { title: '', slug: '', summary: '', body: '', imageUrl: '', category: '', published: true };
 
 function slugify(value) {
   return String(value || '')
@@ -93,6 +93,8 @@ const ContentManagement = () => {
       slug: row.slug || '',
       summary: row.summary || '',
       body: row.body || '',
+      imageUrl: row.imageUrl || '',
+      category: row.category || '',
       published: row.published !== false,
     });
   };
@@ -110,15 +112,27 @@ const ContentManagement = () => {
       slug,
       summary: formData.summary.trim() || null,
       body: formData.body.trim(),
+      imageUrl: formData.imageUrl.trim() || null,
+      category: formData.category.trim() || null,
       published: !!formData.published,
     };
+    const publicPath = `${activeTabMeta.href}`;
+    const viewPath = formData.published ? `/content/${slug}` : null;
     try {
       if (editing?.mode === 'edit' && editing?.row?.id) {
         await updateAdminContent(editing.row.id, payload);
-        setSuccessMsg('Đã cập nhật bài viết.');
+        setSuccessMsg(
+          formData.published
+            ? `Đã cập nhật và đăng. Xem danh sách tại ${publicPath} hoặc bài viết ${viewPath}.`
+            : 'Đã lưu bản nháp — chưa hiện bên khách.',
+        );
       } else {
         await createAdminContent(payload);
-        setSuccessMsg('Đã tạo bài viết mới.');
+        setSuccessMsg(
+          formData.published
+            ? `Đã đăng bài. Xem danh sách tại ${publicPath} hoặc bài viết ${viewPath}.`
+            : 'Đã tạo bản nháp — chưa hiện bên khách.',
+        );
       }
       setEditing(null);
       fetchData();
@@ -176,6 +190,17 @@ const ContentManagement = () => {
           <button className={styles.actionBtn} onClick={() => openEdit(row)} title="Chỉnh sửa">
             <span className="material-icons-round" style={{ fontSize: 18 }}>edit</span>
           </button>
+          {row.published && row.slug ? (
+            <a
+              className={styles.actionBtn}
+              href={`/content/${row.slug}`}
+              target="_blank"
+              rel="noreferrer"
+              title="Xem trên website khách"
+            >
+              <span className="material-icons-round" style={{ fontSize: 18 }}>open_in_new</span>
+            </a>
+          ) : null}
           <button className={`${styles.actionBtn} ${styles.actionDanger}`} onClick={() => handleDelete(row)} title="Xóa">
             <span className="material-icons-round" style={{ fontSize: 18 }}>delete</span>
           </button>
@@ -210,7 +235,10 @@ const ContentManagement = () => {
           </button>
         ))}
       </div>
-      <p className={styles.formHint}>{activeTabMeta.hint}</p>
+      <p className={styles.formHint}>
+        {activeTabMeta.hint}{' '}
+        <a href={activeTabMeta.href} target="_blank" rel="noreferrer">Mở trang khách</a>
+      </p>
 
       <div className={styles.statsGrid}>
         <StatCard icon="article" label="Tổng bài viết" value={String(stats.total)} color="blue" />
@@ -287,6 +315,26 @@ const ContentManagement = () => {
                     onChange={(e) => setFormData((p) => ({ ...p, summary: e.target.value }))}
                     placeholder="Một đoạn ngắn hiện trên danh sách bài viết"
                   />
+                </div>
+                <div className={styles.formRow}>
+                  <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>Nhóm / chuyên mục</label>
+                    <input
+                      className={styles.formInput}
+                      value={formData.category}
+                      onChange={(e) => setFormData((p) => ({ ...p, category: e.target.value }))}
+                      placeholder="Ví dụ: Thái Lan, Visa, Full-time"
+                    />
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>Ảnh bìa (URL)</label>
+                    <input
+                      className={styles.formInput}
+                      value={formData.imageUrl}
+                      onChange={(e) => setFormData((p) => ({ ...p, imageUrl: e.target.value }))}
+                      placeholder="https://..."
+                    />
+                  </div>
                 </div>
                 <div className={styles.formGroup}>
                   <label className={styles.formLabel}>Nội dung chi tiết</label>

@@ -32,7 +32,7 @@ const GUIDE_ARTICLES = [
 
 const Guide = () => {
     const navigate = useNavigate();
-    const { items: guideArticles, loading: guideArticlesLoading } = useSiteContent('guide', GUIDE_ARTICLES);
+    const { items: guideArticles, loading: guideArticlesLoading } = useSiteContent('guide');
 
     // Preserving all existing hooks/variables as requested by "không đổi tên biến/function"
     const {
@@ -421,6 +421,9 @@ const Guide = () => {
                         Bài viết do đội ngũ Flourish biên soạn — cập nhật qua trang quản trị.
                     </p>
                     {guideArticlesLoading && <p className={styles.sectionDescCenter}>Đang tải bài viết...</p>}
+                    {!guideArticlesLoading && guideArticles.length === 0 && (
+                        <p className={styles.sectionDescCenter}>Chưa có bài cẩm nang. Đăng bài ở Admin → Nội dung → Cẩm nang để hiện tại đây.</p>
+                    )}
                     <div className={styles.tipsGrid}>
                         {guideArticles.map((article) => (
                             article.slug ? (

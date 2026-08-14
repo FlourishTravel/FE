@@ -16,36 +16,42 @@ function formatDate(iso) {
   }
 }
 
+function mapRow(row) {
+  return {
+    id: row.id || row.slug,
+    slug: row.slug,
+    title: row.title,
+    excerpt: row.summary || '',
+    body: row.body || '',
+    image: resolveMediaUrl(row.imageUrl) || FALLBACK_IMAGE,
+    date: formatDate(row.publishedAt || row.createdAt),
+    category: row.category || '',
+  };
+}
+
 /**
- * @param {'news'|'story'|'career'|'help'} type
- * @param {Array} staticFallback
+ * @param {'news'|'story'|'career'|'help'|'guide'} type
+ * @param {Array} staticFallback chỉ dùng khi API lỗi
  */
 export function useSiteContent(type, staticFallback = []) {
-  const [items, setItems] = useState(staticFallback);
+  const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [apiOk, setApiOk] = useState(false);
 
   useEffect(() => {
     let alive = true;
     (async () => {
+      setLoading(true);
       try {
         const rows = await listSiteContent(type);
         if (!alive) return;
-        if (rows.length > 0) {
-          setItems(rows.map((row) => ({
-            id: row.id || row.slug,
-            slug: row.slug,
-            title: row.title,
-            excerpt: row.summary || '',
-            body: row.body || '',
-            image: resolveMediaUrl(row.imageUrl) || FALLBACK_IMAGE,
-            date: formatDate(row.publishedAt || row.createdAt),
-            category: row.category || '',
-          })));
-        } else {
+        setApiOk(true);
+        setItems(Array.isArray(rows) ? rows.map(mapRow) : []);
+      } catch {
+        if (alive) {
+          setApiOk(false);
           setItems(staticFallback);
         }
-      } catch {
-        if (alive) setItems(staticFallback);
       } finally {
         if (alive) setLoading(false);
       }
@@ -53,7 +59,7 @@ export function useSiteContent(type, staticFallback = []) {
     return () => { alive = false; };
   }, [type]);
 
-  return { items, loading };
+  return { items, loading, apiOk };
 }
 
 export default useSiteContent;
