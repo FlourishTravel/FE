@@ -9,6 +9,7 @@ import {
   sendBookingChatMessage,
 } from '../../../api/tourChat';
 import { useAuth } from '../../../context/AuthContext';
+import ChatAvatar from '../../../components/ChatAvatar';
 
 function formatMsgTime(iso) {
   if (!iso) return '';
@@ -234,18 +235,20 @@ const GuideCommunication = () => {
             )}
             {messages.map((msg) => {
               const mine = msg.senderId && user?.id && String(msg.senderId) === String(user.id);
+              const displayName = mine ? 'Bạn' : senderLabel(msg, user?.id);
               return (
                 <div key={msg.id || `${msg.createdAt || msg.sentAt}-${msg.content}`} className={`${styles.msgRow} ${mine ? styles.msgMine : ''}`}>
                   {!mine && (
-                    <div className={styles.msgAvatar} style={{ background: '#e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12 }}>
-                      {(msg.senderName || '?')[0]}
-                    </div>
+                    <ChatAvatar name={msg.senderName} url={msg.senderAvatarUrl} className={styles.msgAvatar} />
                   )}
                   <div className={`${styles.msgBubble} ${mine ? styles.bubbleMine : styles.bubbleOther}`}>
-                    {!mine && <span className={styles.msgSender}>{senderLabel(msg, user?.id)}</span>}
+                    <span className={styles.msgSender}>{displayName}</span>
                     <span className={styles.msgText}>{msg.content}</span>
                     <span className={styles.msgTime}>{formatMsgTime(msg.createdAt || msg.sentAt)}</span>
                   </div>
+                  {mine && (
+                    <ChatAvatar name={user?.fullName || 'Bạn'} url={msg.senderAvatarUrl} className={styles.msgAvatar} />
+                  )}
                 </div>
               );
             })}

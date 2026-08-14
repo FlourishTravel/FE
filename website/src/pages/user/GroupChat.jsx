@@ -9,6 +9,7 @@ import {
   listBookingChatMessages,
   sendBookingChatMessage,
 } from '../../api/tourChat';
+import ChatAvatar from '../../components/ChatAvatar';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -149,7 +150,15 @@ const GroupChat = () => {
             Quay lại
           </Link>
           <div className={styles.headerInfo}>
-            <MessageCircle className={styles.headerIcon} />
+            {context?.guideAvatarUrl ? (
+              <ChatAvatar
+                name={context.guideName || 'HDV'}
+                url={context.guideAvatarUrl}
+                className={styles.headerAvatar}
+              />
+            ) : (
+              <MessageCircle className={styles.headerIcon} />
+            )}
             <div>
               <h1 className={styles.roomTitle}>Phòng chat: {tourTitle}</h1>
               <p className={styles.roomMeta}>
@@ -186,16 +195,23 @@ const GroupChat = () => {
               ) : (
                 messages.map((m) => {
                   const isMe = user && String(user.id) === String(m.senderId);
+                  const displayName = isMe ? 'Bạn' : senderLabel(m);
                   return (
                     <div key={m.id} className={isMe ? styles.msgRowMe : styles.msgRow}>
+                      {!isMe && (
+                        <ChatAvatar name={m.senderName} url={m.senderAvatarUrl} className={styles.avatar} />
+                      )}
                       <div className={isMe ? styles.bubbleMe : styles.bubble}>
                         <span className={styles.bubbleSender}>
-                          {isMe ? 'Bạn' : senderLabel(m)}
+                          {displayName}
                           {m.isPinned ? ' · Đã ghim' : ''}
                         </span>
                         <p className={styles.bubbleText}>{m.content}</p>
                         <span className={styles.bubbleTime}>{formatMsgTime(m.createdAt)}</span>
                       </div>
+                      {isMe && (
+                        <ChatAvatar name={user?.fullName || 'Bạn'} url={m.senderAvatarUrl} className={styles.avatar} />
+                      )}
                     </div>
                   );
                 })

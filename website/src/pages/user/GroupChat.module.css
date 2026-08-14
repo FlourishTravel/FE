@@ -45,11 +45,19 @@
 }
 
 .msgRow {
-    @apply flex justify-start;
+    @apply flex justify-start items-end gap-2;
 }
 
 .msgRowMe {
-    @apply flex justify-end;
+    @apply flex justify-end items-end gap-2;
+}
+
+.avatar {
+    @apply w-9 h-9 rounded-full object-cover flex-shrink-0 bg-gray-200 text-gray-700 text-xs font-semibold flex items-center justify-center overflow-hidden;
+}
+
+.headerAvatar {
+    @apply w-10 h-10 rounded-full object-cover flex-shrink-0 bg-gray-200 text-gray-700 text-sm font-semibold flex items-center justify-center overflow-hidden;
 }
 
 .bubble {
