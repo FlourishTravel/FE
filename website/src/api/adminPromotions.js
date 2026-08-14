@@ -3,14 +3,20 @@ import { adminGet, adminSend } from './adminHttp';
 function mapPromotionRow(row) {
   if (!row || typeof row !== 'object') return row;
   const active = row.isActive !== false && row.active !== false;
-  const discountPercent = row.discountType === 'percent' ? row.discountValue : row.discountPercent;
+  const discountType = String(row.discountType || 'percent').toLowerCase();
+  const discountValue = row.discountValue ?? row.discountPercent ?? 0;
   return {
     ...row,
     title: row.title ?? row.name,
     name: row.name ?? row.title,
     active,
     isActive: active,
-    discountPercent: discountPercent ?? row.discountValue ?? 0,
+    discountType,
+    discountValue,
+    discountPercent: discountType === 'percent' ? discountValue : row.discountPercent,
+    minOrderAmount: row.minOrderAmount ?? null,
+    usageLimit: row.usageLimit ?? null,
+    usedCount: row.usedCount ?? 0,
     startAt: row.startAt ?? row.validFrom,
     endAt: row.endAt ?? row.validTo,
     validFrom: row.validFrom ?? row.startAt,

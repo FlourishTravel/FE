@@ -399,6 +399,28 @@
   background: #ecfdf5;
 }
 
+.formHint {
+  font-size: 12px;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.checkLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #111827;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.checkLabel input {
+  width: 16px;
+  height: 16px;
+  accent-color: #059669;
+}
+
 @media (max-width: 768px) {
   .statsGrid {
     grid-template-columns: 1fr;

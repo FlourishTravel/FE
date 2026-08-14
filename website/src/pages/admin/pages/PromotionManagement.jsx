@@ -12,13 +12,48 @@ import styles from './PromotionManagement.module.css';
 const EMPTY_FORM = {
   code: '',
   title: '',
-  description: '',
-  discountPercent: '',
+  discountType: 'percent',
+  discountValue: '',
+  minOrderAmount: '',
   maxDiscountAmount: '',
+  usageLimit: '',
   startAt: '',
   endAt: '',
   active: true,
 };
+
+function pad(n) {
+  return String(n).padStart(2, '0');
+}
+
+function toDatetimeLocal(value) {
+  if (!value) return '';
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return String(value).slice(0, 16);
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function isPercentType(type) {
+  return String(type || 'percent').toLowerCase() === 'percent';
+}
+
+function formatMoney(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n) || n <= 0) return '—';
+  return `${n.toLocaleString('vi-VN')} ₫`;
+}
+
+function formatDiscount(row) {
+  const n = Number(row.discountValue ?? row.discountPercent ?? 0);
+  if (isPercentType(row.discountType)) return `${n}%`;
+  return formatMoney(n);
+}
+
+function optionalNumber(value) {
+  if (value === '' || value == null) return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
 
 const PromotionManagement = () => {
   const [items, setItems] = useState([]);
@@ -73,11 +108,13 @@ const PromotionManagement = () => {
     setFormData({
       code: item.code || '',
       title: item.name || item.title || '',
-      description: item.description || '',
-      discountPercent: item.discountPercent ?? item.discountValue ?? '',
+      discountType: isPercentType(item.discountType) ? 'percent' : 'amount',
+      discountValue: item.discountValue ?? item.discountPercent ?? '',
+      minOrderAmount: item.minOrderAmount ?? '',
       maxDiscountAmount: item.maxDiscountAmount ?? '',
-      startAt: startAt ? String(startAt).slice(0, 16) : '',
-      endAt: endAt ? String(endAt).slice(0, 16) : '',
+      usageLimit: item.usageLimit ?? '',
+      startAt: toDatetimeLocal(startAt),
+      endAt: toDatetimeLocal(endAt),
       active: item.isActive !== false && item.active !== false,
     });
     setModalOpen(true);
@@ -87,13 +124,25 @@ const PromotionManagement = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const discountType = isPercentType(formData.discountType) ? 'percent' : 'amount';
+    const discountValue = Number(formData.discountValue || 0);
+    if (!Number.isFinite(discountValue) || discountValue <= 0) {
+      setErrorMsg('Giá trị giảm phải lớn hơn 0.');
+      return;
+    }
+    if (discountType === 'percent' && discountValue > 100) {
+      setErrorMsg('Phần trăm giảm tối đa 100%.');
+      return;
+    }
     try {
       const payload = {
         code: formData.code.trim(),
         name: formData.title.trim(),
-        discountType: 'percent',
-        discountValue: Number(formData.discountPercent || 0),
-        maxDiscountAmount: formData.maxDiscountAmount ? Number(formData.maxDiscountAmount) : null,
+        discountType,
+        discountValue,
+        minOrderAmount: optionalNumber(formData.minOrderAmount),
+        maxDiscountAmount: discountType === 'percent' ? optionalNumber(formData.maxDiscountAmount) : null,
+        usageLimit: optionalNumber(formData.usageLimit),
         validFrom: toInstant(formData.startAt) || new Date().toISOString(),
         validTo: toInstant(formData.endAt) || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
         isActive: !!formData.active,
@@ -148,17 +197,33 @@ const PromotionManagement = () => {
         </div>
       ),
     },
-    { key: 'discountPercent', label: 'Giảm (%)', render: (v) => `${v ?? 0}%` },
-    { key: 'maxDiscountAmount', label: 'Trần giảm', render: (v) => (v ? v.toLocaleString('vi-VN') : 'Không giới hạn') },
+    {
+      key: 'discountValue',
+      label: 'Giảm',
+      render: (_, row) => formatDiscount(row),
+    },
+    {
+      key: 'minOrderAmount',
+      label: 'Đơn tối thiểu',
+      render: (v) => (v ? formatMoney(v) : 'Không'),
+    },
+    {
+      key: 'usageLimit',
+      label: 'Lượt dùng',
+      render: (v, row) => {
+        const used = row.usedCount ?? 0;
+        return v == null ? `${used} / không giới hạn` : `${used} / ${v}`;
+      },
+    },
     {
       key: 'active',
       label: 'Trạng thái',
       render: (v, row) => {
         const active = row.isActive !== false && row.active !== false;
         return (
-        <span className={`${styles.statusBadge} ${active ? styles.badgeSuccess : styles.badgeNeutral}`}>
-          {active ? 'Đang hoạt động' : 'Tạm dừng'}
-        </span>
+          <span className={`${styles.statusBadge} ${active ? styles.badgeSuccess : styles.badgeNeutral}`}>
+            {active ? 'Đang hoạt động' : 'Tạm dừng'}
+          </span>
         );
       },
     },
@@ -183,6 +248,8 @@ const PromotionManagement = () => {
       ),
     },
   ];
+
+  const percentMode = isPercentType(formData.discountType);
 
   return (
     <div className={styles.page}>
@@ -261,37 +328,130 @@ const PromotionManagement = () => {
                 <div className={styles.formRow}>
                   <div className={styles.formGroup}>
                     <label className={styles.formLabel}>Mã khuyến mãi</label>
-                    <input className={styles.formInput} value={formData.code} onChange={(e) => setFormData((p) => ({ ...p, code: e.target.value }))} required />
+                    <input
+                      className={styles.formInput}
+                      value={formData.code}
+                      onChange={(e) => setFormData((p) => ({ ...p, code: e.target.value.toUpperCase() }))}
+                      placeholder="VD: FLOURISH10"
+                      required
+                    />
                   </div>
                   <div className={styles.formGroup}>
                     <label className={styles.formLabel}>Tiêu đề</label>
-                    <input className={styles.formInput} value={formData.title} onChange={(e) => setFormData((p) => ({ ...p, title: e.target.value }))} required />
+                    <input
+                      className={styles.formInput}
+                      value={formData.title}
+                      onChange={(e) => setFormData((p) => ({ ...p, title: e.target.value }))}
+                      placeholder="VD: Giảm 10% tour Thái Lan"
+                      required
+                    />
                   </div>
                 </div>
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>Mô tả</label>
-                  <textarea className={styles.formTextarea} rows={4} value={formData.description} onChange={(e) => setFormData((p) => ({ ...p, description: e.target.value }))} />
-                </div>
+
                 <div className={styles.formRow}>
                   <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>Phần trăm giảm</label>
-                    <input type="number" min="0" max="100" className={styles.formInput} value={formData.discountPercent} onChange={(e) => setFormData((p) => ({ ...p, discountPercent: e.target.value }))} />
+                    <label className={styles.formLabel}>Loại giảm</label>
+                    <select
+                      className={styles.formSelect}
+                      value={formData.discountType}
+                      onChange={(e) => setFormData((p) => ({ ...p, discountType: e.target.value }))}
+                    >
+                      <option value="percent">Phần trăm (%)</option>
+                      <option value="amount">Số tiền cố định (VNĐ)</option>
+                    </select>
                   </div>
                   <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>Trần giảm (VNĐ)</label>
-                    <input type="number" min="0" className={styles.formInput} value={formData.maxDiscountAmount} onChange={(e) => setFormData((p) => ({ ...p, maxDiscountAmount: e.target.value }))} />
+                    <label className={styles.formLabel}>{percentMode ? 'Phần trăm giảm' : 'Số tiền giảm (VNĐ)'}</label>
+                    <input
+                      type="number"
+                      min="0"
+                      max={percentMode ? 100 : undefined}
+                      step={percentMode ? 1 : 1000}
+                      className={styles.formInput}
+                      value={formData.discountValue}
+                      onChange={(e) => setFormData((p) => ({ ...p, discountValue: e.target.value }))}
+                      required
+                    />
                   </div>
                 </div>
+
+                <div className={styles.formRow}>
+                  <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>Đơn tối thiểu (VNĐ)</label>
+                    <input
+                      type="number"
+                      min="0"
+                      step="1000"
+                      className={styles.formInput}
+                      value={formData.minOrderAmount}
+                      onChange={(e) => setFormData((p) => ({ ...p, minOrderAmount: e.target.value }))}
+                      placeholder="Để trống = không bắt buộc"
+                    />
+                    <span className={styles.formHint}>Đơn nhỏ hơn mức này thì không dùng được mã.</span>
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>Giới hạn lượt dùng</label>
+                    <input
+                      type="number"
+                      min="1"
+                      className={styles.formInput}
+                      value={formData.usageLimit}
+                      onChange={(e) => setFormData((p) => ({ ...p, usageLimit: e.target.value }))}
+                      placeholder="Để trống = không giới hạn"
+                    />
+                    {editingItem ? (
+                      <span className={styles.formHint}>Đã dùng {editingItem.usedCount ?? 0} lượt.</span>
+                    ) : (
+                      <span className={styles.formHint}>Hết lượt thì mã tự khóa.</span>
+                    )}
+                  </div>
+                </div>
+
+                {percentMode ? (
+                  <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>Trần giảm (VNĐ)</label>
+                    <input
+                      type="number"
+                      min="0"
+                      step="1000"
+                      className={styles.formInput}
+                      value={formData.maxDiscountAmount}
+                      onChange={(e) => setFormData((p) => ({ ...p, maxDiscountAmount: e.target.value }))}
+                      placeholder="Để trống = không trần"
+                    />
+                    <span className={styles.formHint}>Ví dụ giảm 10% nhưng tối đa 500.000đ.</span>
+                  </div>
+                ) : null}
+
                 <div className={styles.formRow}>
                   <div className={styles.formGroup}>
                     <label className={styles.formLabel}>Bắt đầu</label>
-                    <input type="datetime-local" className={styles.formInput} value={formData.startAt} onChange={(e) => setFormData((p) => ({ ...p, startAt: e.target.value }))} />
+                    <input
+                      type="datetime-local"
+                      className={styles.formInput}
+                      value={formData.startAt}
+                      onChange={(e) => setFormData((p) => ({ ...p, startAt: e.target.value }))}
+                    />
                   </div>
                   <div className={styles.formGroup}>
                     <label className={styles.formLabel}>Kết thúc</label>
-                    <input type="datetime-local" className={styles.formInput} value={formData.endAt} onChange={(e) => setFormData((p) => ({ ...p, endAt: e.target.value }))} />
+                    <input
+                      type="datetime-local"
+                      className={styles.formInput}
+                      value={formData.endAt}
+                      onChange={(e) => setFormData((p) => ({ ...p, endAt: e.target.value }))}
+                    />
                   </div>
                 </div>
+
+                <label className={styles.checkLabel}>
+                  <input
+                    type="checkbox"
+                    checked={!!formData.active}
+                    onChange={(e) => setFormData((p) => ({ ...p, active: e.target.checked }))}
+                  />
+                  Công khai — khách thấy mã và dùng khi thanh toán
+                </label>
               </div>
               <div className={styles.modalFooter}>
                 <button type="button" className={styles.cancelBtn} onClick={() => setModalOpen(false)}>Hủy</button>
