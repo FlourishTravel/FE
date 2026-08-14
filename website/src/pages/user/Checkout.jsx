@@ -87,6 +87,7 @@ function emptyGuestSlot() {
         dobDay: '',
         dobMonth: '',
         dobYear: '',
+        dobText: '',
         gender: 'Nam',
         phone: '',
         idNumber: '',
@@ -94,6 +95,7 @@ function emptyGuestSlot() {
         passExpDay: '',
         passExpMonth: '',
         passExpYear: '',
+        passExpText: '',
         nationality: 'Việt Nam',
     };
 }
@@ -139,7 +141,81 @@ function normalizePassportNo(v) {
     return String(v || '').replace(/\s+/g, '').toUpperCase();
 }
 
-function PassportDocFields({ s, d, patchSlot, styles, minLabel }) {
+function formatDigitsAsDdMmYyyy(digits) {
+    const d = String(digits || '').replace(/\D/g, '').slice(0, 8);
+    if (d.length <= 2) return d;
+    if (d.length <= 4) return `${d.slice(0, 2)}/${d.slice(2)}`;
+    return `${d.slice(0, 2)}/${d.slice(2, 4)}/${d.slice(4)}`;
+}
+
+function parseDdMmYyyyInput(raw) {
+    const digits = String(raw || '').replace(/\D/g, '').slice(0, 8);
+    return {
+        display: formatDigitsAsDdMmYyyy(digits),
+        day: digits.slice(0, 2),
+        month: digits.slice(2, 4),
+        year: digits.slice(4, 8),
+    };
+}
+
+function dmyPartsToText(day, month, year) {
+    const d = String(day || '').replace(/\D/g, '');
+    const m = String(month || '').replace(/\D/g, '');
+    const y = String(year || '').replace(/\D/g, '');
+    if (!d && !m && !y) return '';
+    if (y.length === 4 && d && m) {
+        return `${d.padStart(2, '0')}/${m.padStart(2, '0')}/${y}`;
+    }
+    return formatDigitsAsDdMmYyyy(`${d}${m}${y}`);
+}
+
+function todayIsoLocal() {
+    const n = new Date();
+    return `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, '0')}-${String(n.getDate()).padStart(2, '0')}`;
+}
+
+function FlexibleDateField({ valueText, isoValue, onParts, min, max, placeholder = 'dd/mm/yyyy' }) {
+    return (
+        <div className={styles.dateCombo}>
+            <input
+                type="text"
+                inputMode="numeric"
+                className={styles.dateComboInput}
+                placeholder={placeholder}
+                value={valueText || ''}
+                maxLength={10}
+                onChange={(e) => onParts(parseDdMmYyyyInput(e.target.value))}
+                autoComplete="off"
+            />
+            <Calendar className={styles.dateComboIcon} size={18} />
+            <input
+                type="date"
+                className={styles.dateComboPicker}
+                value={isoValue || ''}
+                min={min}
+                max={max}
+                onChange={(e) => {
+                    const iso = e.target.value;
+                    if (!iso) {
+                        onParts({ display: '', day: '', month: '', year: '' });
+                        return;
+                    }
+                    const [y, m, d] = iso.split('-');
+                    onParts({
+                        display: `${d}/${m}/${y}`,
+                        day: String(parseInt(d, 10)),
+                        month: String(parseInt(m, 10)),
+                        year: y,
+                    });
+                }}
+                aria-label="Chọn ngày trên lịch"
+                title="Chọn ngày trên lịch"
+            />
+        </div>
+    );
+}
+
+function PassportDocFields({ s, d, patchSlot, minLabel }) {
     return (
         <>
             <div className={styles.formGroup}>
@@ -156,45 +232,22 @@ function PassportDocFields({ s, d, patchSlot, styles, minLabel }) {
             </div>
             <div className={`${styles.formGroup} ${styles.guestFieldFull}`}>
                 <label className={styles.formLabel}>Ngày hết hạn hộ chiếu (*)</label>
-                <div className={styles.dobRow}>
-                    <input
-                        className={styles.formInput}
-                        inputMode="numeric"
-                        maxLength={2}
-                        placeholder="dd"
-                        value={d.passExpDay}
-                        onChange={(e) =>
-                            patchSlot(s.key, { passExpDay: e.target.value.replace(/\D/g, '').slice(0, 2) })
-                        }
-                    />
-                    <input
-                        className={styles.formInput}
-                        inputMode="numeric"
-                        maxLength={2}
-                        placeholder="mm"
-                        value={d.passExpMonth}
-                        onChange={(e) =>
-                            patchSlot(s.key, { passExpMonth: e.target.value.replace(/\D/g, '').slice(0, 2) })
-                        }
-                    />
-                    <input
-                        className={styles.formInput}
-                        inputMode="numeric"
-                        maxLength={4}
-                        placeholder="yyyy"
-                        value={d.passExpYear}
-                        onChange={(e) =>
-                            patchSlot(s.key, { passExpYear: e.target.value.replace(/\D/g, '').slice(0, 4) })
-                        }
-                    />
-                </div>
-                <div className={styles.dobLabels}>
-                    <span className={styles.dobHint}>dd</span>
-                    <span className={styles.dobHint}>mm</span>
-                    <span className={styles.dobHint}>yyyy</span>
-                </div>
-                <p className={styles.dobHint} style={{ marginTop: 6 }}>
-                    Còn hạn ít nhất đến {minLabel} (6 tháng sau ngày khởi hành)
+                <FlexibleDateField
+                    valueText={d.passExpText || dmyPartsToText(d.passExpDay, d.passExpMonth, d.passExpYear)}
+                    isoValue={slotPassportExpiryIso(d)}
+                    min={todayIsoLocal()}
+                    max="2100-12-31"
+                    onParts={(p) =>
+                        patchSlot(s.key, {
+                            passExpText: p.display,
+                            passExpDay: p.day,
+                            passExpMonth: p.month,
+                            passExpYear: p.year,
+                        })
+                    }
+                />
+                <p className={styles.dobHint} style={{ marginTop: 6, textAlign: 'left' }}>
+                    Gõ dd/mm/yyyy hoặc bấm lịch. Còn hạn ít nhất đến {minLabel}.
                 </p>
             </div>
             <div className={styles.formGroup}>
@@ -244,6 +297,10 @@ function slotDisplayData(raw) {
         }
     }
     if (base.gender !== 'Nữ' && base.gender !== 'Nam') base.gender = 'Nam';
+    if (!base.dobText) base.dobText = dmyPartsToText(base.dobDay, base.dobMonth, base.dobYear);
+    if (!base.passExpText) {
+        base.passExpText = dmyPartsToText(base.passExpDay, base.passExpMonth, base.passExpYear);
+    }
     return base;
 }
 
@@ -1124,49 +1181,23 @@ const Checkout = () => {
                                                                 </div>
                                                                 <div className={`${styles.formGroup} ${styles.guestFieldFull}`}>
                                                                     <label className={styles.formLabel}>Ngày sinh (*)</label>
-                                                                    <div className={styles.dobRow}>
-                                                                        <input
-                                                                            className={styles.formInput}
-                                                                            inputMode="numeric"
-                                                                            maxLength={2}
-                                                                            placeholder="dd"
-                                                                            value={d.dobDay}
-                                                                            onChange={(e) =>
-                                                                                patchSlot(s.key, {
-                                                                                    dobDay: e.target.value.replace(/\D/g, '').slice(0, 2),
-                                                                                })
-                                                                            }
-                                                                        />
-                                                                        <input
-                                                                            className={styles.formInput}
-                                                                            inputMode="numeric"
-                                                                            maxLength={2}
-                                                                            placeholder="mm"
-                                                                            value={d.dobMonth}
-                                                                            onChange={(e) =>
-                                                                                patchSlot(s.key, {
-                                                                                    dobMonth: e.target.value.replace(/\D/g, '').slice(0, 2),
-                                                                                })
-                                                                            }
-                                                                        />
-                                                                        <input
-                                                                            className={styles.formInput}
-                                                                            inputMode="numeric"
-                                                                            maxLength={4}
-                                                                            placeholder="yyyy"
-                                                                            value={d.dobYear}
-                                                                            onChange={(e) =>
-                                                                                patchSlot(s.key, {
-                                                                                    dobYear: e.target.value.replace(/\D/g, '').slice(0, 4),
-                                                                                })
-                                                                            }
-                                                                        />
-                                                                    </div>
-                                                                    <div className={styles.dobLabels}>
-                                                                        <span className={styles.dobHint}>dd</span>
-                                                                        <span className={styles.dobHint}>mm</span>
-                                                                        <span className={styles.dobHint}>yyyy</span>
-                                                                    </div>
+                                                                    <FlexibleDateField
+                                                                        valueText={d.dobText || dmyPartsToText(d.dobDay, d.dobMonth, d.dobYear)}
+                                                                        isoValue={slotDobIso(d)}
+                                                                        min="1920-01-01"
+                                                                        max={todayIsoLocal()}
+                                                                        onParts={(p) =>
+                                                                            patchSlot(s.key, {
+                                                                                dobText: p.display,
+                                                                                dobDay: p.day,
+                                                                                dobMonth: p.month,
+                                                                                dobYear: p.year,
+                                                                            })
+                                                                        }
+                                                                    />
+                                                                    <p className={styles.dobHint} style={{ marginTop: 6, textAlign: 'left' }}>
+                                                                        Gõ dd/mm/yyyy hoặc bấm biểu tượng lịch để chọn
+                                                                    </p>
                                                                 </div>
                                                                 <div className={`${styles.formGroup} ${styles.guestFieldFull}`}>
                                                                     <span className={styles.formLabel}>Giới tính (*)</span>
@@ -1275,49 +1306,23 @@ const Checkout = () => {
                                                         </div>
                                                         <div className={`${styles.formGroup} ${styles.guestFieldFull}`}>
                                                             <label className={styles.formLabel}>Ngày sinh (*)</label>
-                                                            <div className={styles.dobRow}>
-                                                                <input
-                                                                    className={styles.formInput}
-                                                                    inputMode="numeric"
-                                                                    maxLength={2}
-                                                                    placeholder="dd"
-                                                                    value={d.dobDay}
-                                                                    onChange={(e) =>
-                                                                        patchSlot(s.key, {
-                                                                            dobDay: e.target.value.replace(/\D/g, '').slice(0, 2),
-                                                                        })
-                                                                    }
-                                                                />
-                                                                <input
-                                                                    className={styles.formInput}
-                                                                    inputMode="numeric"
-                                                                    maxLength={2}
-                                                                    placeholder="mm"
-                                                                    value={d.dobMonth}
-                                                                    onChange={(e) =>
-                                                                        patchSlot(s.key, {
-                                                                            dobMonth: e.target.value.replace(/\D/g, '').slice(0, 2),
-                                                                        })
-                                                                    }
-                                                                />
-                                                                <input
-                                                                    className={styles.formInput}
-                                                                    inputMode="numeric"
-                                                                    maxLength={4}
-                                                                    placeholder="yyyy"
-                                                                    value={d.dobYear}
-                                                                    onChange={(e) =>
-                                                                        patchSlot(s.key, {
-                                                                            dobYear: e.target.value.replace(/\D/g, '').slice(0, 4),
-                                                                        })
-                                                                    }
-                                                                />
-                                                            </div>
-                                                            <div className={styles.dobLabels}>
-                                                                <span className={styles.dobHint}>dd</span>
-                                                                <span className={styles.dobHint}>mm</span>
-                                                                <span className={styles.dobHint}>yyyy</span>
-                                                            </div>
+                                                            <FlexibleDateField
+                                                                valueText={d.dobText || dmyPartsToText(d.dobDay, d.dobMonth, d.dobYear)}
+                                                                isoValue={slotDobIso(d)}
+                                                                min="1920-01-01"
+                                                                max={todayIsoLocal()}
+                                                                onParts={(p) =>
+                                                                    patchSlot(s.key, {
+                                                                        dobText: p.display,
+                                                                        dobDay: p.day,
+                                                                        dobMonth: p.month,
+                                                                        dobYear: p.year,
+                                                                    })
+                                                                }
+                                                            />
+                                                            <p className={styles.dobHint} style={{ marginTop: 6, textAlign: 'left' }}>
+                                                                Gõ dd/mm/yyyy hoặc bấm biểu tượng lịch để chọn
+                                                            </p>
                                                         </div>
                                                         <div className={`${styles.formGroup} ${styles.guestFieldFull}`}>
                                                             <span className={styles.formLabel}>Giới tính (*)</span>
@@ -1405,49 +1410,23 @@ const Checkout = () => {
                                                                     <label className={styles.formLabel}>
                                                                         {isInternational ? 'Ngày sinh (*)' : 'Ngày sinh (tuỳ chọn)'}
                                                                     </label>
-                                                                    <div className={styles.dobRow}>
-                                                                        <input
-                                                                            className={styles.formInput}
-                                                                            inputMode="numeric"
-                                                                            maxLength={2}
-                                                                            placeholder="dd"
-                                                                            value={d.dobDay}
-                                                                            onChange={(e) =>
-                                                                                patchSlot(s.key, {
-                                                                                    dobDay: e.target.value.replace(/\D/g, '').slice(0, 2),
-                                                                                })
-                                                                            }
-                                                                        />
-                                                                        <input
-                                                                            className={styles.formInput}
-                                                                            inputMode="numeric"
-                                                                            maxLength={2}
-                                                                            placeholder="mm"
-                                                                            value={d.dobMonth}
-                                                                            onChange={(e) =>
-                                                                                patchSlot(s.key, {
-                                                                                    dobMonth: e.target.value.replace(/\D/g, '').slice(0, 2),
-                                                                                })
-                                                                            }
-                                                                        />
-                                                                        <input
-                                                                            className={styles.formInput}
-                                                                            inputMode="numeric"
-                                                                            maxLength={4}
-                                                                            placeholder="yyyy"
-                                                                            value={d.dobYear}
-                                                                            onChange={(e) =>
-                                                                                patchSlot(s.key, {
-                                                                                    dobYear: e.target.value.replace(/\D/g, '').slice(0, 4),
-                                                                                })
-                                                                            }
-                                                                        />
-                                                                    </div>
-                                                                    <div className={styles.dobLabels}>
-                                                                        <span className={styles.dobHint}>dd</span>
-                                                                        <span className={styles.dobHint}>mm</span>
-                                                                        <span className={styles.dobHint}>yyyy</span>
-                                                                    </div>
+                                                                    <FlexibleDateField
+                                                                        valueText={d.dobText || dmyPartsToText(d.dobDay, d.dobMonth, d.dobYear)}
+                                                                        isoValue={slotDobIso(d)}
+                                                                        min="1920-01-01"
+                                                                        max={todayIsoLocal()}
+                                                                        onParts={(p) =>
+                                                                            patchSlot(s.key, {
+                                                                                dobText: p.display,
+                                                                                dobDay: p.day,
+                                                                                dobMonth: p.month,
+                                                                                dobYear: p.year,
+                                                                            })
+                                                                        }
+                                                                    />
+                                                                    <p className={styles.dobHint} style={{ marginTop: 6, textAlign: 'left' }}>
+                                                                        Gõ dd/mm/yyyy hoặc bấm biểu tượng lịch để chọn
+                                                                    </p>
                                                                 </div>
                                                                 {isInternational ? (
                                                                     <PassportDocFields
