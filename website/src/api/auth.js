@@ -6,6 +6,7 @@ import { API_BASE } from './config';
  * Backend endpoints (context-path = /api):
  *   - POST /api/auth/login           { email, password }
  *   - POST /api/auth/register        { email, password, fullName, phone }
+ *   - POST /api/auth/google          { id_token }
  *   - POST /api/auth/refresh         { refreshToken }
  *   - POST /api/auth/logout          { refreshToken }
  *
@@ -82,6 +83,17 @@ export async function registerApi({ email, password, fullName, phone }) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password, fullName, phone }),
+  });
+  const json = await parseJson(res);
+  return json?.data;
+}
+
+/** POST /auth/google — body: { id_token } từ Google Sign-In */
+export async function googleLoginApi(idToken) {
+  const res = await fetch(`${API_BASE}/auth/google`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id_token: idToken }),
   });
   const json = await parseJson(res);
   return json?.data;

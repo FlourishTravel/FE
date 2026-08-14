@@ -235,18 +235,25 @@
     white-space: nowrap;
 }
 
-/* Tour Code Button */
+/* Google Sign-In */
+.googleBtnWrap {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.googleBtnWrap > div {
+    width: 100% !important;
+}
+
 .tourCodeBtn {
     @apply w-full py-2.5 bg-white border border-gray-200 text-gray-700 font-medium rounded-lg text-sm;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    transition: all 0.2s;
-}
-
-.tourCodeBtn:hover {
-    @apply bg-gray-50 border-gray-300;
+    opacity: 0.7;
+    cursor: not-allowed;
 }
 
 .tourCodeIcon {

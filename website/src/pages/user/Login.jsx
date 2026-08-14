@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, Eye, EyeOff, ArrowRight, Ticket, ArrowLeft } from 'lucide-react';
+import { GoogleLogin } from '@react-oauth/google';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, ArrowLeft } from 'lucide-react';
 import styles from './Login.module.css';
 import logo from '../../assets/LogoFlourish\'.jpg';
 import { useAuth } from '../../context/AuthContext';
+
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -15,6 +18,7 @@ const Login = () => {
     const {
         login,
         loginWithApi,
+        loginWithGoogle,
         checkCredentials,
         MOCK_USER,
         checkAdminCredentials,
@@ -70,6 +74,21 @@ const Login = () => {
                 // BE trả lỗi (401/400) -> hiển thị message từ server
                 setError(err?.message || 'Email hoặc mật khẩu không đúng.');
             }
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    const handleGoogleSuccess = async (credentialResponse) => {
+        setError('');
+        setSubmitting(true);
+        try {
+            const idToken = credentialResponse?.credential;
+            if (!idToken) throw new Error('Không nhận được id_token từ Google');
+            const apiUser = await loginWithGoogle(idToken);
+            redirectByRole(apiUser?.role);
+        } catch (err) {
+            setError(err?.message || 'Đăng nhập Google thất bại.');
         } finally {
             setSubmitting(false);
         }
@@ -161,11 +180,24 @@ const Login = () => {
                     <span className={styles.dividerLine}></span>
                 </div>
 
-                {/* Tour Code Button */}
-                <button className={styles.tourCodeBtn}>
-                    <Ticket className={styles.tourCodeIcon} />
-                    Sign in with Google
-                </button>
+                <div className={styles.googleBtnWrap}>
+                    {GOOGLE_CLIENT_ID ? (
+                        <GoogleLogin
+                            onSuccess={handleGoogleSuccess}
+                            onError={() => setError('Google Sign-In bị hủy hoặc lỗi.')}
+                            useOneTap={false}
+                            theme="outline"
+                            size="large"
+                            width="100%"
+                            text="signin_with"
+                            shape="rectangular"
+                        />
+                    ) : (
+                        <button type="button" className={styles.tourCodeBtn} disabled>
+                            Chưa cấu hình VITE_GOOGLE_CLIENT_ID
+                        </button>
+                    )}
+                </div>
 
                 {/* Sign Up Link */}
                 <p className={styles.signUpText}>

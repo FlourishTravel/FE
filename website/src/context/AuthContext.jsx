@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useCallback, useEffect } fr
 import {
     loginApi,
     registerApi,
+    googleLoginApi,
     logoutApi,
     saveAuthTokens,
     clearAuthTokens,
@@ -164,6 +165,24 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    /** Đăng nhập Google — id_token từ Google Identity Services. */
+    const loginWithGoogle = async (idToken) => {
+        setLoading(true);
+        try {
+            const data = await googleLoginApi(idToken);
+            if (!data) throw new Error('Không nhận được dữ liệu đăng nhập Google');
+            saveAuthTokens({
+                accessToken: data.accessToken,
+                refreshToken: data.refreshToken,
+            });
+            const mapped = mapBackendUser(data.user);
+            persistUser(mapped);
+            return mapped;
+        } finally {
+            setLoading(false);
+        }
+    };
+
     /** Đăng nhập bằng dữ liệu mock (legacy, vẫn giữ để Login.jsx fallback khi BE chưa chạy). */
     const login = (userData) => {
         persistUser(userData);
@@ -248,6 +267,7 @@ export const AuthProvider = ({ children }) => {
         loading,
         login,
         loginWithApi,
+        loginWithGoogle,
         registerWithApi,
         logout,
         updateUser,
