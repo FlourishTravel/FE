@@ -7,6 +7,7 @@ import {
   listAdminContents,
   updateAdminContent,
 } from '../../../api/adminContent';
+import { templatesForType } from './contentTemplates';
 import styles from './PromotionManagement.module.css';
 
 const CONTENT_TABS = [
@@ -46,8 +47,10 @@ const ContentManagement = () => {
   const [successMsg, setSuccessMsg] = useState('');
   const [editing, setEditing] = useState(null);
   const [formData, setFormData] = useState(EMPTY_FORM);
+  const [creatingSamples, setCreatingSamples] = useState(false);
 
   const activeTabMeta = CONTENT_TABS.find((t) => t.key === activeTab) || CONTENT_TABS[0];
+  const sampleTemplates = templatesForType(activeTab);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -84,6 +87,59 @@ const ContentManagement = () => {
   const openCreate = () => {
     setEditing({ mode: 'create' });
     setFormData(EMPTY_FORM);
+  };
+
+  const applySample = (tpl) => {
+    setEditing({ mode: 'create' });
+    setFormData({
+      title: tpl.title,
+      slug: tpl.slug,
+      summary: tpl.summary,
+      body: tpl.body,
+      imageUrl: tpl.imageUrl || '',
+      category: tpl.category || '',
+      published: true,
+    });
+  };
+
+  const publishSamples = async () => {
+    const existing = new Set(items.map((i) => String(i.slug || '').toLowerCase()));
+    const toCreate = sampleTemplates.filter((tpl) => !existing.has(tpl.slug.toLowerCase()));
+    if (toCreate.length === 0) {
+      setSuccessMsg('Các bài mẫu tab này đã có trên hệ thống.');
+      return;
+    }
+    setCreatingSamples(true);
+    setErrorMsg('');
+    try {
+      let ok = 0;
+      let failed = 0;
+      for (const tpl of toCreate) {
+        try {
+          await createAdminContent({
+            type: activeTab,
+            title: tpl.title,
+            slug: tpl.slug,
+            summary: tpl.summary,
+            body: tpl.body,
+            imageUrl: tpl.imageUrl || null,
+            category: tpl.category || null,
+            published: true,
+          });
+          ok += 1;
+        } catch {
+          failed += 1;
+        }
+      }
+      setSuccessMsg(
+        `Đã đăng ${ok} bài mẫu${failed ? `, bỏ qua ${failed} bài lỗi/trùng` : ''}. Xem tại ${activeTabMeta.href}.`,
+      );
+      fetchData();
+    } catch (err) {
+      setErrorMsg(err?.message || 'Không tạo được bài mẫu.');
+    } finally {
+      setCreatingSamples(false);
+    }
   };
 
   const openEdit = (row) => {
@@ -239,6 +295,39 @@ const ContentManagement = () => {
         {activeTabMeta.hint}{' '}
         <a href={activeTabMeta.href} target="_blank" rel="noreferrer">Mở trang khách</a>
       </p>
+
+      {sampleTemplates.length > 0 && (
+        <div>
+          <div className={styles.pageHeader} style={{ marginBottom: 8 }}>
+            <h2 className={styles.sectionTitle}>Bài mẫu {activeTabMeta.label.toLowerCase()}</h2>
+            <button
+              type="button"
+              className={styles.addBtn}
+              onClick={publishSamples}
+              disabled={creatingSamples}
+            >
+              {creatingSamples ? 'Đang đăng...' : `Đăng ${sampleTemplates.length} bài mẫu tab này`}
+            </button>
+          </div>
+          <p className={styles.formHint} style={{ marginBottom: 10 }}>
+            Bấm một thẻ để điền form rồi Lưu, hoặc đăng hết mẫu (bỏ qua slug đã có).
+          </p>
+          <div className={styles.templateGrid}>
+            {sampleTemplates.map((tpl) => (
+              <button
+                key={tpl.slug}
+                type="button"
+                className={styles.templateCard}
+                onClick={() => applySample(tpl)}
+              >
+                <span className={styles.templateKind}>{tpl.category || activeTabMeta.label}</span>
+                <span className={styles.templateTitle}>{tpl.title}</span>
+                <span className={styles.templateBody}>{truncate(tpl.summary, 110)}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className={styles.statsGrid}>
         <StatCard icon="article" label="Tổng bài viết" value={String(stats.total)} color="blue" />
