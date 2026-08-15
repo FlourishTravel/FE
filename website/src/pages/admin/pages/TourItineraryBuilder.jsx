@@ -866,7 +866,7 @@ const TourItineraryBuilder = () => {
                                         {formatSessionDate(s.startDate)}
                                         {s.endDate ? ` → ${formatSessionDate(s.endDate)}` : ''}
                                     </span>
-                                    <span>
+                                    <span title="Theo tổng khách trên đơn chưa hủy">
                                         {s.currentParticipants ?? 0}/{s.maxParticipants ?? 0} · còn {remaining}
                                     </span>
                                     {(s.currentParticipants ?? 0) === 0 ? (
