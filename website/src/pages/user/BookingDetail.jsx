@@ -343,10 +343,15 @@ const BookingDetail = () => {
 
                         <div className={styles.actions}>
                             {showPay ? (
-                                <a href={detail.continuePaymentUrl} className={styles.btnPrimary}>
-                                    <CreditCard style={{ width: 18, height: 18 }} />
-                                    Thanh toán ngay
-                                </a>
+                                <>
+                                    <a href={detail.continuePaymentUrl} className={styles.btnPrimary}>
+                                        <CreditCard style={{ width: 18, height: 18 }} />
+                                        Thanh toán ngay
+                                    </a>
+                                    <p className={styles.value} style={{ margin: 0, color: '#6b7280', fontSize: 13 }}>
+                                        Nếu chưa thanh toán trong 15 phút (thoát PayOS / MoMo), đơn tự hủy và trả chỗ.
+                                    </p>
+                                </>
                             ) : null}
                             {canOpenTourChat(detail) ? (
                                 <Link to={`/chat/${detail.bookingId}`} className={styles.btnOutline}>
