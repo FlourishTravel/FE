@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import styles from './GuideCommunication.module.css';
 import { useGuideSessions } from '../hooks/useGuideSessions';
@@ -6,26 +6,9 @@ import { getGuideSessionGuests } from '../../../api/guideTours';
 import {
   getTourChatContext,
   listBookingChatMessages,
-  sendBookingChatMessage,
 } from '../../../api/tourChat';
 import { useAuth } from '../../../context/AuthContext';
-import ChatAvatar from '../../../components/ChatAvatar';
-
-function formatMsgTime(iso) {
-  if (!iso) return '';
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return '';
-  return d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
-}
-
-function senderLabel(msg, userId) {
-  const r = (msg.senderRole || '').toUpperCase();
-  if (r === 'FLORA') return 'Flora';
-  if (r === 'TOUR_GUIDE') return msg.senderName ? `${msg.senderName} (HDV)` : 'Hướng dẫn viên';
-  if (r === 'ADMIN') return msg.senderName || 'Quản trị';
-  if (msg.senderId && userId && String(msg.senderId) === String(userId)) return 'Bạn';
-  return msg.senderName || 'Thành viên';
-}
+import TourChatThread from '../../../components/tourChat/TourChatThread';
 
 const GuideCommunication = () => {
   const { user } = useAuth();
@@ -37,11 +20,8 @@ const GuideCommunication = () => {
   const [bookingId, setBookingId] = useState(searchParams.get('bookingId') || '');
   const [context, setContext] = useState(null);
   const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState('');
   const [chatLoading, setChatLoading] = useState(false);
   const [chatErr, setChatErr] = useState('');
-  const [sending, setSending] = useState(false);
-  const messagesEndRef = useRef(null);
 
   useEffect(() => {
     if (!sessionId && sessions.length > 0) {
@@ -120,25 +100,6 @@ const GuideCommunication = () => {
     }, 8000);
     return () => clearInterval(id);
   }, [context?.canChat, bookingId]);
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-
-  const handleSend = async () => {
-    if (!bookingId || !input.trim() || sending || !context?.canChat) return;
-    setSending(true);
-    try {
-      const dto = await sendBookingChatMessage(bookingId, input.trim());
-      setInput('');
-      if (dto) setMessages((prev) => [...prev, dto]);
-      else await loadChat();
-    } catch (e) {
-      setChatErr(e.message || 'Gửi tin nhắn thất bại.');
-    } finally {
-      setSending(false);
-    }
-  };
 
   const selectedBooking = bookings.find((b) => String(b.bookingId) === String(bookingId));
 
@@ -225,55 +186,28 @@ const GuideCommunication = () => {
             </button>
           </div>
 
-          <div className={styles.chatMessages}>
+          <div className={styles.chatThreadWrap}>
             {chatLoading && <p className={styles.systemMsg}>Đang tải tin nhắn...</p>}
             {chatErr && !chatLoading && <p className={styles.systemMsg}>{chatErr}</p>}
             {context && !context.canChat && !chatLoading && (
               <p className={styles.systemMsg}>{context.denyReason || 'Chưa thể chat với đơn này.'}</p>
             )}
-            {!chatLoading && messages.length === 0 && context?.canChat && (
-              <p className={styles.systemMsg}>Chưa có tin nhắn — gửi lời chào đoàn!</p>
+            {!bookingId && !chatLoading && (
+              <p className={styles.systemMsg}>Chọn một đơn bên trái để mở phòng chat.</p>
             )}
-            {messages.map((msg) => {
-              const mine = msg.senderId && user?.id && String(msg.senderId) === String(user.id);
-              const flora = (msg.senderRole || '').toUpperCase() === 'FLORA';
-              const displayName = mine ? 'Bạn' : senderLabel(msg, user?.id);
-              return (
-                <div key={msg.id || `${msg.createdAt || msg.sentAt}-${msg.content}`} className={`${styles.msgRow} ${mine ? styles.msgMine : ''}`}>
-                  {!mine && (
-                    <ChatAvatar
-                      name={msg.senderName}
-                      url={msg.senderAvatarUrl}
-                      flora={flora}
-                      className={`${styles.msgAvatar} ${flora ? styles.msgAvatarFlora : ''}`}
-                    />
-                  )}
-                  <div className={`${styles.msgBubble} ${mine ? styles.bubbleMine : flora ? styles.bubbleFlora : styles.bubbleOther}`}>
-                    <span className={styles.msgSender}>{displayName}</span>
-                    <span className={styles.msgText}>{msg.content}</span>
-                    <span className={styles.msgTime}>{formatMsgTime(msg.createdAt || msg.sentAt)}</span>
-                  </div>
-                  {mine && (
-                    <ChatAvatar name={user?.fullName || 'Bạn'} url={msg.senderAvatarUrl} className={styles.msgAvatar} />
-                  )}
-                </div>
-              );
-            })}
-            <div ref={messagesEndRef} />
-          </div>
-
-          <div className={styles.chatInputBar}>
-            <input
-              className={styles.chatInput}
-              placeholder="Nhắn tin đoàn, hoặc @Flora..."
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleSend())}
-              disabled={!context?.canChat || sending}
-            />
-            <button type="button" className={styles.sendBtn} onClick={handleSend} disabled={!context?.canChat || sending || !input.trim()}>
-              <span className="material-icons-round" style={{ fontSize: '20px' }}>send</span>
-            </button>
+            {!chatLoading && context?.canChat && (
+              <TourChatThread
+                bookingId={bookingId}
+                currentUser={user}
+                members={context?.members || []}
+                messages={messages}
+                setMessages={setMessages}
+                canChat
+                compact
+                emptyHint="Chưa có tin nhắn. Nhấn @ để gắn tên (có Flora), thả icon hoặc trả lời tin như Zalo."
+                onError={setChatErr}
+              />
+            )}
           </div>
         </div>
 

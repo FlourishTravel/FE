@@ -275,6 +275,18 @@
     background: #059669;
 }
 
+.chatThreadWrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 350px;
+    max-height: 520px;
+}
+
+.chatThreadWrap .systemMsg {
+    padding: 16px;
+}
+
 .chatMessages {
     flex: 1;
     padding: 16px;

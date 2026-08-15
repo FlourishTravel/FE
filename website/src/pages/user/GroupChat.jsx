@@ -1,15 +1,12 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Send, MessageCircle } from 'lucide-react';
+import { ArrowLeft, MessageCircle } from 'lucide-react';
 import styles from './GroupChat.module.css';
 import { useAuth } from '../../context/AuthContext';
 import { getAccessToken } from '../../api/auth';
-import {
-  getTourChatContext,
-  listBookingChatMessages,
-  sendBookingChatMessage,
-} from '../../api/tourChat';
+import { getTourChatContext, listBookingChatMessages } from '../../api/tourChat';
 import ChatAvatar from '../../components/ChatAvatar';
+import TourChatThread from '../../components/tourChat/TourChatThread';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -28,36 +25,14 @@ function formatSessionRange(start, end) {
   return `${a} – ${formatIsoDateVi(end)}`;
 }
 
-function formatMsgTime(iso) {
-  if (!iso) return '';
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return '';
-  return d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
-}
-
-function senderLabel(msg) {
-  const r = (msg.senderRole || '').toUpperCase();
-  if (r === 'FLORA') return 'Flora';
-  if (r === 'TOUR_GUIDE') {
-    return msg.senderName ? `${msg.senderName} (HDV)` : 'Hướng dẫn viên';
-  }
-  if (r === 'ADMIN') return msg.senderName || 'Quản trị';
-  return msg.senderName || 'Thành viên';
-}
-
 const GroupChat = () => {
   const { bookingId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [context, setContext] = useState(null);
   const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState('');
   const [loading, setLoading] = useState(true);
   const [loadErr, setLoadErr] = useState('');
-  const [sending, setSending] = useState(false);
-  const messagesEndRef = useRef(null);
-
-  const scrollToBottom = () => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
 
   const loadContext = useCallback(async () => {
     if (!bookingId || !UUID_RE.test(bookingId)) {
@@ -113,31 +88,6 @@ const GroupChat = () => {
     return () => clearInterval(id);
   }, [context?.canChat, refreshMessages]);
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  const sendMessage = async () => {
-    if (!context?.canChat || !bookingId || !input.trim() || sending) return;
-    setSending(true);
-    try {
-      const dto = await sendBookingChatMessage(bookingId, input.trim());
-      setInput('');
-      if (dto && dto.id) {
-        setMessages((prev) => {
-          if (prev.some((m) => m.id === dto.id)) return prev;
-          return [...prev, dto];
-        });
-      } else {
-        await refreshMessages();
-      }
-    } catch (e) {
-      setLoadErr(e.message || 'Gửi tin nhắn thất bại.');
-    } finally {
-      setSending(false);
-    }
-  };
-
   const tourTitle = context?.tourTitle || 'Tour';
   const range = formatSessionRange(context?.sessionStartDate, context?.sessionEndDate);
   const guideLine = context?.guideName ? `HDV: ${context.guideName}` : null;
@@ -189,66 +139,16 @@ const GroupChat = () => {
             </Link>
           </div>
         ) : (
-          <>
-            <div className={styles.messages}>
-              {messages.length === 0 ? (
-                <p className={styles.emptyHint}>
-                  Chưa có tin nhắn. Hãy chào đoàn, hoặc gõ @Flora để hỏi lịch trình / sự cố / chính sách tour.
-                </p>
-              ) : (
-                messages.map((m) => {
-                  const isMe = user && String(user.id) === String(m.senderId);
-                  const isFlora = (m.senderRole || '').toUpperCase() === 'FLORA';
-                  const displayName = isMe ? 'Bạn' : senderLabel(m);
-                  const bubbleClass = isMe ? styles.bubbleMe : isFlora ? styles.bubbleFlora : styles.bubble;
-                  return (
-                    <div key={m.id} className={isMe ? styles.msgRowMe : styles.msgRow}>
-                      {!isMe && (
-                        <ChatAvatar
-                          name={m.senderName}
-                          url={m.senderAvatarUrl}
-                          flora={isFlora}
-                          className={`${styles.avatar} ${isFlora ? styles.avatarFlora : ''}`}
-                        />
-                      )}
-                      <div className={bubbleClass}>
-                        <span className={styles.bubbleSender}>
-                          {displayName}
-                          {m.isPinned ? ' · Đã ghim' : ''}
-                        </span>
-                        <p className={styles.bubbleText}>{m.content}</p>
-                        <span className={styles.bubbleTime}>{formatMsgTime(m.createdAt)}</span>
-                      </div>
-                      {isMe && (
-                        <ChatAvatar name={user?.fullName || 'Bạn'} url={m.senderAvatarUrl} className={styles.avatar} />
-                      )}
-                    </div>
-                  );
-                })
-              )}
-              <div ref={messagesEndRef} />
-            </div>
-
-            <div className={styles.inputBar}>
-              <input
-                type="text"
-                placeholder="Nhắn đoàn, hoặc @Flora để hỏi AI..."
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
-                className={styles.input}
-                disabled={sending || !context?.canChat}
-              />
-              <button
-                type="button"
-                className={styles.sendBtn}
-                onClick={sendMessage}
-                disabled={sending || !context?.canChat || !input.trim()}
-              >
-                <Send className={styles.sendIcon} />
-              </button>
-            </div>
-          </>
+          <TourChatThread
+            bookingId={bookingId}
+            currentUser={user}
+            members={context?.members || []}
+            messages={messages}
+            setMessages={setMessages}
+            canChat={!!context?.canChat}
+            emptyHint="Chưa có tin nhắn. Nhấn @ để gắn tên (có Flora), thả icon hoặc trả lời tin như Zalo."
+            onError={setLoadErr}
+          />
         )}
       </div>
     </div>
