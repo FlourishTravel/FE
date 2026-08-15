@@ -10,9 +10,11 @@ import {
   chatSenderLabel,
   CHAT_REACTION_EMOJIS,
   filterMentionMembers,
+  formatMsgDate,
   formatMsgTime,
   getMentionState,
   highlightMentions,
+  layoutMessages,
   memberSubtitle,
 } from './chatHelpers';
 import styles from './TourChatThread.module.css';
@@ -28,6 +30,12 @@ function MessageText({ text, members, className, mentionClass }) {
       ))}
     </p>
   );
+}
+
+function resizeComposer(el) {
+  if (!el) return;
+  el.style.height = 'auto';
+  el.style.height = `${Math.min(el.scrollHeight, 120)}px`;
 }
 
 export default function TourChatThread({
@@ -57,6 +65,7 @@ export default function TourChatThread({
     () => filterMentionMembers(members, mentionQuery, currentUserId),
     [members, mentionQuery, currentUserId],
   );
+  const laidOut = useMemo(() => layoutMessages(messages), [messages]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -101,6 +110,26 @@ export default function TourChatThread({
       if (!inputRef.current) return;
       inputRef.current.focus();
       inputRef.current.setSelectionRange(next.caret, next.caret);
+      resizeComposer(inputRef.current);
+    });
+  };
+
+  const openMentionPicker = () => {
+    const el = inputRef.current;
+    const caret = el ? el.selectionStart : input.length;
+    const before = input.slice(0, caret);
+    const needsAt = !/(^|\s)$/.test(before);
+    const next = `${before}${needsAt && before.length ? ' ' : ''}@${input.slice(caret)}`;
+    const nextCaret = (needsAt && before.length ? before.length + 1 : before.length) + 1;
+    setInput(next);
+    setMentionOpen(true);
+    setMentionQuery('');
+    setMentionIndex(0);
+    requestAnimationFrame(() => {
+      if (!inputRef.current) return;
+      inputRef.current.focus();
+      inputRef.current.setSelectionRange(nextCaret, nextCaret);
+      resizeComposer(inputRef.current);
     });
   };
 
@@ -124,6 +153,7 @@ export default function TourChatThread({
       setInput('');
       setReplyTo(null);
       setMentionOpen(false);
+      if (inputRef.current) inputRef.current.style.height = 'auto';
       if (dto?.id) replaceMessage(dto);
     } catch (e) {
       onError?.(e.message || 'Gửi tin nhắn thất bại.');
@@ -189,101 +219,115 @@ export default function TourChatThread({
         {messages.length === 0 ? (
           <p className={styles.emptyHint}>{emptyHint}</p>
         ) : (
-          messages.map((m) => {
+          laidOut.map(({ message: m, showDate, showName, showAvatar, stacked }) => {
             const isMe = currentUserId && String(currentUserId) === String(m.senderId);
             const isFlora = String(m.senderRole || '').toUpperCase() === 'FLORA';
             const displayName = chatSenderLabel(m, currentUserId);
-            const bubbleClass = isMe ? styles.bubbleMe : isFlora ? `${styles.bubble} ${styles.bubbleFlora}` : styles.bubble;
+            const bubbleClass = isMe
+              ? `${styles.bubble} ${styles.bubbleMe}`
+              : isFlora
+                ? `${styles.bubble} ${styles.bubbleFlora}`
+                : styles.bubble;
             const reactions = Array.isArray(m.reactions) ? m.reactions : [];
             return (
-              <div
-                key={m.id}
-                ref={(node) => {
-                  if (node) msgRefs.current.set(m.id, node);
-                  else msgRefs.current.delete(m.id);
-                }}
-                className={isMe ? styles.msgRowMe : styles.msgRow}
-              >
-                {!isMe && (
-                  <ChatAvatar
-                    name={m.senderName}
-                    url={m.senderAvatarUrl}
-                    flora={isFlora}
-                    className={`${styles.avatar} ${isFlora ? styles.avatarFlora : ''}`}
-                  />
+              <React.Fragment key={m.id}>
+                {showDate && (
+                  <div className={styles.dateChip}>{formatMsgDate(m.createdAt)}</div>
                 )}
-                <div className={`${styles.bubbleWrap} ${isMe ? styles.bubbleWrapMe : ''}`}>
-                  <div className={bubbleClass}>
-                    <span className={styles.bubbleSender}>
-                      {displayName}
-                      {m.isPinned ? ' · Đã ghim' : ''}
-                    </span>
-                    {m.replyTo?.id && (
-                      <button
-                        type="button"
-                        className={styles.quote}
-                        onClick={() => scrollToMessage(m.replyTo.id)}
-                      >
-                        <span className={styles.quoteName}>{m.replyTo.senderName || 'Tin nhắn'}</span>
-                        <span className={styles.quoteText}>{m.replyTo.content || ''}</span>
-                      </button>
-                    )}
-                    <MessageText
-                      text={m.content}
-                      members={members}
-                      className={styles.bubbleText}
-                      mentionClass={styles.mention}
-                    />
-                    <span className={styles.bubbleTime}>{formatMsgTime(m.createdAt)}</span>
-                    {canChat && (
-                      <div className={styles.hoverBar}>
-                        <button type="button" className={styles.hoverBtn} title="Thả icon" onClick={() => setPickerFor(pickerFor === m.id ? null : m.id)}>
-                          <SmilePlus size={14} />
-                        </button>
-                        <button type="button" className={styles.hoverBtn} title="Trả lời" onClick={() => startReply(m)}>
-                          <Reply size={14} />
-                        </button>
+                <div
+                  ref={(node) => {
+                    if (node) msgRefs.current.set(m.id, node);
+                    else msgRefs.current.delete(m.id);
+                  }}
+                  className={`${isMe ? styles.msgRowMe : styles.msgRow} ${stacked ? styles.msgRowStacked : ''}`}
+                >
+                  {!isMe && (
+                    <div className={styles.avatarSlot}>
+                      {showAvatar && (
+                        <ChatAvatar
+                          name={m.senderName}
+                          url={m.senderAvatarUrl}
+                          flora={isFlora}
+                          className={`${styles.avatar} ${isFlora ? styles.avatarFlora : ''}`}
+                        />
+                      )}
+                    </div>
+                  )}
+                  <div className={`${styles.cluster} ${isMe ? styles.clusterMe : ''}`}>
+                    {showName && !isMe && (
+                      <div className={styles.senderRow}>
+                        <span className={`${styles.senderName} ${isFlora ? styles.senderFlora : ''}`}>
+                          {displayName}
+                        </span>
+                        {isFlora && <span className={styles.floraChip}>AI</span>}
+                        {m.isPinned ? <span className={styles.floraChip}>Ghim</span> : null}
                       </div>
                     )}
-                    {pickerFor === m.id && (
-                      <div className={`${styles.picker} ${isMe ? styles.pickerMe : ''}`}>
-                        {CHAT_REACTION_EMOJIS.map((emoji) => (
+                    <div className={styles.bubbleRow}>
+                      <div className={bubbleClass}>
+                        {m.replyTo?.id && (
                           <button
-                            key={emoji}
                             type="button"
-                            className={styles.pickerBtn}
-                            onClick={() => handleReact(m, emoji)}
+                            className={styles.quote}
+                            onClick={() => scrollToMessage(m.replyTo.id)}
                           >
-                            {emoji}
+                            <span className={styles.quoteName}>{m.replyTo.senderName || 'Tin nhắn'}</span>
+                            <span className={styles.quoteText}>{m.replyTo.content || ''}</span>
+                          </button>
+                        )}
+                        <MessageText
+                          text={m.content}
+                          members={members}
+                          className={styles.bubbleText}
+                          mentionClass={styles.mention}
+                        />
+                        <div className={styles.metaRow}>
+                          <span className={styles.bubbleTime}>{formatMsgTime(m.createdAt)}</span>
+                        </div>
+                        {pickerFor === m.id && (
+                          <div className={`${styles.picker} ${isMe ? styles.pickerMe : ''}`}>
+                            {CHAT_REACTION_EMOJIS.map((emoji) => (
+                              <button
+                                key={emoji}
+                                type="button"
+                                className={styles.pickerBtn}
+                                onClick={() => handleReact(m, emoji)}
+                              >
+                                {emoji}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      {canChat && (
+                        <div className={`${styles.actions} ${pickerFor === m.id ? styles.actionsOpen : ''}`}>
+                          <button type="button" className={styles.actionBtn} title="Thả icon" onClick={() => setPickerFor(pickerFor === m.id ? null : m.id)}>
+                            <SmilePlus size={14} />
+                          </button>
+                          <button type="button" className={styles.actionBtn} title="Trả lời" onClick={() => startReply(m)}>
+                            <Reply size={14} />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                    {reactions.length > 0 && (
+                      <div className={styles.reactions}>
+                        {reactions.map((r) => (
+                          <button
+                            key={r.type}
+                            type="button"
+                            className={`${styles.reactionChip} ${r.reactedByMe ? styles.reactionMine : ''}`}
+                            onClick={() => handleReact(m, r.type)}
+                            disabled={!canChat}
+                          >
+                            {r.type}{r.count > 1 ? ` ${r.count}` : ''}
                           </button>
                         ))}
                       </div>
                     )}
                   </div>
-                  {reactions.length > 0 && (
-                    <div className={styles.reactions}>
-                      {reactions.map((r) => (
-                        <button
-                          key={r.type}
-                          type="button"
-                          className={`${styles.reactionChip} ${r.reactedByMe ? styles.reactionMine : ''}`}
-                          onClick={() => handleReact(m, r.type)}
-                          disabled={!canChat}
-                        >
-                          {r.type} {r.count > 1 ? r.count : ''}
-                        </button>
-                      ))}
-                    </div>
-                  )}
                 </div>
-                {isMe && (
-                  <ChatAvatar
-                    name={currentUser?.fullName || currentUser?.name || 'Bạn'}
-                    url={m.senderAvatarUrl || currentUser?.avatarUrl || currentUser?.avatar}
-                    className={styles.avatar}
-                  />
-                )}
-              </div>
+              </React.Fragment>
             );
           })
         )}
@@ -293,6 +337,7 @@ export default function TourChatThread({
       <div className={styles.composer}>
         {mentionOpen && (
           <div className={styles.mentionList} role="listbox">
+            <div className={styles.mentionHead}>Gắn tên thành viên</div>
             {mentionCandidates.length === 0 ? (
               <div className={styles.mentionEmpty}>Không tìm thấy thành viên</div>
             ) : mentionCandidates.map((member, idx) => (
@@ -333,15 +378,25 @@ export default function TourChatThread({
           </div>
         )}
         <div className={styles.inputRow}>
+          <button
+            type="button"
+            className={`${styles.iconBtn} ${mentionOpen ? styles.iconBtnActive : ''}`}
+            onClick={openMentionPicker}
+            disabled={!canChat}
+            title="Gắn tên"
+          >
+            @
+          </button>
           <textarea
             ref={inputRef}
             className={styles.input}
             rows={1}
-            placeholder="Nhắn đoàn, nhấn @ để gắn tên (có Flora)..."
+            placeholder="Nhắn tin, @ để gắn tên..."
             value={input}
             disabled={sending || !canChat}
             onChange={(e) => {
               setInput(e.target.value);
+              resizeComposer(e.target);
               syncMention(e.target.value, e.target.selectionStart);
             }}
             onClick={(e) => syncMention(e.target.value, e.target.selectionStart)}

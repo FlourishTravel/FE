@@ -102,4 +102,46 @@ export function highlightMentions(text, members) {
   return parts.length ? parts : [{ text: value, mention: false }];
 }
 
+export function formatMsgDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  const today = new Date();
+  const yesterday = new Date();
+  yesterday.setDate(today.getDate() - 1);
+  const sameDay = (a, b) => a.getFullYear() === b.getFullYear()
+    && a.getMonth() === b.getMonth()
+    && a.getDate() === b.getDate();
+  if (sameDay(d, today)) return 'Hôm nay';
+  if (sameDay(d, yesterday)) return 'Hôm qua';
+  return d.toLocaleDateString('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+
+function dateKey(iso) {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+}
+
+export function layoutMessages(messages) {
+  const list = Array.isArray(messages) ? messages : [];
+  return list.map((m, i) => {
+    const prev = list[i - 1];
+    const next = list[i + 1];
+    const prevClose = prev
+      && String(prev.senderId) === String(m.senderId)
+      && Math.abs(new Date(m.createdAt) - new Date(prev.createdAt)) < 120000;
+    const nextClose = next
+      && String(next.senderId) === String(m.senderId)
+      && Math.abs(new Date(next.createdAt) - new Date(m.createdAt)) < 120000;
+    return {
+      message: m,
+      showDate: !prev || dateKey(prev.createdAt) !== dateKey(m.createdAt),
+      showName: !prevClose,
+      showAvatar: !nextClose,
+      stacked: !!prevClose,
+    };
+  });
+}
+
 export { CHAT_REACTION_EMOJIS };

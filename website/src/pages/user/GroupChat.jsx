@@ -96,9 +96,8 @@ const GroupChat = () => {
     <div className={styles.pageContainer}>
       <div className={styles.chatLayout}>
         <header className={styles.header}>
-          <Link to="/my-journey" className={styles.backLink}>
+          <Link to="/my-journey" className={styles.backLink} aria-label="Quay lại">
             <ArrowLeft className={styles.backIcon} />
-            Quay lại
           </Link>
           <div className={styles.headerInfo}>
             {context?.guideAvatarUrl ? (
@@ -110,13 +109,16 @@ const GroupChat = () => {
             ) : (
               <MessageCircle className={styles.headerIcon} />
             )}
-            <div>
-              <h1 className={styles.roomTitle}>Phòng chat: {tourTitle}</h1>
+            <div className={styles.headerCopy}>
+              <h1 className={styles.roomTitle}>{tourTitle}</h1>
               <p className={styles.roomMeta}>
                 Khởi hành {range}
                 {guideLine ? ` · ${guideLine}` : ''}
               </p>
             </div>
+            {Array.isArray(context?.members) && context.members.length > 0 && (
+              <span className={styles.headerBadge}>{context.members.length} thành viên</span>
+            )}
           </div>
         </header>
 
