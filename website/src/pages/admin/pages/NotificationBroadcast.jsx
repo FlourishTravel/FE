@@ -101,6 +101,49 @@ function buildTourTemplate(tour) {
   };
 }
 
+function buildMaintenanceTemplates() {
+  return [
+    {
+      id: 'maint-scheduled',
+      kind: 'Bảo trì',
+      title: 'Bảo trì hệ thống [NGÀY] — [GIỜ BẮT ĐẦU] đến [GIỜ KẾT THÚC]',
+      message:
+        'Flourish Travel sẽ bảo trì hệ thống vào [NGÀY], từ [GIỜ BẮT ĐẦU] đến [GIỜ KẾT THÚC] (giờ Việt Nam).\n\n'
+        + 'Trong khoảng thời gian này, website, ứng dụng và thanh toán có thể gián đoạn hoặc chậm hơn bình thường. '
+        + 'Vui lòng hoàn tất đặt tour / thanh toán trước [GIỜ BẮT ĐẦU], hoặc quay lại sau [GIỜ KẾT THÚC].\n\n'
+        + 'Lý do: [NÂNG CẤP / SỬA LỖI / BẢO TRÌ ĐỊNH KỲ].\n'
+        + 'Nếu cần hỗ trợ gấp, liên hệ hotline [SỐ ĐIỆN THOẠI] hoặc email [EMAIL HỖ TRỢ].\n\n'
+        + 'Xin lỗi vì sự bất tiện và cảm ơn bạn đã thông cảm.',
+      type: 'system',
+      audience: 'ALL_USERS',
+    },
+    {
+      id: 'maint-ongoing',
+      kind: 'Bảo trì',
+      title: 'Hệ thống đang bảo trì — dự kiến xong [GIỜ KẾT THÚC]',
+      message:
+        'Flourish Travel đang bảo trì hệ thống. Một số tính năng (đăng nhập, đặt tour, thanh toán, chat) có thể tạm không dùng được.\n\n'
+        + 'Thời gian dự kiến hoàn tất: [GIỜ KẾT THÚC] ngày [NGÀY] (giờ Việt Nam).\n'
+        + 'Chúng tôi sẽ gửi thông báo khi hệ thống hoạt động trở lại.\n\n'
+        + 'Hỗ trợ khẩn: [SỐ ĐIỆN THOẠI] / [EMAIL HỖ TRỢ].',
+      type: 'system',
+      audience: 'ALL_USERS',
+    },
+    {
+      id: 'maint-done',
+      kind: 'Bảo trì',
+      title: 'Bảo trì hoàn tất — hệ thống đã hoạt động trở lại',
+      message:
+        'Flourish Travel đã hoàn tất bảo trì lúc [GIỜ XONG] ngày [NGÀY]. Website và ứng dụng đã hoạt động trở lại bình thường.\n\n'
+        + 'Nếu bạn gặp lỗi khi đăng nhập, đặt tour hoặc thanh toán, hãy tải lại trang / mở lại app. '
+        + 'Giao dịch đang chờ trong lúc bảo trì sẽ được xử lý tự động; liên hệ [SỐ ĐIỆN THOẠI] nếu cần đối soát.\n\n'
+        + 'Cảm ơn bạn đã kiên nhẫn.',
+      type: 'system',
+      audience: 'ALL_USERS',
+    },
+  ];
+}
+
 function buildComboTemplates(promos, tours) {
   const bangkokPromo = promos.find((p) => String(p.code || '').toUpperCase() === 'BANGKOK500');
   const saigonPromo = promos.find((p) => String(p.code || '').toUpperCase() === 'SAIGON50K');
@@ -180,9 +223,9 @@ const NotificationBroadcast = () => {
       const tours = tourRes.content || [];
       const promoTpls = promos.filter((p) => p.isPublic !== false).map(buildPromoTemplate);
       const tourTpls = tours.map(buildTourTemplate);
-      setTemplates([...buildComboTemplates(promos, tours), ...promoTpls, ...tourTpls]);
+      setTemplates([...buildMaintenanceTemplates(), ...buildComboTemplates(promos, tours), ...promoTpls, ...tourTpls]);
     } catch {
-      setTemplates(buildComboTemplates([], []));
+      setTemplates([...buildMaintenanceTemplates(), ...buildComboTemplates([], [])]);
     }
   }, []);
 
@@ -271,7 +314,7 @@ const NotificationBroadcast = () => {
         <div>
           <h1 className={styles.pageTitle}>Gửi thông báo hàng loạt</h1>
           <p className={styles.pageSubtitle}>
-            Chọn mẫu khuyến mãi / tour có sẵn, chỉnh nội dung rồi gửi tới khách.
+            Chọn mẫu bảo trì / khuyến mãi / tour, điền chỗ [TRONG NGOẶC] rồi gửi.
           </p>
         </div>
         <button className={styles.refreshBtn} onClick={fetchHistory} disabled={loading}>
@@ -297,9 +340,9 @@ const NotificationBroadcast = () => {
 
       {templates.length > 0 && (
         <div>
-          <h2 className={styles.sectionTitle}>Mẫu sẵn — khuyến mãi và tour</h2>
+          <h2 className={styles.sectionTitle}>Mẫu sẵn — bảo trì, khuyến mãi và tour</h2>
           <p className={styles.formHint} style={{ marginBottom: 10 }}>
-            Bấm một mẫu để điền form. Kiểm tra rồi bấm Gửi thông báo.
+            Bấm mẫu bảo trì để điền form, thay các chỗ [TRONG NGOẶC] rồi bấm Gửi thông báo.
           </p>
           <div className={styles.templateGrid}>
             {templates.map((tpl) => (
@@ -331,7 +374,7 @@ const NotificationBroadcast = () => {
                 required
                 value={formData.title}
                 onChange={(e) => setFormData((p) => ({ ...p, title: e.target.value }))}
-                placeholder="Ví dụ: Ưu đãi Bangkok cuối tuần"
+                placeholder="Ví dụ: Bảo trì hệ thống 16/08 — 01:00 đến 03:00"
               />
             </div>
             <div className={styles.formGroup}>
@@ -365,9 +408,10 @@ const NotificationBroadcast = () => {
             <textarea
               className={styles.formTextarea}
               required
+              rows={8}
               value={formData.message}
               onChange={(e) => setFormData((p) => ({ ...p, message: e.target.value }))}
-              placeholder="Nhập nội dung thông báo bằng tiếng Việt…"
+              placeholder="Nhập nội dung thông báo bằng tiếng Việt. Với mẫu bảo trì, thay các chỗ [TRONG NGOẶC]."
             />
           </div>
         </div>
