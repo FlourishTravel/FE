@@ -9,7 +9,7 @@ import styles from './FloatingChatbot.module.css';
 
 const WELCOME_MSG = {
   role: 'bot',
-  text: 'Chào bạn, Flora đây! Mình sẽ đồng hành cùng bạn để chuyến đi thuận tiện và vui vẻ hơn. Bạn có thể hỏi "Tour biển 3 ngày", "Chính sách hủy tour?" hoặc "5 ngày Đà Nẵng + Hội An" nhé.',
+  text: 'Hi, mình là Flora. Hỏi lịch, mưa gió, chỗ ăn hay chính sách tour đều được nha. Thử "Tour biển 3 ngày", "Chính sách hủy tour?" hoặc "5 ngày Đà Nẵng + Hội An".',
 };
 
 function formatPrice(n) {
