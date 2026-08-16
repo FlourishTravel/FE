@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { resolveMediaUrl } from '../../../api/config';
 import { createAdminSession, deleteAdminSession, getAdminTourDetail } from '../../../api/tours';
+import TourSessionGuestsPanel from './TourSessionGuestsPanel';
+import TourWaitlistPanel from './TourWaitlistPanel';
 import styles from './TourDetailModal.module.css';
 
 const STATUS_LABELS = {
@@ -29,6 +31,8 @@ const TABS = [
     { key: 'itinerary', label: 'Lịch trình', icon: 'event_note' },
     { key: 'locations', label: 'Địa điểm', icon: 'place' },
     { key: 'sessions', label: 'Đợt khởi hành', icon: 'calendar_month' },
+    { key: 'guests', label: 'Danh sách khách', icon: 'groups' },
+    { key: 'waitlist', label: 'Danh sách chờ', icon: 'hourglass_top' },
     { key: 'media', label: 'Ảnh & Video', icon: 'collections' },
 ];
 
@@ -85,8 +89,17 @@ const formatActivityTimeWindow = (a) => {
     return '';
 };
 
-const TourDetailModal = ({ isOpen, tourId, onClose, onEdit, onItinerary }) => {
-    const [tab, setTab] = useState('overview');
+const TourDetailModal = ({
+    isOpen,
+    tourId,
+    onClose,
+    onEdit,
+    onItinerary,
+    initialTab = 'overview',
+    preferredSessionId = null,
+}) => {
+    const [tab, setTab] = useState(initialTab || 'overview');
+    const [guestSessionId, setGuestSessionId] = useState(preferredSessionId);
     const [detail, setDetail] = useState(null);
     const [loading, setLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
@@ -105,7 +118,8 @@ const TourDetailModal = ({ isOpen, tourId, onClose, onEdit, onItinerary }) => {
 
     useEffect(() => {
         if (!isOpen || !tourId) return;
-        setTab('overview');
+        setTab(initialTab || 'overview');
+        setGuestSessionId(preferredSessionId);
         setLoading(true);
         setErrorMsg('');
         setDetail(null);
@@ -116,7 +130,7 @@ const TourDetailModal = ({ isOpen, tourId, onClose, onEdit, onItinerary }) => {
             .then((data) => setDetail(data || null))
             .catch((err) => setErrorMsg(err?.message || 'Không tải được chi tiết tour'))
             .finally(() => setLoading(false));
-    }, [isOpen, tourId]);
+    }, [isOpen, tourId, initialTab, preferredSessionId]);
 
     useEffect(() => {
         setExpandedItineraryId(null);
@@ -578,21 +592,34 @@ const TourDetailModal = ({ isOpen, tourId, onClose, onEdit, onItinerary }) => {
                                                     </td>
                                                     <td>{renderStatusBadge(s.status, SESSION_STATUS_LABELS)}</td>
                                                     <td>
-                                                        {canDelete ? (
+                                                        <div className={styles.sessionRowActions}>
                                                             <button
                                                                 type="button"
-                                                                className={styles.sessionDeleteBtn}
-                                                                disabled={sessionBusy}
-                                                                onClick={() => handleDeleteSession(s)}
-                                                                title="Xoá đợt chưa có khách"
+                                                                className={styles.sessionGuestsBtn}
+                                                                onClick={() => {
+                                                                    setGuestSessionId(s.id);
+                                                                    setTab('guests');
+                                                                }}
+                                                                title="Xem danh sách khách"
                                                             >
                                                                 <span className="material-icons-round" style={{ fontSize: 16 }}>
-                                                                    delete_outline
+                                                                    groups
                                                                 </span>
                                                             </button>
-                                                        ) : (
-                                                            <span className={styles.muted}>—</span>
-                                                        )}
+                                                            {canDelete ? (
+                                                                <button
+                                                                    type="button"
+                                                                    className={styles.sessionDeleteBtn}
+                                                                    disabled={sessionBusy}
+                                                                    onClick={() => handleDeleteSession(s)}
+                                                                    title="Xoá đợt chưa có khách"
+                                                                >
+                                                                    <span className="material-icons-round" style={{ fontSize: 16 }}>
+                                                                        delete_outline
+                                                                    </span>
+                                                                </button>
+                                                            ) : null}
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             );
@@ -606,6 +633,17 @@ const TourDetailModal = ({ isOpen, tourId, onClose, onEdit, onItinerary }) => {
                                 />
                             )}
                         </div>
+                    )}
+
+                    {!loading && detail && tab === 'guests' && (
+                        <TourSessionGuestsPanel
+                            sessions={detail.sessions || []}
+                            preferredSessionId={guestSessionId}
+                        />
+                    )}
+
+                    {!loading && detail && tab === 'waitlist' && (
+                        <TourWaitlistPanel tourId={detail.id} />
                     )}
 
                     {!loading && detail && tab === 'media' && (

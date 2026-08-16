@@ -1,0 +1,110 @@
+.wrap {
+    margin-top: 10px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+}
+
+.head {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    color: #0f766e;
+    margin-bottom: 10px;
+}
+
+.head strong {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: #134e4a;
+    font-family: 'Inter', sans-serif;
+}
+
+.sub {
+    margin: 2px 0 0;
+    font-size: 12px;
+    color: #64748b;
+    font-family: 'Inter', sans-serif;
+}
+
+.empty {
+    margin: 0;
+    font-size: 13px;
+    color: #6b7280;
+    font-family: 'Inter', sans-serif;
+}
+
+.people {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.person {
+    padding: 10px 12px;
+    background: white;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+}
+
+.personTitle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.role {
+    font-size: 11px;
+    font-weight: 700;
+    color: #047857;
+    background: #ecfdf5;
+    padding: 2px 8px;
+    border-radius: 999px;
+}
+
+.name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #111827;
+    font-family: 'Inter', sans-serif;
+}
+
+.times {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 6px;
+    font-size: 12px;
+    color: #4b5563;
+    font-family: 'Inter', sans-serif;
+}
+
+.stops {
+    list-style: none;
+    margin: 8px 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.stops li {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    font-size: 12px;
+    color: #6b7280;
+    font-family: 'Inter', sans-serif;
+}
+
+.stopName {
+    font-weight: 600;
+    color: #374151;
+}

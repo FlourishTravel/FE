@@ -61,6 +61,7 @@ const TourManagement = () => {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [editingTourId, setEditingTourId] = useState(null);
     const [detailTourId, setDetailTourId] = useState(null);
+    const [detailInitialTab, setDetailInitialTab] = useState('overview');
 
     const fetchTours = useCallback(async () => {
         setLoading(true);
@@ -142,6 +143,12 @@ const TourManagement = () => {
     };
 
     const handleViewDetail = (row) => {
+        setDetailInitialTab('overview');
+        setDetailTourId(row.id);
+    };
+
+    const handleViewGuests = (row) => {
+        setDetailInitialTab('guests');
         setDetailTourId(row.id);
     };
 
@@ -305,6 +312,15 @@ const TourManagement = () => {
                     >
                         <span className="material-icons-round" style={{ fontSize: '18px' }}>
                             event_note
+                        </span>
+                    </button>
+                    <button
+                        className={styles.actionBtn}
+                        title="Danh sách khách & chờ"
+                        onClick={() => handleViewGuests(row)}
+                    >
+                        <span className="material-icons-round" style={{ fontSize: '18px' }}>
+                            groups
                         </span>
                     </button>
                     <button
@@ -502,7 +518,11 @@ const TourManagement = () => {
             <TourDetailModal
                 isOpen={Boolean(detailTourId)}
                 tourId={detailTourId}
-                onClose={() => setDetailTourId(null)}
+                initialTab={detailInitialTab}
+                onClose={() => {
+                    setDetailTourId(null);
+                    setDetailInitialTab('overview');
+                }}
                 onEdit={handleEditFromDetail}
                 onItinerary={handleItineraryFromDetail}
             />

@@ -323,16 +323,22 @@
     transition: all 0.2s;
 }
 
+.guestItem:hover {
+    background: #f9fafb;
+    border-color: #e5e7eb;
+}
+
+.guestItemOpen {
+    border-color: #a7f3d0;
+    background: #f0fdf4;
+}
+
 .guestItemMain {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
     gap: 12px;
-}
-
-.guestItem:hover {
-    background: #f9fafb;
-    border-color: #e5e7eb;
+    cursor: pointer;
 }
 
 .guestLeft {

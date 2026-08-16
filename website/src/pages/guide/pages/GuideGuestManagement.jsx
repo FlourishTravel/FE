@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import styles from './GuideGuestManagement.module.css';
+import CheckinHistoryPanel from '../../../components/CheckinHistoryPanel';
 import {
     checkinSessionMember,
     getGuideSessionGuests,
@@ -78,6 +79,7 @@ const GuideGuestManagement = () => {
     const [checkInBusyId, setCheckInBusyId] = useState(null);
     const [participantBusyId, setParticipantBusyId] = useState(null);
     const [activityBusyKey, setActivityBusyKey] = useState(null);
+    const [historyBookingId, setHistoryBookingId] = useState(null);
 
     useEffect(() => {
         let mounted = true;
@@ -109,6 +111,7 @@ const GuideGuestManagement = () => {
         try {
             const data = await getGuideSessionGuests(sessionId);
             setGuestData(data);
+            setHistoryBookingId(null);
         } catch (e) {
             setGuestData(null);
             setError(e?.message || 'Không tải được danh sách khách.');
@@ -317,7 +320,7 @@ const GuideGuestManagement = () => {
                 <div>
                     <h1 className={styles.pageTitle}>Danh sách khách đoàn</h1>
                     <p className={styles.pageSubtitle}>
-                        Chọn tour / chuyến khởi hành, điểm danh theo từng địa điểm trong lịch trình hoặc điểm danh chung trên đơn.
+                        Chọn tour / chuyến khởi hành, điểm danh theo từng địa điểm trong lịch trình hoặc điểm danh chung trên đơn. Bấm vào khách để xem lịch sử check-in / check-out.
                     </p>
                 </div>
                 <div className={styles.headerRight}>
@@ -564,8 +567,26 @@ const GuideGuestManagement = () => {
                             const participantRows = b.participantAttendance || [];
                             const hasParticipantRows = participantRows.length > 0;
                             return (
-                                <div key={b.bookingId} className={styles.guestItem}>
-                                    <div className={styles.guestItemMain}>
+                                <div
+                                    key={b.bookingId}
+                                    className={`${styles.guestItem} ${historyBookingId === b.bookingId ? styles.guestItemOpen : ''}`}
+                                >
+                                    <div
+                                        className={styles.guestItemMain}
+                                        role="button"
+                                        tabIndex={0}
+                                        onClick={() =>
+                                            setHistoryBookingId((prev) => (prev === b.bookingId ? null : b.bookingId))
+                                        }
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' || e.key === ' ') {
+                                                e.preventDefault();
+                                                setHistoryBookingId((prev) =>
+                                                    prev === b.bookingId ? null : b.bookingId
+                                                );
+                                            }
+                                        }}
+                                    >
                                     <div className={styles.guestLeft}>
                                         {b.avatarUrl ? (
                                             <div className={styles.avatarWrap}>
@@ -606,7 +627,7 @@ const GuideGuestManagement = () => {
                                             )}
                                         </div>
                                     </div>
-                                    <div className={styles.guestRight}>
+                                    <div className={styles.guestRight} onClick={(e) => e.stopPropagation()}>
                                         {tag && (
                                             <span className={styles.allergyTag}>
                                                 <span className="material-icons-round" style={{ fontSize: '14px' }}>flag</span>
@@ -676,6 +697,9 @@ const GuideGuestManagement = () => {
                                         )}
                                     </div>
                                     </div>
+                                    {historyBookingId === b.bookingId && (
+                                        <CheckinHistoryPanel booking={b} guideName={guestData?.guideName} />
+                                    )}
                                     {hasParticipantRows && (
                                         <div className={styles.participantSublist}>
                                             {participantRows.map((p) => (
