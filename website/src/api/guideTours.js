@@ -128,6 +128,31 @@ export async function participantActivityCheckOut(sessionId, participantId, acti
   return json?.data || null;
 }
 
+/** Điểm có mặt / rời điểm cho cả đoàn tại một địa điểm lịch trình. */
+export async function activityCheckInAll(sessionId, activityId) {
+  const res = await fetch(
+    `${API_BASE}/guide/sessions/${sessionId}/activities/${activityId}/check-in-all`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    },
+  );
+  const json = await parseJson(res);
+  return json?.data || null;
+}
+
+export async function activityCheckOutAll(sessionId, activityId) {
+  const res = await fetch(
+    `${API_BASE}/guide/sessions/${sessionId}/activities/${activityId}/check-out-all`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    },
+  );
+  const json = await parseJson(res);
+  return json?.data || null;
+}
+
 /** Lịch trình theo session — mẫu tour + override đoàn (draft/published). */
 export async function getSessionSchedule(sessionId) {
   const res = await fetch(`${API_BASE}/guide/sessions/${sessionId}/schedule`, {

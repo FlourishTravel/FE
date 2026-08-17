@@ -882,6 +882,49 @@
     gap: 8px;
 }
 
+.stopBulkBar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.stopBulkIn,
+.stopBulkOut {
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+}
+
+.stopBulkIn {
+    border: 1px solid #059669;
+    background: #059669;
+    color: #fff;
+}
+
+.stopBulkIn:hover:not(:disabled) {
+    background: #047857;
+}
+
+.stopBulkOut {
+    border: 1px solid #d97706;
+    background: #fff;
+    color: #b45309;
+}
+
+.stopBulkOut:hover:not(:disabled) {
+    background: #fffbeb;
+}
+
+.stopBulkIn:disabled,
+.stopBulkOut:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 .stopParticipantRow {
     display: flex;
     align-items: flex-start;

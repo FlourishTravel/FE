@@ -6,6 +6,8 @@ import {
     checkinSessionMember,
     getGuideSessionGuests,
     listMyGuideSessions,
+    activityCheckInAll,
+    activityCheckOutAll,
     participantActivityCheckIn,
     participantActivityCheckOut,
     participantCheckIn,
@@ -79,6 +81,7 @@ const GuideGuestManagement = () => {
     const [checkInBusyId, setCheckInBusyId] = useState(null);
     const [participantBusyId, setParticipantBusyId] = useState(null);
     const [activityBusyKey, setActivityBusyKey] = useState(null);
+    const [activityBulkBusy, setActivityBulkBusy] = useState(null);
     const [historyBookingId, setHistoryBookingId] = useState(null);
 
     useEffect(() => {
@@ -314,6 +317,34 @@ const GuideGuestManagement = () => {
         }
     };
 
+    const handleActivityCheckInAll = async (activityId) => {
+        if (!sessionId || !activityId) return;
+        setActivityBulkBusy(`${activityId}:in`);
+        setError('');
+        try {
+            await activityCheckInAll(sessionId, activityId);
+            await loadGuests();
+        } catch (e) {
+            setError(e?.message || 'Điểm có mặt tất cả thất bại.');
+        } finally {
+            setActivityBulkBusy(null);
+        }
+    };
+
+    const handleActivityCheckOutAll = async (activityId) => {
+        if (!sessionId || !activityId) return;
+        setActivityBulkBusy(`${activityId}:out`);
+        setError('');
+        try {
+            await activityCheckOutAll(sessionId, activityId);
+            await loadGuests();
+        } catch (e) {
+            setError(e?.message || 'Rời điểm tất cả thất bại.');
+        } finally {
+            setActivityBulkBusy(null);
+        }
+    };
+
     return (
         <div className={styles.page}>
             <div className={styles.pageHeader}>
@@ -439,11 +470,20 @@ const GuideGuestManagement = () => {
                     <h2 className={styles.stopsHeading}>Điểm danh theo địa điểm (lịch trình tour)</h2>
                     <p className={styles.stopsHint}>
                         Mỗi hoạt động trong lịch trình là một điểm có thể ghi nhận có mặt / rời điểm — độc lập với điểm danh chung ở mục dưới.
+                        Dùng <strong>Có mặt tất cả</strong> rồi <strong>Rời điểm tất cả</strong> khi cả đoàn đi cùng nhau.
                     </p>
                     <div className={styles.stopsList}>
                         {guestData.itineraryStops.map((stop, idx) => {
                             const total = guestData.totalGuestSlots ?? 0;
                             const done = stop.checkedInAtStopCount ?? 0;
+                            const missing = flatParticipants.filter(
+                                ({ p }) => !attendanceAtActivity(p, stop.activityId)?.checkInAt,
+                            ).length;
+                            const present = flatParticipants.filter(({ p }) => {
+                                const row = attendanceAtActivity(p, stop.activityId);
+                                return row?.checkInAt && !row?.checkOutAt;
+                            }).length;
+                            const bulkBusy = activityBulkBusy?.startsWith(`${stop.activityId}:`);
                             const stopLabel =
                                 (stop.locationName && String(stop.locationName).trim()) ||
                                 stop.title ||
@@ -466,6 +506,28 @@ const GuideGuestManagement = () => {
                                         </span>
                                     </summary>
                                     <div className={styles.stopBody}>
+                                        <div className={styles.stopBulkBar}>
+                                            <button
+                                                type="button"
+                                                className={styles.stopBulkIn}
+                                                disabled={bulkBusy || missing === 0}
+                                                onClick={() => handleActivityCheckInAll(stop.activityId)}
+                                            >
+                                                {activityBulkBusy === `${stop.activityId}:in`
+                                                    ? 'Đang điểm…'
+                                                    : 'Có mặt tất cả'}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className={styles.stopBulkOut}
+                                                disabled={bulkBusy || present === 0}
+                                                onClick={() => handleActivityCheckOutAll(stop.activityId)}
+                                            >
+                                                {activityBulkBusy === `${stop.activityId}:out`
+                                                    ? 'Đang xử lý…'
+                                                    : 'Rời điểm tất cả'}
+                                            </button>
+                                        </div>
                                         {filteredFlatParticipants.length === 0 && (
                                             <p className={styles.muted}>Không có khách khớp bộ lọc tìm kiếm.</p>
                                         )}
