@@ -192,13 +192,20 @@
 }
 
 /* ===== RESPONSIVE ===== */
-@media (max-width: 640px) {
+@media (max-width: 768px) {
     .fab {
-        @apply bottom-4 right-4 px-3 py-2.5;
+        bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+        right: 16px;
+        padding: 10px 12px;
     }
 
     .fabLabel {
         display: none;
+    }
+
+    .quickMenu {
+        bottom: calc(132px + env(safe-area-inset-bottom, 0px));
+        right: 16px;
     }
 
     .panel {

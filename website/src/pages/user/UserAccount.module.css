@@ -3,7 +3,7 @@
 
 .page {
     @apply min-h-screen bg-gray-50;
-    padding-top: 88px;
+    padding-top: 80px;
     padding-bottom: 48px;
 }
 
@@ -16,7 +16,7 @@
 }
 
 .title {
-    @apply text-2xl md:text-3xl font-serif font-bold text-gray-900 mb-2;
+    @apply text-xl md:text-2xl font-serif font-bold text-gray-900 mb-2;
 }
 
 .subtitle {
@@ -61,6 +61,26 @@
 
 .empty {
     @apply text-center py-16 text-gray-500;
+}
+
+@media (max-width: 768px) {
+    .page {
+        padding-top: 72px;
+        padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+        padding-left: 0;
+        padding-right: 0;
+    }
+    .container {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+    .header {
+        margin-bottom: 16px;
+    }
+    .card {
+        padding: 14px;
+        margin-bottom: 12px;
+    }
 }
 
 .linkBtn {

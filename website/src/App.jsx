@@ -7,6 +7,7 @@ import FeaturedPromotions from './components/FeaturedPromotions';
 import FeaturedReviews from './components/FeaturedReviews';
 import ValueProp from './components/ValueProp';
 import Mission from './components/Mission';
+import UserBottomNav from './components/UserBottomNav';
 import Footer from './components/Footer';
 import FloatingChatbot from './components/FloatingChatbot';
 import ScrollToTop from './components/ScrollToTop';
@@ -188,6 +189,7 @@ function App() {
         </Route>
       </Routes>
       <FloraGlobalAssistant />
+      <UserBottomNav />
     </>
   );
 }

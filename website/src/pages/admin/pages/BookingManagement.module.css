@@ -376,7 +376,8 @@
 
 @media (max-width: 768px) {
     .statsGrid {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
     }
     .filterBar {
         flex-direction: column;
@@ -388,6 +389,19 @@
     }
     .pageHeader {
         flex-direction: column;
-        gap: 12px;
+        gap: 10px;
+        align-items: stretch;
+    }
+    .pageTitle {
+        font-size: 18px;
+    }
+    .headerActions {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+    .addBtn, .refreshBtn {
+        flex: 1;
+        justify-content: center;
+        min-height: 40px;
     }
 }

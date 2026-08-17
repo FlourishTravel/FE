@@ -146,7 +146,27 @@
 }
 
 .mobileMenu {
-    @apply lg:hidden bg-white/95 backdrop-blur-lg absolute w-full shadow-xl border-t border-gray-100;
+    @apply lg:hidden bg-white shadow-xl border-t border-gray-100;
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 4rem;
+    bottom: 0;
+    z-index: 48;
+    overflow-y: auto;
+    padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+}
+
+.mobileBackdrop {
+    @apply lg:hidden;
+    position: fixed;
+    inset: 0;
+    top: 4rem;
+    z-index: 47;
+    border: none;
+    padding: 0;
+    background: rgba(17, 24, 39, 0.35);
+    cursor: pointer;
 }
 
 .mobileMenuContent {

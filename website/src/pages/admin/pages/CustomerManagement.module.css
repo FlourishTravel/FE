@@ -105,9 +105,10 @@
     .statsGrid { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 768px) {
-    .statsGrid { grid-template-columns: 1fr; }
+    .statsGrid { grid-template-columns: 1fr 1fr; gap: 8px; }
     .filterBar { flex-direction: column; gap: 8px; align-items: stretch; }
     .rightFilters { flex-direction: column; align-items: stretch; }
     .searchInput { width: 100%; }
-    .pageHeader { flex-direction: column; gap: 12px; }
+    .pageHeader { flex-direction: column; gap: 10px; align-items: stretch; }
+    .pageTitle { font-size: 18px; }
 }

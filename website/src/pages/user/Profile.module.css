@@ -6,8 +6,7 @@
     width: 100%;
     background-color: #ffffff;
     margin: 0;
-    padding-top: 100px;
-    /* Add some padding instead of the hero section */
+    padding-top: 80px;
 }
 
 /* Main Content */
@@ -363,6 +362,11 @@
 
 /* Responsive */
 @media (max-width: 640px) {
+    .pageWrapper {
+        padding-top: 72px;
+        padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+    }
+
     .heroSection {
         margin-top: 60px;
         padding: 40px 16px 80px;

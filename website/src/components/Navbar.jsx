@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, MapPin, ChevronDown, Shield, LayoutDashboard } from 'lucide-react';
 import styles from './Navbar.module.css';
@@ -29,6 +29,11 @@ const Navbar = () => {
         setIsOpen(false);
         setMobileExpanded(null);
     };
+
+    useEffect(() => {
+        closeMobile();
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- close drawer on route change
+    }, [pathname]);
 
     const toggleMobileSection = (id) => {
         setMobileExpanded((prev) => (prev === id ? null : id));
@@ -144,7 +149,14 @@ const Navbar = () => {
             </div>
 
             {isOpen && (
-                <div className={styles.mobileMenu}>
+                <>
+                    <button
+                        type="button"
+                        className={styles.mobileBackdrop}
+                        aria-label="Đóng menu"
+                        onClick={closeMobile}
+                    />
+                    <div className={styles.mobileMenu}>
                     <div className={styles.mobileMenuContent}>
                         {mobileSections.map((section) => (
                             <div key={section.id} className={styles.mobileSection}>
@@ -246,7 +258,8 @@ const Navbar = () => {
                             )}
                         </div>
                     </div>
-                </div>
+                    </div>
+                    </>
             )}
         </nav>
     );

@@ -4,7 +4,7 @@
 .page {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 16px;
 }
 
 .pageHeader {
@@ -14,7 +14,7 @@
 }
 
 .pageTitle {
-    font-size: 26px;
+    font-size: 22px;
     font-weight: 700;
     color: #111827;
     font-family: 'Inter', sans-serif;
@@ -287,13 +287,26 @@
 
 @media (max-width: 640px) {
     .statsGrid {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
     }
     .pageHeader {
         flex-direction: column;
-        gap: 12px;
+        gap: 10px;
+        align-items: stretch;
     }
     .pageTitle {
-        font-size: 22px;
+        font-size: 18px;
+    }
+    .pageSubtitle {
+        display: none;
+    }
+    .headerActions {
+        width: 100%;
+    }
+    .exportBtn {
+        width: 100%;
+        justify-content: center;
+        min-height: 40px;
     }
 }

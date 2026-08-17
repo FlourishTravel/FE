@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import React, { useEffect, useMemo, useState } from 'react';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { resolveMediaUrl } from '../../api/config';
 import styles from './AdminLayout.module.css';
 import logoImg from '../../assets/LogoFlourish\'.jpg';
 
@@ -25,29 +26,66 @@ const NAV_ITEMS = [
     { path: '/admin/settings', icon: 'settings', label: 'Cài Đặt' },
 ];
 
+const BOTTOM_NAV = [
+    { path: '/admin', icon: 'dashboard', label: 'Tổng quan', end: true },
+    { path: '/admin/tours', icon: 'explore', label: 'Tour' },
+    { path: '/admin/bookings', icon: 'book_online', label: 'Đặt chỗ' },
+    { path: '/admin/customers', icon: 'group', label: 'Khách' },
+];
+
+const PLACEHOLDER_AVATAR =
+    'https://ui-avatars.com/api/?name=Admin&background=10b981&color=fff&size=80';
+
 const AdminLayout = () => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+    const [mobileNavOpen, setMobileNavOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+
+    const displayName = user?.fullName || user?.name || 'Admin';
+    const avatarSrc = resolveMediaUrl(user?.avatarUrl || user?.avatar) || PLACEHOLDER_AVATAR;
+    const showSidebarLabels = !sidebarCollapsed || mobileNavOpen;
+    const initials = useMemo(() => {
+        const parts = String(displayName).trim().split(/\s+/).filter(Boolean);
+        if (!parts.length) return 'A';
+        if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+        return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+    }, [displayName]);
+
+    useEffect(() => {
+        setMobileNavOpen(false);
+    }, [location.pathname]);
 
     const handleLogout = () => {
         logout();
         navigate('/login');
     };
 
+    const handleSearch = (e) => {
+        e.preventDefault();
+        const q = searchQuery.trim();
+        navigate(q ? `/admin/tours?q=${encodeURIComponent(q)}` : '/admin/tours');
+    };
+
     return (
         <div className={styles.adminRoot}>
-            {/* Sidebar */}
-            <aside className={`${styles.sidebar} ${sidebarCollapsed ? styles.collapsed : ''}`}>
+            {mobileNavOpen ? (
+                <button
+                    type="button"
+                    className={styles.mobileBackdrop}
+                    aria-label="Đóng menu"
+                    onClick={() => setMobileNavOpen(false)}
+                />
+            ) : null}
+
+            <aside
+                className={`${styles.sidebar} ${sidebarCollapsed ? styles.collapsed : ''} ${mobileNavOpen ? styles.mobileOpen : ''}`}
+            >
                 <div className={styles.sidebarHeader}>
                     <div className={styles.logoArea}>
-                        {sidebarCollapsed ? (
-                            <div className={styles.collapsedLogoText}>
-                                <span className={styles.logoTitleCollapsed}>Flourish</span>
-                                <span className={styles.logoTitleCollapsedHighlight}>Admin</span>
-                            </div>
-                        ) : (
+                        {showSidebarLabels ? (
                             <>
                                 <div className={styles.logoIconContainer}>
                                     <img src={logoImg} alt="Flourish Admin Logo" className={styles.guideLogoImage} />
@@ -57,9 +95,15 @@ const AdminLayout = () => {
                                     <span className={styles.logoSub}>Admin Panel</span>
                                 </div>
                             </>
+                        ) : (
+                            <div className={styles.collapsedLogoText}>
+                                <span className={styles.logoTitleCollapsed}>Flourish</span>
+                                <span className={styles.logoTitleCollapsedHighlight}>Admin</span>
+                            </div>
                         )}
                     </div>
                     <button
+                        type="button"
                         className={styles.collapseBtn}
                         onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
                     >
@@ -70,7 +114,7 @@ const AdminLayout = () => {
                 </div>
 
                 <nav className={styles.nav}>
-                    {NAV_ITEMS.map(item => (
+                    {NAV_ITEMS.map((item) => (
                         <NavLink
                             key={item.path}
                             to={item.path}
@@ -80,70 +124,95 @@ const AdminLayout = () => {
                             }
                         >
                             <span className="material-icons-round">{item.icon}</span>
-                            {!sidebarCollapsed && <span className={styles.navLabel}>{item.label}</span>}
+                            {showSidebarLabels && <span className={styles.navLabel}>{item.label}</span>}
                         </NavLink>
                     ))}
                 </nav>
 
                 <div className={styles.sidebarFooter}>
                     <div className={styles.userCard}>
-                        <img
-                            src={user?.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80'}
-                            alt="Avatar"
-                            className={styles.userAvatar}
-                        />
-                        {!sidebarCollapsed && (
+                        {user?.avatarUrl || user?.avatar ? (
+                            <img src={avatarSrc} alt="" className={styles.userAvatar} />
+                        ) : (
+                            <span className={styles.userAvatarFallback}>{initials}</span>
+                        )}
+                        {showSidebarLabels && (
                             <div className={styles.userInfo}>
-                                <span className={styles.userName}>{user?.name || 'Admin'}</span>
-                                <span className={styles.userRole}>Super Admin</span>
+                                <span className={styles.userName}>{displayName}</span>
+                                <span className={styles.userRole}>Admin</span>
                             </div>
                         )}
                     </div>
-                    <button className={styles.logoutBtn} onClick={handleLogout} title="Đăng xuất">
+                    <button className={styles.logoutBtn} onClick={handleLogout} title="Đăng xuất" type="button">
                         <span className="material-icons-round">logout</span>
-                        {!sidebarCollapsed && <span>Đăng xuất</span>}
+                        {showSidebarLabels && <span>Đăng xuất</span>}
                     </button>
                 </div>
             </aside>
 
-            {/* Main Area */}
             <div className={`${styles.mainArea} ${sidebarCollapsed ? styles.mainCollapsed : ''}`}>
-                {/* Top Header */}
                 <header className={styles.topHeader}>
-                    <div className={styles.searchBox}>
+                    <button
+                        type="button"
+                        className={styles.menuBtn}
+                        aria-label="Mở menu"
+                        onClick={() => setMobileNavOpen(true)}
+                    >
+                        <span className="material-icons-round">menu</span>
+                    </button>
+                    <form className={styles.searchBox} onSubmit={handleSearch}>
                         <span className="material-icons-round" style={{ fontSize: '20px', color: '#9ca3af' }}>search</span>
                         <input
                             type="text"
-                            placeholder="Tìm kiếm tour, booking, khách hàng..."
+                            placeholder="Tìm tour, booking, khách hàng..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className={styles.searchInput}
                         />
-                    </div>
+                    </form>
                     <div className={styles.headerActions}>
-                        <button className={styles.headerBtn} title="Thông báo">
+                        <button className={styles.headerBtn} title="Thông báo" type="button">
                             <span className="material-icons-round">notifications</span>
-                            <span className={styles.notifBadge}>3</span>
-                        </button>
-                        <button className={styles.headerBtn} title="Tin nhắn">
-                            <span className="material-icons-round">mail</span>
                         </button>
                         <div className={styles.headerDivider}></div>
                         <div className={styles.headerUser}>
-                            <img
-                                src={user?.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80'}
-                                alt="Avatar"
-                                className={styles.headerAvatar}
-                            />
-                            <span className={styles.headerUserName}>{user?.name || 'Admin'}</span>
+                            {user?.avatarUrl || user?.avatar ? (
+                                <img src={avatarSrc} alt="" className={styles.headerAvatar} />
+                            ) : (
+                                <span className={styles.headerAvatarFallback}>{initials}</span>
+                            )}
+                            <span className={styles.headerUserName}>{displayName}</span>
                         </div>
                     </div>
                 </header>
 
-                {/* Content */}
                 <main className={styles.content}>
                     <Outlet />
                 </main>
+
+                <nav className={styles.bottomNav} aria-label="Điều hướng admin">
+                    {BOTTOM_NAV.map((item) => (
+                        <NavLink
+                            key={item.path}
+                            to={item.path}
+                            end={item.end}
+                            className={({ isActive }) =>
+                                `${styles.bottomNavItem} ${isActive ? styles.bottomNavActive : ''}`
+                            }
+                        >
+                            <span className="material-icons-round">{item.icon}</span>
+                            <span>{item.label}</span>
+                        </NavLink>
+                    ))}
+                    <button
+                        type="button"
+                        className={styles.bottomNavItem}
+                        onClick={() => setMobileNavOpen(true)}
+                    >
+                        <span className="material-icons-round">menu</span>
+                        <span>Menu</span>
+                    </button>
+                </nav>
             </div>
         </div>
     );

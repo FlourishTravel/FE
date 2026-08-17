@@ -560,6 +560,15 @@
 }
 
 @media (max-width: 768px) {
+    .pageContainer {
+        padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+    }
+
+    .layout {
+        padding-bottom: 24px;
+        padding-top: 16px;
+    }
+
     .mainHeader {
         flex-direction: column;
         gap: 12px;
@@ -598,7 +607,10 @@
     .detailBtn, .bookNowBtn {
         flex: 1;
         text-align: center;
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
     }
 }
 

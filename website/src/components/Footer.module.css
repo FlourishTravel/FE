@@ -107,7 +107,8 @@
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
     .footer {
-        @apply py-10;
+        padding-top: 2rem;
+        padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
     }
 
     .footerGrid {

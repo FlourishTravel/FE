@@ -1,0 +1,60 @@
+@import "tailwindcss";
+@reference "../index.css";
+
+.bar {
+    display: none;
+}
+
+.item {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 6px 2px;
+    border: none;
+    background: none;
+    color: #6b7280;
+    text-decoration: none;
+    font-size: 10px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.icon {
+    width: 22px;
+    height: 22px;
+}
+
+.flora {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    object-fit: contain;
+    background: #0a0a0a;
+}
+
+.active {
+    color: #059669;
+}
+
+@media (max-width: 768px) {
+    .bar {
+        display: flex;
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 45;
+        align-items: stretch;
+        justify-content: space-around;
+        gap: 2px;
+        padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0px));
+        background: #fff;
+        border-top: 1px solid #e5e7eb;
+        box-shadow: 0 -8px 24px rgba(15, 23, 42, 0.06);
+    }
+}
