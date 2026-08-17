@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import styles from './GuideLayout.module.css';
 import logoImg from '../../assets/LogoFlourish\'.jpg';
 import { useAuth } from '../../context/AuthContext';
@@ -16,6 +16,13 @@ const NAV_ITEMS = [
     { path: '/guide/profile', icon: 'person', label: 'Hồ sơ' },
 ];
 
+const BOTTOM_NAV = [
+    { path: '/guide/dashboard', icon: 'dashboard', label: 'Tổng quan', end: true },
+    { path: '/guide/tours', icon: 'map', label: 'Tour' },
+    { path: '/guide/guests', icon: 'groups', label: 'Khách' },
+    { path: '/guide/communication', icon: 'forum', label: 'Chat' },
+];
+
 const PLACEHOLDER_AVATAR =
     'https://ui-avatars.com/api/?name=HDV&background=10b981&color=fff&size=80';
 
@@ -28,8 +35,10 @@ function unwrapNotifications(payload) {
 
 const GuideLayout = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const { user, logout } = useAuth();
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+    const [mobileNavOpen, setMobileNavOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [notifOpen, setNotifOpen] = useState(false);
     const [notifications, setNotifications] = useState([]);
@@ -44,6 +53,7 @@ const GuideLayout = () => {
     }, [displayName]);
 
     const unreadCount = notifications.filter((n) => !n.isRead).length;
+    const showSidebarLabels = !sidebarCollapsed || mobileNavOpen;
 
     useEffect(() => {
         let alive = true;
@@ -60,6 +70,11 @@ const GuideLayout = () => {
             alive = false;
         };
     }, []);
+
+    useEffect(() => {
+        setMobileNavOpen(false);
+        setNotifOpen(false);
+    }, [location.pathname]);
 
     const handleLogout = () => {
         logout();
@@ -85,15 +100,21 @@ const GuideLayout = () => {
 
     return (
         <div className={styles.guideRoot}>
-            <aside className={`${styles.sidebar} ${sidebarCollapsed ? styles.collapsed : ''}`}>
+            {mobileNavOpen ? (
+                <button
+                    type="button"
+                    className={styles.mobileBackdrop}
+                    aria-label="Đóng menu"
+                    onClick={() => setMobileNavOpen(false)}
+                />
+            ) : null}
+
+            <aside
+                className={`${styles.sidebar} ${sidebarCollapsed ? styles.collapsed : ''} ${mobileNavOpen ? styles.mobileOpen : ''}`}
+            >
                 <div className={styles.sidebarHeader}>
                     <div className={styles.logoArea}>
-                        {sidebarCollapsed ? (
-                            <div className={styles.collapsedLogoText}>
-                                <span className={styles.logoTitleCollapsed}>Flourish</span>
-                                <span className={styles.logoTitleCollapsedHighlight}>HDV</span>
-                            </div>
-                        ) : (
+                        {showSidebarLabels ? (
                             <>
                                 <div className={styles.logoIconContainer}>
                                     <img src={logoImg} alt="Flourish HDV Logo" className={styles.guideLogoImage} />
@@ -103,6 +124,11 @@ const GuideLayout = () => {
                                     <span className={styles.logoSub}>Hướng dẫn viên</span>
                                 </div>
                             </>
+                        ) : (
+                            <div className={styles.collapsedLogoText}>
+                                <span className={styles.logoTitleCollapsed}>Flourish</span>
+                                <span className={styles.logoTitleCollapsedHighlight}>HDV</span>
+                            </div>
                         )}
                     </div>
                     <button
@@ -127,7 +153,7 @@ const GuideLayout = () => {
                             }
                         >
                             <span className="material-icons-round">{item.icon}</span>
-                            {!sidebarCollapsed && <span className={styles.navLabel}>{item.label}</span>}
+                            {showSidebarLabels && <span className={styles.navLabel}>{item.label}</span>}
                         </NavLink>
                     ))}
                 </nav>
@@ -140,24 +166,32 @@ const GuideLayout = () => {
                         title="Báo cáo sự cố"
                     >
                         <span className={styles.sosText}>SOS</span>
-                        {!sidebarCollapsed && <span>Báo cáo sự cố (SOS)</span>}
+                        {showSidebarLabels && <span>Báo cáo sự cố (SOS)</span>}
                     </button>
                 </div>
 
                 <div className={styles.sidebarFooter}>
                     <NavLink to="/guide/profile" className={styles.footerLink}>
                         <span className="material-icons-round">manage_accounts</span>
-                        {!sidebarCollapsed && <span>Hồ sơ & cài đặt</span>}
+                        {showSidebarLabels && <span>Hồ sơ & cài đặt</span>}
                     </NavLink>
                     <button className={styles.logoutBtn} onClick={handleLogout} title="Đăng xuất" type="button">
                         <span className="material-icons-round">logout</span>
-                        {!sidebarCollapsed && <span>Đăng xuất</span>}
+                        {showSidebarLabels && <span>Đăng xuất</span>}
                     </button>
                 </div>
             </aside>
 
             <div className={`${styles.mainArea} ${sidebarCollapsed ? styles.mainCollapsed : ''}`}>
                 <header className={styles.topHeader}>
+                    <button
+                        type="button"
+                        className={styles.menuBtn}
+                        aria-label="Mở menu"
+                        onClick={() => setMobileNavOpen(true)}
+                    >
+                        <span className="material-icons-round">menu</span>
+                    </button>
                     <form className={styles.searchBox} onSubmit={handleSearch}>
                         <span className="material-icons-round" style={{ fontSize: '20px', color: '#9ca3af' }}>
                             search
@@ -232,6 +266,30 @@ const GuideLayout = () => {
                 <main className={styles.content}>
                     <Outlet />
                 </main>
+
+                <nav className={styles.bottomNav} aria-label="Điều hướng HDV">
+                    {BOTTOM_NAV.map((item) => (
+                        <NavLink
+                            key={item.path}
+                            to={item.path}
+                            end={item.end}
+                            className={({ isActive }) =>
+                                `${styles.bottomNavItem} ${isActive ? styles.bottomNavActive : ''}`
+                            }
+                        >
+                            <span className="material-icons-round">{item.icon}</span>
+                            <span>{item.label}</span>
+                        </NavLink>
+                    ))}
+                    <button
+                        type="button"
+                        className={styles.bottomNavItem}
+                        onClick={() => setMobileNavOpen(true)}
+                    >
+                        <span className="material-icons-round">menu</span>
+                        <span>Menu</span>
+                    </button>
+                </nav>
             </div>
         </div>
     );

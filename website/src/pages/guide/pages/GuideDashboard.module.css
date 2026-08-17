@@ -4,7 +4,7 @@
 .page {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 16px;
 }
 
 /* Top Section */
@@ -15,7 +15,7 @@
 }
 
 .greetTitle {
-    font-size: 28px;
+    font-size: 22px;
     font-weight: 700;
     color: #111827;
     font-family: 'Inter', sans-serif;
@@ -496,12 +496,21 @@
 
 @media (max-width: 640px) {
     .greetTitle {
-        font-size: 22px;
+        font-size: 20px;
+    }
+    .greetSub {
+        display: none;
     }
     .tourName {
         font-size: 18px;
     }
     .tourInfoRow {
+        flex-direction: column;
+    }
+    .currentTour {
+        padding: 14px;
+    }
+    .statsColumn {
         flex-direction: column;
     }
 }

@@ -362,7 +362,7 @@ const GuideGuestManagement = () => {
                         onClick={() => window.alert('Quét QR điểm danh sẽ được gắn với mã chuyến — đang phát triển.')}
                     >
                         <span className="material-icons-round" style={{ fontSize: '20px' }}>qr_code_scanner</span>
-                        Quét QR điểm danh
+                        <span className={styles.qrBtnText}>Quét QR điểm danh</span>
                     </button>
                 </div>
             </div>
@@ -473,7 +473,7 @@ const GuideGuestManagement = () => {
                         Dùng <strong>Có mặt tất cả</strong> rồi <strong>Rời điểm tất cả</strong> khi cả đoàn đi cùng nhau.
                     </p>
                     <div className={styles.stopsList}>
-                        {guestData.itineraryStops.map((stop, idx) => {
+                        {guestData.itineraryStops.map((stop) => {
                             const total = guestData.totalGuestSlots ?? 0;
                             const done = stop.checkedInAtStopCount ?? 0;
                             const missing = flatParticipants.filter(
@@ -489,7 +489,7 @@ const GuideGuestManagement = () => {
                                 stop.title ||
                                 'Điểm trong lịch trình';
                             return (
-                                <details key={stop.activityId} className={styles.stopCard} open={idx === 0}>
+                                <details key={stop.activityId} className={styles.stopCard}>
                                     <summary className={styles.stopSummary}>
                                         <span className={styles.stopSummaryMain}>
                                             <span className={styles.stopDayBadge}>Ngày {stop.dayNumber ?? '—'}</span>
@@ -504,14 +504,20 @@ const GuideGuestManagement = () => {
                                         <span className={styles.stopProgressPill}>
                                             {done}/{total || '—'} có mặt
                                         </span>
-                                    </summary>
-                                    <div className={styles.stopBody}>
-                                        <div className={styles.stopBulkBar}>
+                                        <div
+                                            className={styles.stopBulkBar}
+                                            onClick={(e) => e.stopPropagation()}
+                                            onMouseDown={(e) => e.preventDefault()}
+                                        >
                                             <button
                                                 type="button"
                                                 className={styles.stopBulkIn}
                                                 disabled={bulkBusy || missing === 0}
-                                                onClick={() => handleActivityCheckInAll(stop.activityId)}
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                    handleActivityCheckInAll(stop.activityId);
+                                                }}
                                             >
                                                 {activityBulkBusy === `${stop.activityId}:in`
                                                     ? 'Đang điểm…'
@@ -521,13 +527,19 @@ const GuideGuestManagement = () => {
                                                 type="button"
                                                 className={styles.stopBulkOut}
                                                 disabled={bulkBusy || present === 0}
-                                                onClick={() => handleActivityCheckOutAll(stop.activityId)}
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                    handleActivityCheckOutAll(stop.activityId);
+                                                }}
                                             >
                                                 {activityBulkBusy === `${stop.activityId}:out`
                                                     ? 'Đang xử lý…'
                                                     : 'Rời điểm tất cả'}
                                             </button>
                                         </div>
+                                    </summary>
+                                    <div className={styles.stopBody}>
                                         {filteredFlatParticipants.length === 0 && (
                                             <p className={styles.muted}>Không có khách khớp bộ lọc tìm kiếm.</p>
                                         )}

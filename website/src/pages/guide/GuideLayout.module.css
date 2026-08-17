@@ -4,7 +4,9 @@
 /* ===== ROOT ===== */
 .guideRoot {
     display: flex;
-    min-height: 100vh;
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
     background: #f3f4f6;
     font-family: 'Inter', sans-serif;
 }
@@ -307,7 +309,9 @@
     transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
+    min-width: 0;
+    height: 100dvh;
+    overflow: hidden;
 }
 
 .mainCollapsed {
@@ -319,12 +323,32 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 14px 28px;
+    gap: 10px;
+    padding: 10px 20px;
     background: white;
     border-bottom: 1px solid #e5e7eb;
     position: sticky;
     top: 0;
     z-index: 40;
+    flex-shrink: 0;
+}
+
+.menuBtn {
+    display: none;
+    width: 38px;
+    height: 38px;
+    border: none;
+    border-radius: 8px;
+    background: none;
+    color: #374151;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.menuBtn:hover {
+    background: #f3f4f6;
 }
 
 .searchBox {
@@ -528,16 +552,28 @@
 /* CONTENT */
 .content {
     flex: 1;
-    padding: 28px;
+    min-height: 0;
+    overflow: auto;
+    padding: 16px 20px 24px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.bottomNav {
+    display: none;
+}
+
+.mobileBackdrop {
+    display: none;
 }
 
 /* ===== RESPONSIVE ===== */
-@media (max-width: 1024px) {
+@media (max-width: 1024px) and (min-width: 769px) {
     .sidebar {
         width: 72px;
     }
 
-    .mainArea {
+    .mainArea,
+    .mainCollapsed {
         margin-left: 72px;
     }
 
@@ -560,23 +596,124 @@
 
 @media (max-width: 768px) {
     .sidebar {
-        width: 0;
-        border: none;
+        width: min(280px, 86vw);
+        transform: translateX(-100%);
+        transition: transform 0.25s ease;
+        border-right: 1px solid #e5e7eb;
+        box-shadow: none;
     }
 
-    .mainArea {
+    .sidebar.collapsed {
+        width: min(280px, 86vw);
+    }
+
+    .sidebar.mobileOpen {
+        transform: translateX(0);
+        box-shadow: 8px 0 28px rgba(15, 23, 42, 0.18);
+    }
+
+    .sidebar.mobileOpen.collapsed .sidebarHeader {
+        flex-direction: row;
+        padding: 16px;
+        align-items: center;
+    }
+
+    .sidebar.mobileOpen .navLabel,
+    .sidebar.mobileOpen .logoText,
+    .sidebar.mobileOpen .logoutBtn span:not(.material-icons-round),
+    .sidebar.mobileOpen .footerLink span:not(.material-icons-round) {
+        display: inline;
+    }
+
+    .sidebar.mobileOpen .sosBtn span:not(.sosText) {
+        display: inline;
+    }
+
+    .mobileBackdrop {
+        display: block;
+        position: fixed;
+        inset: 0;
+        border: none;
+        padding: 0;
+        background: rgba(17, 24, 39, 0.4);
+        z-index: 45;
+        cursor: pointer;
+    }
+
+    .mainArea,
+    .mainCollapsed {
         margin-left: 0;
     }
 
+    .menuBtn {
+        display: flex;
+    }
+
+    .collapseBtn {
+        display: none;
+    }
+
     .topHeader {
-        padding: 12px 16px;
+        padding: 8px 12px;
     }
 
     .searchBox {
-        width: 140px;
+        flex: 1;
+        width: auto;
+        min-width: 0;
+        padding: 6px 12px;
+    }
+
+    .headerUserName,
+    .headerDivider {
+        display: none;
+    }
+
+    .notifPanel {
+        width: min(320px, calc(100vw - 24px));
+        right: 0;
     }
 
     .content {
-        padding: 16px;
+        padding: 12px 12px calc(72px + env(safe-area-inset-bottom, 0px));
+    }
+
+    .bottomNav {
+        display: flex;
+        flex-shrink: 0;
+        align-items: stretch;
+        justify-content: space-around;
+        gap: 2px;
+        padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0px));
+        background: #fff;
+        border-top: 1px solid #e5e7eb;
+        z-index: 40;
+    }
+
+    .bottomNavItem {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
+        min-width: 0;
+        padding: 4px 2px;
+        border: none;
+        background: none;
+        color: #6b7280;
+        text-decoration: none;
+        font-size: 10px;
+        font-weight: 600;
+        font-family: 'Inter', sans-serif;
+        cursor: pointer;
+    }
+
+    .bottomNavItem .material-icons-round {
+        font-size: 22px;
+    }
+
+    .bottomNavActive {
+        color: #059669;
     }
 }

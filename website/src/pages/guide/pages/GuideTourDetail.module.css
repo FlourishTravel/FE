@@ -31,7 +31,7 @@
     position: relative;
     border-radius: 16px;
     overflow: hidden;
-    height: 220px;
+    height: 180px;
 }
 
 .heroImage {
@@ -639,15 +639,23 @@
 
 @media (max-width: 768px) {
     .heroBanner {
-        height: 180px;
+        height: 140px;
     }
     .heroTitle {
-        font-size: 20px;
+        font-size: 18px;
     }
     .heroOverlay {
         flex-direction: column;
-        gap: 12px;
-        padding: 16px;
+        gap: 10px;
+        padding: 12px;
+    }
+    .heroActions {
+        width: 100%;
+    }
+    .heroActions a,
+    .heroActions button {
+        width: 100%;
+        justify-content: center;
     }
 }
 

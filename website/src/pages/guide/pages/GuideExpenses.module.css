@@ -4,7 +4,7 @@
 .page {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 16px;
 }
 
 .pageHeader {
@@ -432,8 +432,21 @@
     .pageHeader {
         flex-direction: column;
         gap: 12px;
+        align-items: stretch;
+    }
+    .pageSubtitle {
+        display: none;
     }
     .formGrid {
         grid-template-columns: 1fr;
+    }
+    .headerActions {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+    .btnOutline, .btnPrimary {
+        flex: 1;
+        justify-content: center;
+        min-height: 40px;
     }
 }

@@ -242,4 +242,18 @@
     .grid {
         grid-template-columns: 1fr;
     }
+    .title {
+        font-size: 20px;
+    }
+    .subtitle {
+        display: none;
+    }
+    .card {
+        padding: 16px;
+    }
+    .avatar,
+    .avatarFallback {
+        width: 64px;
+        height: 64px;
+    }
 }

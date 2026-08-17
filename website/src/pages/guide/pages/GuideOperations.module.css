@@ -4,7 +4,7 @@
 .page {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 16px;
 }
 
 /* Header */
@@ -605,13 +605,19 @@
 @media (max-width: 640px) {
     .pageHeader {
         flex-direction: column;
-        gap: 16px;
+        gap: 10px;
+        align-items: stretch;
+    }
+    .pageSubtitle {
+        display: none;
     }
     .headerActions {
         width: 100%;
+        flex-wrap: wrap;
     }
     .btnOutline, .btnPrimary {
         flex: 1;
         justify-content: center;
+        min-height: 40px;
     }
 }
