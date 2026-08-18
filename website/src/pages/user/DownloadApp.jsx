@@ -26,7 +26,7 @@ const DownloadApp = () => {
                         2. Nếu máy hỏi nguồn không xác định / cài từ trình duyệt — cho phép một lần cho Chrome hoặc Files.
                     </p>
                     <p className={styles.body}>
-                        3. Bản này là file cài trực tiếp, chưa lên CH Play.
+                        3. Bản hiện tại: 1.0.1 — cài trực tiếp. CH Play đang thử nghiệm kín, search công khai chưa ra.
                     </p>
                 </section>
             </div>
