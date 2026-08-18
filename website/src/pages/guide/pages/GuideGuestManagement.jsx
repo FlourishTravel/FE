@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import styles from './GuideGuestManagement.module.css';
 import CheckinHistoryPanel from '../../../components/CheckinHistoryPanel';
 import GuideBookingQrScanner from '../../../components/GuideBookingQrScanner';
+import GuideGuestLiveMap from '../../../components/GuideGuestLiveMap';
 import {
     checkinSessionMember,
     getGuideSessionGuests,
@@ -832,21 +833,7 @@ const GuideGuestManagement = () => {
                 </div>
 
                 <div className={styles.rightColumn}>
-                    <div className={styles.locatorCard}>
-                        <div className={styles.locatorHeader}>
-                            <div className={styles.locatorTitle}>
-                                <span className="material-icons-round" style={{ fontSize: '18px' }}>my_location</span>
-                                Guest Locator
-                            </div>
-                        </div>
-                        <div className={styles.mapPlaceholder}>
-                            <div className={styles.mapContent}>
-                                <span className="material-icons-round" style={{ fontSize: '48px', color: '#d1d5db' }}>map</span>
-                                <p>Bản đồ vị trí đoàn</p>
-                                <p className={styles.mapHint}>Theo dõi realtime sẽ được bổ sung sau.</p>
-                            </div>
-                        </div>
-                    </div>
+                    <GuideGuestLiveMap sessionId={sessionId} styles={styles} />
 
                     <div className={styles.internalCard}>
                         <h3 className={styles.internalTitle}>Thông tin chuyến & đón khách</h3>

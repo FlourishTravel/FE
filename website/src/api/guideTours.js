@@ -67,6 +67,16 @@ export async function getGuideSessionGuests(sessionId) {
   return json?.data || null;
 }
 
+/** Vị trí đoàn — BE chỉ trả tọa độ khi session đang diễn ra. */
+export async function getGuideSessionLiveMap(sessionId) {
+  const res = await fetch(`${API_BASE}/guide/sessions/${sessionId}/live-map`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+  });
+  const json = await parseJson(res);
+  return json?.data || null;
+}
+
 export async function checkinSessionMember({ sessionId, userId, checkInType = 'gathering' }) {
   const res = await fetch(`${API_BASE}/guide/checkins`, {
     method: 'POST',

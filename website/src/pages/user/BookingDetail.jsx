@@ -17,6 +17,7 @@ import FloraCompanion from '../../components/FloraCompanion';
 import FloraPostTourFeedback from '../../components/FloraPostTourFeedback';
 import BookingQr from '../../components/BookingQr';
 import { isBookingRef } from '../../utils/bookingRef';
+import { useTripLocationShare } from '../../hooks/useTripLocationShare';
 
 function formatInstantVi(iso) {
     if (!iso) return '—';
@@ -213,6 +214,13 @@ const BookingDetail = () => {
         });
     };
 
+    const tripShare = useTripLocationShare({
+        bookingId: detail?.bookingId,
+        sessionStartDate: detail?.sessionStartDate,
+        sessionEndDate: detail?.sessionEndDate,
+        bookingStatus: detail?.bookingStatus,
+    });
+
     if (loading) {
         return (
             <div className={styles.page}>
@@ -265,6 +273,20 @@ const BookingDetail = () => {
                 {actionMsg ? (
                     <div className={styles.section} style={{ marginTop: 0, marginBottom: 16 }}>
                         <p className={styles.value} style={{ margin: 0 }}>{actionMsg}</p>
+                    </div>
+                ) : null}
+
+                {tripShare.live ? (
+                    <div className={styles.shareBanner}>
+                        {tripShare.status === 'denied' && (
+                            <p>Cần cho phép vị trí trên trình duyệt để HDV thấy bạn trên bản đồ trong chuyến đi.</p>
+                        )}
+                        {tripShare.status === 'error' && (
+                            <p>Chưa gửi được vị trí. Thử tải lại trang hoặc bật GPS.</p>
+                        )}
+                        {(tripShare.status === 'sharing' || tripShare.status === 'pending' || tripShare.status === 'idle') && (
+                            <p>Đang chia sẻ vị trí với HDV trong chuyến đi. Tắt khi chuyến kết thúc.</p>
+                        )}
                     </div>
                 ) : null}
 

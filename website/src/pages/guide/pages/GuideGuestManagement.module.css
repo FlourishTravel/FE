@@ -701,6 +701,11 @@
     animation: pulse 2s infinite;
 }
 
+.onlineOff {
+    background: #d1d5db;
+    animation: none;
+}
+
 @keyframes pulse {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.5; }
@@ -723,6 +728,40 @@
     color: #9ca3af;
     font-size: 13px;
     font-family: 'Inter', sans-serif;
+}
+
+.mapCanvas {
+    height: 280px;
+    width: 100%;
+    background: #ecfdf5;
+}
+
+.markerList {
+    list-style: none;
+    margin: 12px 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+}
+
+.markerList li {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    color: #6b7280;
+}
+
+.markerList a {
+    color: #047857;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.markerList a:hover {
+    text-decoration: underline;
 }
 
 .mapHint {
