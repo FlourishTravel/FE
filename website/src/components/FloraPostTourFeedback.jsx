@@ -27,7 +27,7 @@ function StarRow({ value, onChange, disabled }) {
   );
 }
 
-function ChipSection({ title, tags, selected, onToggle, disabled }) {
+function ChipSection({ title, tags, selected, onToggle, disabled, likedHint, improveHint }) {
   const liked = tags.filter((t) => t.category === 'LIKED');
   const improve = tags.filter((t) => t.category === 'IMPROVE');
   const renderGroup = (list) => (
@@ -51,16 +51,16 @@ function ChipSection({ title, tags, selected, onToggle, disabled }) {
   if (!tags.length) return null;
   return (
     <div className={styles.chipSection}>
-      <h4 className={styles.subTitle}>{title}</h4>
+      {title ? <h4 className={styles.subTitle}>{title}</h4> : null}
       {liked.length > 0 && (
         <>
-          <p className={styles.hint}>Bạn thích điều gì nhất trong chuyến đi này?</p>
+          <p className={styles.hint}>{likedHint || 'Bạn thích điều gì nhất trong chuyến đi này?'}</p>
           {renderGroup(liked)}
         </>
       )}
       {improve.length > 0 && (
         <>
-          <p className={styles.hint}>Điều gì Flora có thể cải thiện cho lần sau?</p>
+          <p className={styles.hint}>{improveHint || 'Điều gì Flora có thể cải thiện cho lần sau?'}</p>
           {renderGroup(improve)}
         </>
       )}
@@ -73,8 +73,10 @@ export default function FloraPostTourFeedback({ bookingId }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [rating, setRating] = useState(5);
+  const [guideRating, setGuideRating] = useState(5);
   const [comment, setComment] = useState('');
   const [selectedTags, setSelectedTags] = useState([]);
+  const [selectedGuideTags, setSelectedGuideTags] = useState([]);
   const [preview, setPreview] = useState(null);
   const [previewLoading, setPreviewLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -127,12 +129,23 @@ export default function FloraPostTourFeedback({ bookingId }) {
     setSelectedTags((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   };
 
+  const toggleGuideTag = (id) => {
+    setSelectedGuideTags((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  };
+
   const submitReview = async () => {
     setSubmitting(true);
     setActionError(null);
     try {
       const tags = ctx?.personalizationEnabled ? selectedTags : [];
-      await createReview({ bookingId, rating, comment: comment.trim() || null, feedbackTags: tags });
+      await createReview({
+        bookingId,
+        rating,
+        comment: comment.trim() || null,
+        feedbackTags: tags,
+        guideRating: ctx?.guideAssigned ? guideRating : null,
+        guideFeedbackTags: ctx?.guideAssigned ? selectedGuideTags : [],
+      });
       setReviewSubmitted(true);
       setDone(true);
       await load();
@@ -175,6 +188,12 @@ export default function FloraPostTourFeedback({ bookingId }) {
         {ctx.existingFeedback.comment ? (
           <p className={styles.muted}>{ctx.existingFeedback.comment}</p>
         ) : null}
+        {ctx.guideAssigned && ctx.existingFeedback.guideRating != null ? (
+          <>
+            <p className={styles.subTitle}>HDV {ctx.guideName || ''}</p>
+            <StarRow value={ctx.existingFeedback.guideRating} onChange={() => {}} disabled />
+          </>
+        ) : null}
       </div>
     );
   }
@@ -209,6 +228,24 @@ export default function FloraPostTourFeedback({ bookingId }) {
       </p>
 
       <StarRow value={rating} onChange={setRating} disabled={submitting} />
+
+      {ctx.guideAssigned ? (
+        <>
+          <hr className={styles.divider} />
+          <h4 className={styles.subTitle}>Đánh giá HDV {ctx.guideName || 'của đoàn'}</h4>
+          <p className={styles.hint}>Chấm HDV đã dẫn tour này — tách với điểm cả chuyến.</p>
+          <StarRow value={guideRating} onChange={setGuideRating} disabled={submitting} />
+          <ChipSection
+            title=""
+            tags={ctx.availableGuideTags || []}
+            selected={selectedGuideTags}
+            onToggle={toggleGuideTag}
+            disabled={submitting}
+            likedHint="HDV này làm tốt điều gì?"
+            improveHint="HDV có thể cải thiện gì?"
+          />
+        </>
+      ) : null}
 
       <label className={styles.label}>
         Nhận xét (tuỳ chọn)

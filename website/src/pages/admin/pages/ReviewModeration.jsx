@@ -50,7 +50,7 @@ const ReviewModeration = () => {
     const q = searchQuery.trim().toLowerCase();
     if (!q) return rows;
     return rows.filter((row) => {
-      const hay = `${row.authorName || ''} ${row.tourTitle || ''} ${row.content || ''}`.toLowerCase();
+      const hay = `${row.authorName || ''} ${row.tourTitle || ''} ${row.content || ''} ${row.guideName || ''}`.toLowerCase();
       return hay.includes(q);
     });
   }, [items, searchQuery, statusFilter]);
@@ -96,6 +96,11 @@ const ReviewModeration = () => {
       key: 'rating',
       label: 'Điểm',
       render: (v) => `${v || 0}/5`,
+    },
+    {
+      key: 'guideRating',
+      label: 'HDV',
+      render: (v, row) => (v ? `${row.guideName || 'HDV'}: ${v}/5` : '—'),
     },
     {
       key: 'content',

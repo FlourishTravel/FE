@@ -27,11 +27,18 @@ export async function listPublicReviews(tourId) {
   return Array.isArray(json?.data) ? json.data : [];
 }
 
-export async function createReview({ bookingId, rating, comment, feedbackTags }) {
+export async function createReview({ bookingId, rating, comment, feedbackTags, guideRating, guideFeedbackTags }) {
   const res = await authorizedFetch(`${API_BASE}/reviews`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ bookingId, rating, comment, feedbackTags }),
+    body: JSON.stringify({
+      bookingId,
+      rating,
+      comment,
+      feedbackTags,
+      guideRating,
+      guideFeedbackTags,
+    }),
   });
   const json = await parseAuthorizedJson(res);
   return json?.data || json;
