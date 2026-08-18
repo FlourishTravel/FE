@@ -15,6 +15,7 @@ import { getAccessToken } from '../../api/auth';
 import { resolveMediaUrl } from '../../api/config';
 import FloraCompanion from '../../components/FloraCompanion';
 import FloraPostTourFeedback from '../../components/FloraPostTourFeedback';
+import BookingQr from '../../components/BookingQr';
 import { isBookingRef } from '../../utils/bookingRef';
 
 function formatInstantVi(iso) {
@@ -270,6 +271,13 @@ const BookingDetail = () => {
                 <FloraCompanion bookingId={detail.bookingId} />
 
                 <FloraPostTourFeedback bookingId={detail.bookingId} />
+
+                {canOpenTourChat(detail) ? (
+                    <div className={styles.section} style={{ marginTop: 0, marginBottom: 16 }}>
+                        <h2 className={styles.sectionTitle}>Vé điện tử</h2>
+                        <BookingQr bookingCode={detail.bookingCode} bookingId={detail.bookingId} />
+                    </div>
+                ) : null}
 
                 <div className={styles.hero}>
                     <img className={styles.heroImg} src={thumb} alt={detail.tourTitle || 'Tour'} />

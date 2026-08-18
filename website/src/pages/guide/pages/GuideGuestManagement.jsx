@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import styles from './GuideGuestManagement.module.css';
 import CheckinHistoryPanel from '../../../components/CheckinHistoryPanel';
+import GuideBookingQrScanner from '../../../components/GuideBookingQrScanner';
 import {
     checkinSessionMember,
     getGuideSessionGuests,
@@ -83,6 +84,7 @@ const GuideGuestManagement = () => {
     const [activityBusyKey, setActivityBusyKey] = useState(null);
     const [activityBulkBusy, setActivityBulkBusy] = useState(null);
     const [historyBookingId, setHistoryBookingId] = useState(null);
+    const [scanOpen, setScanOpen] = useState(false);
 
     useEffect(() => {
         let mounted = true;
@@ -167,6 +169,8 @@ const GuideGuestManagement = () => {
                 b.effectiveContactPhone,
                 b.phone,
                 b.pickupAddress,
+                b.bookingCode,
+                b.bookingId,
             ]
                 .filter(Boolean)
                 .join(' ')
@@ -189,6 +193,8 @@ const GuideGuestManagement = () => {
                 b.specialRequests,
                 b.emergencyContactName,
                 b.emergencyContactPhone,
+                b.bookingCode,
+                b.bookingId,
             ]
                 .filter(Boolean)
                 .join(' ')
@@ -358,8 +364,8 @@ const GuideGuestManagement = () => {
                     <button
                         type="button"
                         className={styles.qrBtn}
-                        title="Tính năng đang phát triển"
-                        onClick={() => window.alert('Quét QR điểm danh sẽ được gắn với mã chuyến — đang phát triển.')}
+                        title="Quét QR mã đặt chỗ trên vé khách"
+                        onClick={() => setScanOpen(true)}
                     >
                         <span className="material-icons-round" style={{ fontSize: '20px' }}>qr_code_scanner</span>
                         <span className={styles.qrBtnText}>Quét QR điểm danh</span>
@@ -679,6 +685,9 @@ const GuideGuestManagement = () => {
                                                     <span className={styles.guestCountBadge}>{b.guestCount} khách</span>
                                                 )}
                                             </span>
+                                            {b.bookingCode ? (
+                                                <span className={styles.guestMeta}>Mã đặt chỗ {b.bookingCode}</span>
+                                            ) : null}
                                             <span className={styles.guestMeta}>
                                                 <span className="material-icons-round" style={{ fontSize: '14px' }}>call</span>
                                                 {b.effectiveContactPhone || b.phone || '—'}
@@ -871,6 +880,12 @@ const GuideGuestManagement = () => {
                     </div>
                 </div>
             </div>
+            <GuideBookingQrScanner
+                open={scanOpen}
+                bookings={guestData?.bookings || []}
+                onClose={() => setScanOpen(false)}
+                onCheckIn={handleCheckIn}
+            />
         </div>
     );
 };
