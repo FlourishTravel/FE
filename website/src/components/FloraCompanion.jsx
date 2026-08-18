@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { getFloraJourney, postFloraNearbyRecommendations } from '../api/flora';
+import { openFloraChat } from '../config/navConfig';
 import FloraAvatar from './FloraAvatar';
 import styles from './FloraCompanion.module.css';
 
@@ -81,7 +82,7 @@ export default function FloraCompanion({ bookingId, onChatFlora }) {
     return () => clearInterval(id);
   }, [confirmedMeeting, meeting?.time]);
 
-  const loadNearby = useCallback(async () => {
+  const loadNearby = useCallback(async (categories) => {
     if (!bookingId) return;
     setNearbyLoading(true);
     setNearbyError(null);
@@ -105,6 +106,9 @@ export default function FloraCompanion({ bookingId, onChatFlora }) {
           // Fall back to activity/destination on server when permission denied
         }
       }
+      if (Array.isArray(categories) && categories.length) {
+        body.categories = categories;
+      }
       const res = await postFloraNearbyRecommendations(bookingId, body);
       if (res.success) setNearbyData(res.data);
       else setNearbyError(res.message || 'Không tải gợi ý gần đây');
@@ -118,6 +122,26 @@ export default function FloraCompanion({ bookingId, onChatFlora }) {
   const handleNearbyClick = () => {
     setNearbyOpen(true);
     loadNearby();
+  };
+
+  const handleShoppingNearby = () => {
+    setNearbyOpen(true);
+    loadNearby(['SHOPPING']);
+  };
+
+  const handleChatFlora = () => {
+    if (onChatFlora) {
+      onChatFlora();
+      return;
+    }
+    openFloraChat({ bookingId });
+  };
+
+  const handleGiftChat = () => {
+    openFloraChat({
+      bookingId,
+      prompt: 'Mình đang đứng tại chỗ, gợi ý mua quà cho người thân theo ngân sách baht. Nhắc giờ tập trung nếu có.',
+    });
   };
 
   if (loading) return <div className={styles.wrap}>Flora đang tải lịch trình...</div>;
@@ -235,21 +259,29 @@ export default function FloraCompanion({ bookingId, onChatFlora }) {
         <button type="button" className={styles.actionBtn} onClick={handleNearbyClick} disabled={nearbyLoading}>
           {nearbyLoading ? 'Đang tải gợi ý...' : 'Gợi ý gần đây'}
         </button>
+        <button type="button" className={styles.actionBtn} onClick={handleShoppingNearby} disabled={nearbyLoading}>
+          Chỗ mua sắm gần đây
+        </button>
+        <button type="button" className={styles.actionBtn} onClick={handleGiftChat}>
+          Mua quà tại chỗ
+        </button>
         {mapLink && (
           <a className={styles.actionBtn} href={mapLink} target="_blank" rel="noopener noreferrer">
             Xem trên bản đồ
           </a>
         )}
-        {onChatFlora && (
-          <button type="button" className={styles.actionBtn} onClick={onChatFlora}>
-            Chat với Flora
-          </button>
-        )}
+        <button type="button" className={styles.actionBtn} onClick={handleChatFlora}>
+          Chat với Flora
+        </button>
       </div>
 
       {nearbyOpen && (
         <section className={styles.nearbySection} aria-label="Gợi ý gần đây">
-          <h4 className={styles.nearbyTitle}>Gợi ý gần đây</h4>
+          <h4 className={styles.nearbyTitle}>
+            {nearbyData?.recommendations?.some((item) => String(item.category || '').toUpperCase() === 'SHOPPING')
+              ? 'Chỗ mua sắm gần đây'
+              : 'Gợi ý gần đây'}
+          </h4>
           {nearbyError && <p className={styles.warning}>{nearbyError}</p>}
           {nearbyData?.journeyContext && (
             <p className={styles.line}>

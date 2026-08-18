@@ -67,6 +67,7 @@ export const FLORA_QUICK_ACTIONS = [
     { id: 'plan', label: 'Lên lịch trình', prompt: 'Giúp mình lên lịch trình 3 ngày 2 đêm' },
     { id: 'budget', label: 'Tính chi phí', prompt: 'Ước tính chi phí chuyến đi 5 ngày cho 2 người' },
     { id: 'guide', label: 'Chat với HDV', prompt: 'HDV có thể hỗ trợ gì cho chuyến đi của mình?' },
+    { id: 'gift', label: 'Mua quà tại chỗ', prompt: 'Mình đang đứng tại siêu thị/mall, gợi ý mua quà cho người thân theo ngân sách baht. Nhắc giờ tập trung nếu có.' },
     { id: 'track', label: 'Theo dõi chuyến đi', href: '/my-journey' },
 ];
 

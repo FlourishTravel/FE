@@ -49,6 +49,7 @@ import MyPoints from './pages/user/MyPoints';
 import DestinationDetail from './pages/user/DestinationDetail';
 import TicketDetail from './pages/user/TicketDetail';
 import { useAuth } from './context/AuthContext';
+import { useFloraBookingId } from './hooks/useFloraBookingId';
 
 // Admin imports
 import AdminLayout from './pages/admin/AdminLayout';
@@ -101,12 +102,13 @@ const HomePage = () => (
 
 function FloraGlobalAssistant() {
   const location = useLocation();
+  const bookingId = useFloraBookingId();
   if (location.pathname.startsWith('/admin')
     || location.pathname.startsWith('/guide')
     || location.pathname.startsWith('/chat/')) {
     return null;
   }
-  return <FloatingChatbot pageSource="flora-web" />;
+  return <FloatingChatbot pageSource="flora-web" bookingId={bookingId || undefined} />;
 }
 
 function App() {

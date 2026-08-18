@@ -117,6 +117,9 @@
 
 .tourCardActionBtn {
     @apply px-2.5 py-1 rounded-lg text-xs font-medium bg-gray-100 text-gray-700 hover:bg-primary-100 hover:text-primary-700 border-0 cursor-pointer transition-colors;
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
 }
 
 .tourCard img {

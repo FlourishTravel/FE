@@ -1,15 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { X, Send } from 'lucide-react';
 import { sendChatbotMessage } from '../api/chatbot';
+import { postFloraNearbyRecommendations } from '../api/flora';
 import { useAuth } from '../context/AuthContext';
 import { FLORA_OPEN_EVENT, FLORA_QUICK_ACTIONS } from '../config/navConfig';
+import { bookingIdFromPath } from '../hooks/useFloraBookingId';
 import FloraAvatar from './FloraAvatar';
 import styles from './FloatingChatbot.module.css';
 
 const WELCOME_MSG = {
   role: 'bot',
-  text: 'Hi, mình là Flora. Hỏi lịch, mưa gió, chỗ ăn hay chính sách tour đều được nha. Thử "Tour biển 3 ngày", "Chính sách hủy tour?" hoặc "5 ngày Đà Nẵng + Hội An".',
+  text: 'Hi, mình là Flora. Hỏi lịch, mưa gió, chỗ ăn, mua quà tại chỗ hay chính sách tour đều được nha. Thử "Đang ở Big C, mua quà cho mẹ 500 baht".',
 };
 
 function formatPrice(n) {
@@ -20,8 +22,10 @@ function formatPrice(n) {
 const FloatingChatbot = ({ bookingId: bookingIdProp, pageSource = 'flora' }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { bookingId: routeBookingId } = useParams();
-  const bookingId = bookingIdProp || routeBookingId || undefined;
+  const { pathname } = useLocation();
+  const bookingId = bookingIdProp || bookingIdFromPath(pathname) || undefined;
+  const bookingIdRef = useRef(bookingId);
+  bookingIdRef.current = bookingId;
   const [menuOpen, setMenuOpen] = useState(false);
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([WELCOME_MSG]);
@@ -53,6 +57,7 @@ const FloatingChatbot = ({ bookingId: bookingIdProp, pageSource = 'flora' }) => 
   useEffect(() => {
     const onOpenFlora = (e) => {
       const prompt = e.detail?.prompt;
+      if (e.detail?.bookingId) bookingIdRef.current = e.detail.bookingId;
       setMenuOpen(false);
       setOpen(true);
       if (prompt) {
@@ -78,7 +83,7 @@ const FloatingChatbot = ({ bookingId: bookingIdProp, pageSource = 'flora' }) => 
         sessionId: sessionIdRef.current,
         userId: user?.id || undefined,
         state: lastState || undefined,
-        bookingId,
+        bookingId: bookingIdRef.current,
         locale: 'vi',
         source: pageSource,
         latitude: gpsRef.current.latitude ?? undefined,
@@ -115,6 +120,72 @@ const FloatingChatbot = ({ bookingId: bookingIdProp, pageSource = 'flora' }) => 
       setMessages(prev => [...prev, {
         role: 'bot',
         text: 'Mình đang gặp sự cố kỹ thuật. Bạn thử lại sau hoặc liên hệ hotline nhé.',
+      }]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSuggestedAction = async (action) => {
+    if (action?.type === 'OPEN_MAP' && action.payload) {
+      window.open(
+        `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(action.payload)}`,
+        '_blank',
+        'noopener,noreferrer'
+      );
+      return;
+    }
+    if (action?.type !== 'OPEN_NEARBY_RECOMMENDATIONS') return;
+    const id = action.payload || bookingIdRef.current;
+    if (!id) {
+      navigate('/my-journey');
+      return;
+    }
+    const shopping = /mua sắm|shopping/i.test(action.label || '');
+    setLoading(true);
+    setError(null);
+    try {
+      let body = {};
+      if (gpsRef.current.latitude != null && gpsRef.current.longitude != null) {
+        body = {
+          latitude: gpsRef.current.latitude,
+          longitude: gpsRef.current.longitude,
+          locationConsent: true,
+        };
+      } else if (typeof navigator !== 'undefined' && navigator.geolocation) {
+        try {
+          const position = await new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, {
+              enableHighAccuracy: false,
+              timeout: 8000,
+              maximumAge: 60000,
+            });
+          });
+          body = {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            locationConsent: true,
+          };
+          gpsRef.current = { latitude: body.latitude, longitude: body.longitude };
+        } catch {
+          body = {};
+        }
+      }
+      if (shopping) body.categories = ['SHOPPING'];
+      const res = await postFloraNearbyRecommendations(id, body);
+      const recs = Array.isArray(res.data?.recommendations) ? res.data.recommendations : [];
+      const warning = Array.isArray(res.data?.warnings) ? res.data.warnings[0] : null;
+      setMessages((prev) => [...prev, {
+        role: 'bot',
+        text: recs.length
+          ? (shopping ? 'Chỗ mua sắm gần bạn:' : 'Gợi ý gần bạn:')
+          : (warning || 'Chưa có gợi ý trong khu vực này.'),
+        nearby: recs.length ? recs : undefined,
+      }]);
+    } catch (err) {
+      setMessages((prev) => [...prev, {
+        role: 'bot',
+        text: err.message || 'Không tải được gợi ý gần đây.',
       }]);
     } finally {
       setLoading(false);
@@ -256,6 +327,36 @@ const FloatingChatbot = ({ bookingId: bookingIdProp, pageSource = 'flora' }) => 
                       ))}
                     </div>
                   )}
+                  {m.nearby && m.nearby.length > 0 && (
+                    <div className={styles.tourCards}>
+                      {m.nearby.map((item) => (
+                        <div key={item.id} className={styles.tourCardWrap}>
+                          <div className={styles.tourCard}>
+                            <div className={styles.tourCardInfo}>
+                              <strong>{item.name}</strong>
+                              <span>
+                                {item.category}
+                                {item.straightLineDistanceMeters != null ? ` · ${item.straightLineDistanceMeters}m` : ''}
+                                {item.fitsSchedule ? ' · còn kịp giờ tập trung' : ''}
+                              </span>
+                            </div>
+                          </div>
+                          {item.mapAction?.latitude != null && item.mapAction?.longitude != null && (
+                            <div className={styles.tourCardActions}>
+                              <a
+                                className={styles.tourCardActionBtn}
+                                href={`https://www.google.com/maps/search/?api=1&query=${item.mapAction.latitude},${item.mapAction.longitude}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                Mở bản đồ
+                              </a>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                   {m.suggestedActions && m.suggestedActions.length > 0 && (
                     <div className={styles.quickReplies}>
                       {m.suggestedActions.map((a, ai) => (
@@ -263,11 +364,7 @@ const FloatingChatbot = ({ bookingId: bookingIdProp, pageSource = 'flora' }) => 
                           key={ai}
                           type="button"
                           className={styles.quickReplyBtn}
-                          onClick={() => {
-                            if (a.type === 'OPEN_NEARBY_RECOMMENDATIONS' && (a.payload || bookingId)) {
-                              window.location.href = `/bookings/${a.payload || bookingId}`;
-                            }
-                          }}
+                          onClick={() => handleSuggestedAction(a)}
                         >
                           {a.label || 'Xem gợi ý gần đây'}
                         </button>
@@ -293,7 +390,7 @@ const FloatingChatbot = ({ bookingId: bookingIdProp, pageSource = 'flora' }) => 
           <div className={styles.inputRow}>
             <input
               type="text"
-              placeholder="VD: Tour biển 3 ngày, Chính sách hủy tour..."
+              placeholder="VD: Đang ở Big C, mua quà cho mẹ 500 baht"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
