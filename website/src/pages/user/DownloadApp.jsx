@@ -6,7 +6,7 @@ const DownloadApp = () => {
     return (
         <div className={styles.pageContainer}>
             <div className={styles.hero}>
-                <h1 className={styles.title}>Tải app Flourish Travel</h1>
+                <h1 className={styles.title}>Tải app Flourish Tourism</h1>
                 <p className={styles.subtitle}>
                     App Android cho khách: xem tour, đặt chỗ, theo dõi chuyến đi. Mở trang này trên điện thoại rồi bấm tải.
                 </p>
