@@ -31,9 +31,24 @@ const FloatingChatbot = ({ bookingId: bookingIdProp, pageSource = 'flora' }) => 
   const messagesEndRef = useRef(null);
   const sessionIdRef = useRef('fe-' + Math.random().toString(36).slice(2, 11));
   const [lastState, setLastState] = useState(null);
+  const gpsRef = useRef({ latitude: null, longitude: null });
 
   const scrollToBottom = () => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   useEffect(() => { scrollToBottom(); }, [messages]);
+
+  useEffect(() => {
+    if (!open || typeof navigator === 'undefined' || !navigator.geolocation) return undefined;
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        gpsRef.current = {
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude,
+        };
+      },
+      () => {},
+      { enableHighAccuracy: false, timeout: 8000, maximumAge: 120000 }
+    );
+  }, [open]);
 
   useEffect(() => {
     const onOpenFlora = (e) => {
@@ -66,6 +81,8 @@ const FloatingChatbot = ({ bookingId: bookingIdProp, pageSource = 'flora' }) => 
         bookingId,
         locale: 'vi',
         source: pageSource,
+        latitude: gpsRef.current.latitude ?? undefined,
+        longitude: gpsRef.current.longitude ?? undefined,
       });
 
       if (!res.success || !res.data) {
