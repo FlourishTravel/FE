@@ -9,6 +9,12 @@ import {
 } from '../../api/bookings';
 import { getAccessToken } from '../../api/auth';
 
+function formatBookingCode(id) {
+    if (!id) return '';
+    const hex = String(id).replace(/-/g, '').slice(0, 8).toUpperCase();
+    return hex.length >= 8 ? `FT-${hex.slice(0, 8)}` : String(id);
+}
+
 /**
  * Trang redirect sau thanh toán MoMo / PayOS.
  * MoMo: resultCode, orderId, momo=1
@@ -255,7 +261,7 @@ const CheckoutPaymentResult = () => {
                 ) : null}
                 {(orderId || bookingId || payosOrderCode) && (
                     <div className="text-left text-xs text-gray-500 space-y-1 mb-6 bg-gray-50 rounded-lg p-3">
-                        {bookingId ? <div>Mã đặt chỗ: {bookingId}</div> : null}
+                        {bookingId ? <div>Mã đặt chỗ: {formatBookingCode(bookingId)}</div> : null}
                         {orderId ? <div>Mã giao dịch: {orderId}</div> : null}
                         {payosOrderCode ? <div>Mã PayOS: {payosOrderCode}</div> : null}
                         {extra ? <div>Extra: {extra}</div> : null}

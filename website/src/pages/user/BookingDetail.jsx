@@ -15,8 +15,7 @@ import { getAccessToken } from '../../api/auth';
 import { resolveMediaUrl } from '../../api/config';
 import FloraCompanion from '../../components/FloraCompanion';
 import FloraPostTourFeedback from '../../components/FloraPostTourFeedback';
-
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+import { isBookingRef } from '../../utils/bookingRef';
 
 function formatInstantVi(iso) {
     if (!iso) return '—';
@@ -125,7 +124,7 @@ const BookingDetail = () => {
     const [busy, setBusy] = useState(false);
 
     const load = useCallback(async () => {
-        if (!bookingId || !UUID_RE.test(bookingId)) {
+        if (!bookingId || !isBookingRef(bookingId)) {
             setError('Mã đặt chỗ không hợp lệ.');
             setDetail(null);
             setLoading(false);
@@ -140,6 +139,9 @@ const BookingDetail = () => {
         try {
             const d = await getMyBookingDetail(bookingId);
             setDetail(d);
+            if (d?.bookingId && String(d.bookingId) !== String(bookingId)) {
+                navigate(`/my-journey/booking/${d.bookingId}`, { replace: true });
+            }
         } catch (e) {
             if (e.status === 401) {
                 navigate(`/login?return=${encodeURIComponent(`/my-journey/booking/${bookingId}`)}`);
@@ -157,12 +159,13 @@ const BookingDetail = () => {
     }, [load]);
 
     const handleCancel = async () => {
-        if (!bookingId || busy) return;
+        const id = detail?.bookingId || bookingId;
+        if (!id || busy) return;
         if (!window.confirm('Hủy đơn này? Chỉ áp dụng khi đơn đang chờ thanh toán.')) return;
         setBusy(true);
         setActionMsg('');
         try {
-            await cancelMyBooking(bookingId);
+            await cancelMyBooking(id);
             setActionMsg('Đã hủy đơn.');
             await load();
         } catch (e) {
@@ -173,7 +176,8 @@ const BookingDetail = () => {
     };
 
     const handleRefund = async () => {
-        if (!bookingId || busy) return;
+        const id = detail?.bookingId || bookingId;
+        if (!id || busy) return;
         const reason = window.prompt('Lý do hoàn tiền (bắt buộc, tối thiểu 8 ký tự):', '');
         if (reason == null) return;
         if (!reason.trim() || reason.trim().length < 8) {
@@ -183,7 +187,7 @@ const BookingDetail = () => {
         setBusy(true);
         setActionMsg('');
         try {
-            await requestBookingRefund(bookingId, reason.trim());
+            await requestBookingRefund(id, reason.trim());
             setActionMsg('Đã gửi yêu cầu hoàn tiền. Admin sẽ xác nhận lý do rồi PayOS chi hộ về tài khoản bạn đã thanh toán.');
             await load();
         } catch (e) {
@@ -199,6 +203,7 @@ const BookingDetail = () => {
             state: {
                 booking: {
                     id: detail.bookingId,
+                    bookingCode: detail.bookingCode,
                     email: detail.customerEmail || '',
                     tourTitle: detail.tourTitle,
                     orderId: detail.paymentOrderId,
@@ -272,6 +277,9 @@ const BookingDetail = () => {
                         <div className={styles.heroTop}>
                             <div>
                                 <h1 className={styles.title}>{detail.tourTitle || 'Đặt tour'}</h1>
+                                {detail.bookingCode ? (
+                                    <p className={styles.bookingCode}>Mã đặt chỗ {detail.bookingCode}</p>
+                                ) : null}
                                 <div className={styles.meta}>
                                     <span className={styles.metaItem}>
                                         <MapPin style={{ width: 16, height: 16 }} />
@@ -337,7 +345,7 @@ const BookingDetail = () => {
                             </p>
                             <p className={styles.value} style={{ marginTop: 4 }}>
                                 Thanh toán: <strong>{paymentStatusLabel(detail.paymentStatus)}</strong>
-                                {detail.paymentOrderId ? ` · Mã: ${detail.paymentOrderId}` : ''}
+                                {detail.paymentOrderId ? ` · Mã thanh toán: ${detail.paymentOrderId}` : ''}
                             </p>
                         </div>
 

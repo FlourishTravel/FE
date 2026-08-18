@@ -57,6 +57,15 @@
     margin: 0 0 4px;
 }
 
+.bookingCode {
+    margin: 0 0 8px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: #047857;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
 .meta {
     @apply text-sm text-gray-500;
     display: flex;

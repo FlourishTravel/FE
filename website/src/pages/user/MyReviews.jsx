@@ -79,6 +79,19 @@ const MyReviews = () => {
                                 </Link>
                             )}
                         </div>
+                        {(r.bookingCode || r.bookingId) && (
+                            <div className={styles.cardMeta} style={{ marginTop: 4 }}>
+                                {r.bookingId ? (
+                                    <Link to={`/my-journey/booking/${r.bookingId}`}>
+                                        Mã đơn {r.bookingCode || r.bookingId.slice(0, 8)}
+                                    </Link>
+                                ) : r.bookingCode ? (
+                                    <Link to={`/my-journey/booking/${r.bookingCode}`}>
+                                        Mã đơn {r.bookingCode}
+                                    </Link>
+                                ) : null}
+                            </div>
+                        )}
                         <div className={styles.stars}>{renderStars(r.rating)}</div>
                         {r.comment && <p style={{ marginTop: 8, color: '#374151' }}>{r.comment}</p>}
                         <div className={styles.cardMeta} style={{ marginTop: 8 }}>

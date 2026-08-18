@@ -50,7 +50,7 @@ const ReviewModeration = () => {
     const q = searchQuery.trim().toLowerCase();
     if (!q) return rows;
     return rows.filter((row) => {
-      const hay = `${row.authorName || ''} ${row.tourTitle || ''} ${row.content || ''} ${row.guideName || ''}`.toLowerCase();
+      const hay = `${row.authorName || ''} ${row.tourTitle || ''} ${row.content || ''} ${row.guideName || ''} ${row.bookingCode || ''}`.toLowerCase();
       return hay.includes(q);
     });
   }, [items, searchQuery, statusFilter]);
@@ -89,6 +89,9 @@ const ReviewModeration = () => {
         <div>
           <div className={styles.nameTitle}>{row.authorName || row.customerName || 'Khách hàng'}</div>
           <div className={styles.subText}>Tour: {row.tourTitle || row.tourName || 'Không rõ'}</div>
+          {row.bookingCode ? (
+            <div className={styles.subText}>Mã đơn: {row.bookingCode}</div>
+          ) : null}
         </div>
       ),
     },
@@ -199,7 +202,7 @@ const ReviewModeration = () => {
             className={styles.filterInput}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Tìm theo tên khách, tour hoặc nội dung..."
+            placeholder="Tìm theo mã đơn, tên khách, tour hoặc nội dung..."
           />
         </div>
       </div>

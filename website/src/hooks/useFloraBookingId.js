@@ -5,7 +5,7 @@ import { getTripFilterPhase } from '../config/navConfig';
 import { useAuth } from '../context/AuthContext';
 
 const BOOKING_PATH =
-  /\/(?:my-journey\/booking|chat)\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i;
+  /\/(?:my-journey\/booking|chat)\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|ft-[0-9a-f]{8})/i;
 
 export function bookingIdFromPath(pathname) {
   const match = String(pathname || '').match(BOOKING_PATH);

@@ -116,6 +116,7 @@ const MyJourney = () => {
             state: {
                 booking: {
                     id: booking.bookingId,
+                    bookingCode: booking.bookingCode,
                     email: booking.customerEmail || '',
                     tourTitle: booking.tourTitle,
                     orderId: booking.paymentOrderId,
@@ -242,9 +243,14 @@ const MyJourney = () => {
                                                     </span>
                                                 ) : null}
                                             </div>
-                                            {booking.paymentOrderId ? (
+                                            {booking.bookingCode ? (
                                                 <p className={styles.bookedDate} style={{ marginTop: 4 }}>
-                                                    Mã đơn thanh toán: <strong>{booking.paymentOrderId}</strong>
+                                                    Mã đặt chỗ: <strong>{booking.bookingCode}</strong>
+                                                </p>
+                                            ) : null}
+                                            {booking.paymentOrderId && booking.paymentOrderId !== booking.bookingCode ? (
+                                                <p className={styles.bookedDate} style={{ marginTop: 4 }}>
+                                                    Mã thanh toán: <strong>{booking.paymentOrderId}</strong>
                                                 </p>
                                             ) : null}
                                         </div>

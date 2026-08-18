@@ -9,6 +9,7 @@ function mapReviewRow(row) {
     content: row.content ?? row.comment ?? '',
     authorName: row.authorName ?? row.userName ?? row.customerName,
     tourTitle: row.tourTitle ?? row.tourName,
+    bookingCode: row.bookingCode || '',
   };
 }
 

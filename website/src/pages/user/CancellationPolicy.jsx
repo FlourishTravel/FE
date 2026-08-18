@@ -8,7 +8,7 @@ const CancellationPolicy = () => {
     const bookingFromNav = location.state?.booking;
 
     const [formData, setFormData] = useState({
-        bookingCode: bookingFromNav?.id || '',
+        bookingCode: bookingFromNav?.bookingCode || bookingFromNav?.id || '',
         email: bookingFromNav?.email || '',
         reason: '',
         agreed: false,

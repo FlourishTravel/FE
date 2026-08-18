@@ -104,7 +104,7 @@ const MyWallet = () => {
                             <span><CreditCard size={14} style={{ display: 'inline' }} /> {paymentLabel(b.paymentMethod)}</span>
                             <span className={styles.amount}>{formatVnd(b.totalAmount)}</span>
                         </div>
-                        <Link to={`/my-journey/booking/${b.id}`} className={styles.linkBtn}>
+                        <Link to={`/my-journey/booking/${b.bookingId || b.id}`} className={styles.linkBtn}>
                             Xem chi tiết đặt chỗ <ArrowRight size={14} />
                         </Link>
                     </div>

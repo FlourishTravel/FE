@@ -5,10 +5,10 @@ import styles from './GroupChat.module.css';
 import { useAuth } from '../../context/AuthContext';
 import { getAccessToken } from '../../api/auth';
 import { getTourChatContext, listBookingChatMessages } from '../../api/tourChat';
+import { getMyBookingDetail } from '../../api/bookings';
 import ChatAvatar from '../../components/ChatAvatar';
 import TourChatThread from '../../components/tourChat/TourChatThread';
-
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+import { BOOKING_CODE_RE, isBookingRef } from '../../utils/bookingRef';
 
 function formatIsoDateVi(s) {
   if (!s) return '';
@@ -35,7 +35,7 @@ const GroupChat = () => {
   const [loadErr, setLoadErr] = useState('');
 
   const loadContext = useCallback(async () => {
-    if (!bookingId || !UUID_RE.test(bookingId)) {
+    if (!bookingId || !isBookingRef(bookingId)) {
       setLoadErr('Mã đặt chỗ không hợp lệ.');
       setLoading(false);
       return;
@@ -48,7 +48,15 @@ const GroupChat = () => {
     setLoadErr('');
     setLoading(true);
     try {
-      const ctx = await getTourChatContext(bookingId);
+      let id = bookingId;
+      if (BOOKING_CODE_RE.test(bookingId)) {
+        const detail = await getMyBookingDetail(bookingId);
+        id = detail?.bookingId;
+        if (!id) throw Object.assign(new Error('Không tìm thấy đặt chỗ.'), { status: 404 });
+        navigate(`/chat/${id}`, { replace: true });
+        return;
+      }
+      const ctx = await getTourChatContext(id);
       setContext(ctx);
     } catch (e) {
       if (e.status === 401) {
@@ -67,7 +75,7 @@ const GroupChat = () => {
   }, [bookingId, navigate]);
 
   const refreshMessages = useCallback(async () => {
-    if (!bookingId || !UUID_RE.test(bookingId)) return;
+    if (!bookingId || !isBookingRef(bookingId) || BOOKING_CODE_RE.test(bookingId)) return;
     if (!getAccessToken()) return;
     try {
       const list = await listBookingChatMessages(bookingId, { limit: 80 });
