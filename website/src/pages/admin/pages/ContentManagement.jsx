@@ -492,9 +492,8 @@ const ContentManagement = () => {
                     <span className={styles.formHint}>Để trống sẽ tự dùng thời điểm lưu (nếu đã đăng)</span>
                   </div>
                 </div>
-                {activeTab === 'video' && (
-                  <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>Video</label>
+                <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>Video (tuỳ chọn)</label>
                     <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
                       <button
                         type="button"
@@ -550,7 +549,6 @@ const ContentManagement = () => {
                       </div>
                     ) : null}
                   </div>
-                )}
               </div>
               <div className={styles.modalFooter}>
                 <button type="button" className={styles.cancelBtn} onClick={() => setEditing(null)}>Hủy</button>
