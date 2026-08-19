@@ -5,8 +5,7 @@ import { getSiteContentBySlug } from '../../api/content';
 import { resolveMediaUrl } from '../../api/config';
 import styles from './ContentDetail.module.css';
 
-const FALLBACK_IMAGE =
-  'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1400&q=80';
+const FALLBACK_IMAGE = null; // dùng gradient CSS thay vì ảnh fallback
 
 function youtubeId(url) {
   if (!url) return null;
@@ -98,7 +97,7 @@ const ContentDetail = () => {
   }, [slug]);
 
   const back = BACK_LINKS[item?.type] || { href: '/', label: 'Trang chủ' };
-  const imgSrc = item?.imageUrl ? (resolveMediaUrl(item.imageUrl) || FALLBACK_IMAGE) : FALLBACK_IMAGE;
+  const imgSrc = item?.imageUrl ? (resolveMediaUrl(item.imageUrl) || null) : null;
 
   if (loading) {
     return (
@@ -137,8 +136,10 @@ const ContentDetail = () => {
       </div>
 
       {/* Hero image full-width */}
-      <div className={styles.heroWrap}>
-        <img src={imgSrc} alt={item.title} className={styles.heroImage} />
+      <div className={styles.heroWrap} style={!imgSrc ? { background: 'linear-gradient(135deg, #1b4332 0%, #40916c 100%)', minHeight: 220 } : {}}>
+        {imgSrc && (
+          <img src={imgSrc} alt={item.title} className={styles.heroImage} />
+        )}
       </div>
 
       {/* 2-column layout */}

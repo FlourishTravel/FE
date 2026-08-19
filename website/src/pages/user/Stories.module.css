@@ -35,7 +35,10 @@
 }
 
 .storyImage {
-    @apply w-full h-40 object-cover;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    object-position: center;
 }
 
 .storyContent {
