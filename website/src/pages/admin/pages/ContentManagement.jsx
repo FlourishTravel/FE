@@ -409,6 +409,12 @@ const ContentManagement = () => {
               </button>
             </div>
             <form onSubmit={handleSubmit}>
+              {errorMsg && (
+                <div style={{ margin: '0 0 8px', padding: '10px 14px', borderRadius: 8, background: '#fef2f2', color: '#b91c1c', border: '1px solid #fecaca', fontSize: 13, display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <span className="material-icons-round" style={{ fontSize: 16 }}>error_outline</span>
+                  {errorMsg}
+                </div>
+              )}
               <div className={styles.modalBody}>
                 <div className={styles.formRow}>
                   <div className={styles.formGroup}>
