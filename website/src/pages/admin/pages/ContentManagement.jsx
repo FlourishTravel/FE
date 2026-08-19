@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import StatCard from '../components/StatCard';
 import DataTable from '../components/DataTable';
 import {
@@ -7,6 +7,7 @@ import {
   listAdminContents,
   updateAdminContent,
 } from '../../../api/adminContent';
+import { uploadMedia } from '../../../api/upload';
 import { templatesForType } from './contentTemplates';
 import styles from './PromotionManagement.module.css';
 
@@ -16,9 +17,14 @@ const CONTENT_TABS = [
   { key: 'career', label: 'Tuyển dụng', href: '/careers', hint: 'Hiện ở trang Tuyển dụng (/careers)' },
   { key: 'help', label: 'Trợ giúp', href: '/help', hint: 'Hiện ở trang Trợ giúp (/help)' },
   { key: 'guide', label: 'Cẩm nang', href: '/travel-guide', hint: 'Hiện ở Khám phá → Cẩm nang du lịch (/travel-guide)' },
+  { key: 'video', label: 'Video', href: '/videos', hint: 'Hiện ở trang Video (/videos)' },
 ];
 
-const EMPTY_FORM = { title: '', slug: '', summary: '', body: '', imageUrl: '', category: '', published: true };
+const EMPTY_FORM = {
+  title: '', slug: '', summary: '', body: '',
+  imageUrl: '', category: '', published: true,
+  videoUrl: '', videoMode: 'link', publishedAt: '',
+};
 
 function slugify(value) {
   return String(value || '')
@@ -48,6 +54,8 @@ const ContentManagement = () => {
   const [editing, setEditing] = useState(null);
   const [formData, setFormData] = useState(EMPTY_FORM);
   const [creatingSamples, setCreatingSamples] = useState(false);
+  const [videoUploading, setVideoUploading] = useState(false);
+  const videoFileRef = useRef(null);
 
   const activeTabMeta = CONTENT_TABS.find((t) => t.key === activeTab) || CONTENT_TABS[0];
   const sampleTemplates = templatesForType(activeTab);
@@ -99,6 +107,9 @@ const ContentManagement = () => {
       imageUrl: tpl.imageUrl || '',
       category: tpl.category || '',
       published: true,
+      videoUrl: '',
+      videoMode: 'link',
+      publishedAt: '',
     });
   };
 
@@ -152,7 +163,29 @@ const ContentManagement = () => {
       imageUrl: row.imageUrl || '',
       category: row.category || '',
       published: row.published !== false,
+      videoUrl: row.videoUrl || '',
+      videoMode: 'link',
+      publishedAt: row.publishedAt
+        ? new Date(row.publishedAt).toISOString().slice(0, 16)
+        : '',
     });
+  };
+
+  const handleVideoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setVideoUploading(true);
+    setErrorMsg('');
+    try {
+      const url = await uploadMedia(file);
+      setFormData((p) => ({ ...p, videoUrl: url }));
+      setSuccessMsg('Tải video lên thành công.');
+    } catch (err) {
+      setErrorMsg(err?.message || 'Không tải được video.');
+    } finally {
+      setVideoUploading(false);
+      if (videoFileRef.current) videoFileRef.current.value = '';
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -169,8 +202,10 @@ const ContentManagement = () => {
       summary: formData.summary.trim() || null,
       body: formData.body.trim(),
       imageUrl: formData.imageUrl.trim() || null,
+      videoUrl: formData.videoUrl.trim() || null,
       category: formData.category.trim() || null,
       published: !!formData.published,
+      publishedAt: formData.publishedAt ? new Date(formData.publishedAt).toISOString() : null,
     };
     const publicPath = `${activeTabMeta.href}`;
     const viewPath = formData.published ? `/content/${slug}` : null;
@@ -445,6 +480,77 @@ const ContentManagement = () => {
                     <option value="false">Bản nháp — chỉ admin thấy</option>
                   </select>
                 </div>
+                <div className={styles.formRow}>
+                  <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>Ngày đăng</label>
+                    <input
+                      type="datetime-local"
+                      className={styles.formInput}
+                      value={formData.publishedAt}
+                      onChange={(e) => setFormData((p) => ({ ...p, publishedAt: e.target.value }))}
+                    />
+                    <span className={styles.formHint}>Để trống sẽ tự dùng thời điểm lưu (nếu đã đăng)</span>
+                  </div>
+                </div>
+                {activeTab === 'video' && (
+                  <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>Video</label>
+                    <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+                      <button
+                        type="button"
+                        className={formData.videoMode === 'link' ? styles.submitBtn : styles.cancelBtn}
+                        style={{ fontSize: 13, padding: '4px 12px' }}
+                        onClick={() => setFormData((p) => ({ ...p, videoMode: 'link' }))}
+                      >
+                        Nhập link
+                      </button>
+                      <button
+                        type="button"
+                        className={formData.videoMode === 'upload' ? styles.submitBtn : styles.cancelBtn}
+                        style={{ fontSize: 13, padding: '4px 12px' }}
+                        onClick={() => setFormData((p) => ({ ...p, videoMode: 'upload' }))}
+                      >
+                        Tải lên S3
+                      </button>
+                    </div>
+                    {formData.videoMode === 'link' ? (
+                      <input
+                        className={styles.formInput}
+                        value={formData.videoUrl}
+                        onChange={(e) => setFormData((p) => ({ ...p, videoUrl: e.target.value }))}
+                        placeholder="https://youtube.com/... hoặc URL video trực tiếp"
+                      />
+                    ) : (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <input
+                          ref={videoFileRef}
+                          type="file"
+                          accept="video/*"
+                          className={styles.formInput}
+                          onChange={handleVideoUpload}
+                          disabled={videoUploading}
+                          style={{ flex: 1 }}
+                        />
+                        {videoUploading && (
+                          <span style={{ fontSize: 13, color: '#6b7280' }}>Đang tải lên...</span>
+                        )}
+                      </div>
+                    )}
+                    {formData.videoUrl ? (
+                      <div style={{ marginTop: 8 }}>
+                        <span className={styles.formHint}>URL: </span>
+                        <a
+                          href={formData.videoUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          style={{ fontSize: 12, wordBreak: 'break-all' }}
+                        >
+                          {formData.videoUrl}
+                        </a>
+                      </div>
+                    ) : null}
+                  </div>
+                )}
               </div>
               <div className={styles.modalFooter}>
                 <button type="button" className={styles.cancelBtn} onClick={() => setEditing(null)}>Hủy</button>
