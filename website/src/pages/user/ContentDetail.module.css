@@ -1,12 +1,13 @@
 .page {
-  min-height: 60vh;
-  padding: 2rem 1rem 4rem;
-  background: #fafafa;
+  min-height: 70vh;
+  background: #f8faf9;
 }
 
-.container {
-  max-width: 760px;
+/* ── Back link ── */
+.backBar {
+  max-width: 1100px;
   margin: 0 auto;
+  padding: 1.25rem 1.5rem 0;
 }
 
 .backLink {
@@ -17,86 +18,210 @@
   text-decoration: none;
   font-size: 14px;
   font-weight: 500;
-  margin-bottom: 1.5rem;
+  transition: gap 0.2s;
 }
 
 .backLink:hover {
+  gap: 10px;
   text-decoration: underline;
 }
 
-.muted {
-  color: #6b7280;
-}
-
-.error {
-  color: #dc2626;
-}
-
-.article {
-  background: #fff;
-  border-radius: 16px;
-  padding: 2rem;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+/* ── Hero image full-width ── */
+.heroWrap {
+  width: 100%;
+  max-height: 500px;
+  overflow: hidden;
+  margin: 1.25rem 0 0;
+  background: #e5e7eb;
 }
 
 .heroImage {
   width: 100%;
-  max-height: 360px;
+  height: 500px;
   object-fit: cover;
-  border-radius: 12px;
-  margin-bottom: 1.25rem;
+  display: block;
 }
 
+/* ── Main layout: content + sidebar ── */
+.layout {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 1.5rem 5rem;
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 2.5rem;
+  align-items: start;
+}
+
+/* ── Article ── */
+.article {
+  background: #fff;
+  border-radius: 16px;
+  padding: 2.5rem 3rem;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.05);
+  margin-top: -3rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* Meta row */
 .metaRow {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 10px;
   align-items: center;
-  margin-bottom: 0.75rem;
+  margin-bottom: 1rem;
 }
 
 .category {
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.08em;
   color: #059669;
   background: #ecfdf5;
-  padding: 4px 10px;
+  padding: 4px 12px;
   border-radius: 20px;
+  border: 1px solid #a7f3d0;
 }
 
 .date {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   font-size: 13px;
-  color: #6b7280;
+  color: #9ca3af;
 }
 
+/* Title */
 .title {
-  font-size: clamp(1.5rem, 4vw, 2rem);
-  font-weight: 700;
+  font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+  font-weight: 800;
   color: #111827;
-  line-height: 1.25;
-  margin-bottom: 0.75rem;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+  letter-spacing: -0.02em;
 }
 
+/* Summary / lead */
 .summary {
-  font-size: 1.05rem;
+  font-size: 1.1rem;
   color: #4b5563;
-  line-height: 1.6;
-  margin-bottom: 1.25rem;
-  padding-bottom: 1.25rem;
-  border-bottom: 1px solid #e5e7eb;
+  line-height: 1.7;
+  margin-bottom: 1.75rem;
+  padding-bottom: 1.75rem;
+  border-bottom: 2px solid #f3f4f6;
 }
 
+/* Body */
 .body {
-  font-size: 1rem;
-  line-height: 1.75;
+  font-size: 1.05rem;
+  line-height: 1.85;
   color: #374151;
 }
 
 .body p {
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.body p:last-child {
+  margin-bottom: 0;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  margin-top: -3rem;
+  position: relative;
+  z-index: 1;
+}
+
+.sideCard {
+  background: #fff;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.05);
+  margin-bottom: 1.25rem;
+}
+
+.sideTitle {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #9ca3af;
+  margin-bottom: 0.75rem;
+}
+
+.sideInfo {
+  font-size: 14px;
+  color: #374151;
+  line-height: 1.6;
+}
+
+.sideTag {
+  display: inline-block;
+  background: #ecfdf5;
+  color: #059669;
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 13px;
+  font-weight: 600;
+  margin: 2px 4px 2px 0;
+}
+
+.divider {
+  height: 1px;
+  background: #f3f4f6;
+  margin: 1.5rem 0;
+}
+
+/* ── States ── */
+.stateWrap {
+  max-width: 1100px;
+  margin: 2rem auto;
+  padding: 0 1.5rem;
+}
+
+.muted { color: #6b7280; font-size: 15px; }
+.error { color: #dc2626; font-size: 15px; }
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .sidebar {
+    margin-top: 1.5rem;
+  }
+
+  .article {
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: -2rem;
+  }
+
+  .heroImage {
+    height: 260px;
+  }
+}
+
+@media (max-width: 600px) {
+  .article {
+    padding: 1.25rem;
+    margin-top: -1.5rem;
+  }
+
+  .heroImage {
+    height: 200px;
+  }
+
+  .backBar {
+    padding: 1rem 1rem 0;
+  }
+
+  .layout {
+    padding: 0 1rem 3rem;
+  }
 }
