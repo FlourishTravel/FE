@@ -378,8 +378,15 @@
 
 .contentTabs {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+}
+
+.contentTabs::-webkit-scrollbar {
+  display: none;
 }
 
 .contentTab {
@@ -389,8 +396,17 @@
   border-radius: 8px;
   font-size: 12px;
   font-weight: 600;
-  padding: 6px 10px;
+  padding: 6px 14px;
   cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+
+.contentTab:hover {
+  border-color: #86efac;
+  color: #047857;
+  background: #f0fdf4;
 }
 
 .contentTabActive {
