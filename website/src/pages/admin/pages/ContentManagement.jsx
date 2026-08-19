@@ -13,7 +13,7 @@ import styles from './PromotionManagement.module.css';
 
 const CONTENT_TABS = [
   { key: 'news', label: 'Tin tức', href: '/news', hint: 'Hiện ở Khám phá → Blog du lịch (/news)' },
-  { key: 'story', label: 'Câu chuyện', href: '/stories', hint: 'Hiện ở Khám phá → Gợi ý theo mùa (/stories)' },
+  { key: 'story', label: 'Câu chuyện', href: '/stories', hint: 'Hiện ở Khám phá → Câu chuyện (/stories)' },
   { key: 'career', label: 'Tuyển dụng', href: '/careers', hint: 'Hiện ở trang Tuyển dụng (/careers)' },
   { key: 'help', label: 'Trợ giúp', href: '/help', hint: 'Hiện ở trang Trợ giúp (/help)' },
   { key: 'guide', label: 'Cẩm nang', href: '/travel-guide', hint: 'Hiện ở Khám phá → Cẩm nang du lịch (/travel-guide)' },

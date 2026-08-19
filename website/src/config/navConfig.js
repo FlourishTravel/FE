@@ -5,7 +5,7 @@ export const EXPLORE_MENU = [
     { label: 'Đội ngũ HDV', href: '/our-guides', description: 'Hướng dẫn viên Flourish Travel' },
     { label: 'Cẩm nang du lịch', href: '/travel-guide', description: 'Mẹo, checklist và kinh nghiệm' },
     { label: 'Blog du lịch', href: '/news', description: 'Tin tức và câu chuyện du lịch' },
-    { label: 'Gợi ý theo mùa', href: '/stories', description: 'Hành trình theo mùa trong năm' },
+    { label: 'Câu chuyện', href: '/stories', description: 'Câu chuyện thương hiệu & hành trình' },
     { label: 'Ưu đãi', href: '/my-vouchers', description: 'Mã giảm giá đang áp dụng' },
 ];
 

@@ -10,9 +10,9 @@ const Stories = () => {
     return (
         <div className={styles.pageContainer}>
             <div className={styles.hero}>
-                <h1 className={styles.title}>Câu chuyện từ hành trình</h1>
+                <h1 className={styles.title}>Câu chuyện & Góc nhìn</h1>
                 <p className={styles.subtitle}>
-                    Chia sẻ thật từ khách đã đi tour Flourish — trải nghiệm, cảm nhận và kỷ niệm.
+                    Câu chuyện thương hiệu, góc nhìn về du lịch và hành trình của Flourish Tourism.
                 </p>
             </div>
             <div className={styles.container}>
