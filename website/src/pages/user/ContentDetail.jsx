@@ -164,12 +164,34 @@ const ContentDetail = () => {
             <p className={styles.summary}>{item.summary}</p>
           )}
 
+          {/* Ảnh bìa hiện lại trong body */}
+          {imgSrc && (
+            <img
+              src={imgSrc}
+              alt={item.title}
+              style={{ width: '100%', borderRadius: 10, marginBottom: '1.5rem', objectFit: 'cover', maxHeight: 400 }}
+            />
+          )}
+
           {item.videoUrl && renderVideo(item.videoUrl)}
 
           <div className={styles.body}>
-            {(item.body || '').split('\n').map((para, i) =>
-              para.trim() ? <p key={i}>{para}</p> : null
-            )}
+            {(item.body || '').split('\n').map((para, i) => {
+              if (!para.trim()) return null;
+              // Render inline image tag [ảnh]url[/ảnh]
+              const imgMatch = para.match(/^\[ảnh\](.*?)\[\/ảnh\]$/);
+              if (imgMatch) {
+                return (
+                  <img
+                    key={i}
+                    src={imgMatch[1]}
+                    alt=""
+                    style={{ width: '100%', borderRadius: 10, margin: '0.75rem 0', objectFit: 'cover', maxHeight: 480 }}
+                  />
+                );
+              }
+              return <p key={i}>{para}</p>;
+            })}
           </div>
         </article>
 

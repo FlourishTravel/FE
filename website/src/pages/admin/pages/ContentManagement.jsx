@@ -515,6 +515,43 @@ const ContentManagement = () => {
                     onChange={(e) => setFormData((p) => ({ ...p, body: e.target.value }))}
                     required
                   />
+                  {/* Thêm ảnh vào trong bài */}
+                  <div style={{ marginTop: 6, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <label
+                      style={{
+                        display: 'inline-flex', alignItems: 'center', gap: 4,
+                        padding: '5px 12px', borderRadius: 8, cursor: 'pointer',
+                        background: '#f3f4f6', border: '1px solid #e5e7eb',
+                        fontSize: 12, fontWeight: 600, color: '#374151',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      <span className="material-icons-round" style={{ fontSize: 15 }}>add_photo_alternate</span>
+                      Chèn ảnh vào bài
+                      <input
+                        type="file"
+                        accept="image/*"
+                        style={{ display: 'none' }}
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          try {
+                            const url = await uploadMedia(file);
+                            setFormData((p) => ({
+                              ...p,
+                              body: (p.body ? p.body + '\n\n' : '') + `[ảnh]${url}[/ảnh]`,
+                            }));
+                            setSuccessMsg('Đã chèn ảnh vào nội dung.');
+                          } catch (err) {
+                            setErrorMsg(err?.message || 'Không tải được ảnh.');
+                          } finally {
+                            e.target.value = '';
+                          }
+                        }}
+                      />
+                    </label>
+                    <span className={styles.formHint}>Ảnh sẽ được chèn vào cuối nội dung</span>
+                  </div>
                 </div>
                 <div className={styles.formGroup}>
                   <label className={styles.formLabel}>Trạng thái</label>
