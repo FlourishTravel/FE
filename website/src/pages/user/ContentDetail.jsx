@@ -8,6 +8,38 @@ import styles from './ContentDetail.module.css';
 const FALLBACK_IMAGE =
   'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1400&q=80';
 
+function youtubeId(url) {
+  if (!url) return null;
+  const m = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
+
+function renderVideo(url) {
+  if (!url) return null;
+  const ytId = youtubeId(url);
+  if (ytId) {
+    return (
+      <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, borderRadius: 12, overflow: 'hidden', marginBottom: '1.5rem' }}>
+        <iframe
+          src={`https://www.youtube.com/embed/${ytId}`}
+          title="Video"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
+        />
+      </div>
+    );
+  }
+  // direct video file
+  return (
+    <video
+      src={url}
+      controls
+      style={{ width: '100%', borderRadius: 12, marginBottom: '1.5rem', maxHeight: 480 }}
+    />
+  );
+}
+
 function formatDate(iso) {
   if (!iso) return '';
   try {
@@ -130,6 +162,8 @@ const ContentDetail = () => {
           {item.summary && (
             <p className={styles.summary}>{item.summary}</p>
           )}
+
+          {item.videoUrl && renderVideo(item.videoUrl)}
 
           <div className={styles.body}>
             {(item.body || '').split('\n').map((para, i) =>

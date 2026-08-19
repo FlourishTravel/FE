@@ -26,6 +26,7 @@ function mapRow(row) {
     image: resolveMediaUrl(row.imageUrl) || FALLBACK_IMAGE,
     date: formatDate(row.publishedAt || row.createdAt),
     category: row.category || '',
+    videoUrl: row.videoUrl || '',
   };
 }
 
