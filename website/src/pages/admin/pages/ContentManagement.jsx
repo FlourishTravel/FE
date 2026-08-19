@@ -451,13 +451,54 @@ const ContentManagement = () => {
                     />
                   </div>
                   <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>Ảnh bìa (URL)</label>
-                    <input
-                      className={styles.formInput}
-                      value={formData.imageUrl}
-                      onChange={(e) => setFormData((p) => ({ ...p, imageUrl: e.target.value }))}
-                      placeholder="https://..."
-                    />
+                    <label className={styles.formLabel}>Ảnh bìa</label>
+                    <div style={{ display: 'flex', gap: 8, marginBottom: 6 }}>
+                      <input
+                        className={styles.formInput}
+                        value={formData.imageUrl}
+                        onChange={(e) => setFormData((p) => ({ ...p, imageUrl: e.target.value }))}
+                        placeholder="https://... (dán URL) hoặc tải ảnh lên →"
+                        style={{ flex: 1 }}
+                      />
+                      <label
+                        style={{
+                          display: 'inline-flex', alignItems: 'center', gap: 4,
+                          padding: '0 12px', borderRadius: 8, cursor: 'pointer',
+                          background: '#f3f4f6', border: '1px solid #e5e7eb',
+                          fontSize: 13, fontWeight: 600, color: '#374151',
+                          whiteSpace: 'nowrap', height: '100%',
+                        }}
+                      >
+                        <span className="material-icons-round" style={{ fontSize: 16 }}>upload</span>
+                        Tải ảnh
+                        <input
+                          type="file"
+                          accept="image/*"
+                          style={{ display: 'none' }}
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            try {
+                              const url = await uploadMedia(file);
+                              setFormData((p) => ({ ...p, imageUrl: url }));
+                              setSuccessMsg('Tải ảnh lên thành công.');
+                            } catch (err) {
+                              setErrorMsg(err?.message || 'Không tải được ảnh.');
+                            } finally {
+                              e.target.value = '';
+                            }
+                          }}
+                        />
+                      </label>
+                    </div>
+                    {formData.imageUrl ? (
+                      <img
+                        src={formData.imageUrl}
+                        alt="preview"
+                        style={{ marginTop: 6, maxHeight: 120, borderRadius: 8, objectFit: 'cover', maxWidth: '100%' }}
+                        onError={(e) => { e.target.style.display = 'none'; }}
+                      />
+                    ) : null}
                   </div>
                 </div>
                 <div className={styles.formGroup}>
