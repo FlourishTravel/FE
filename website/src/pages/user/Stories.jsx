@@ -5,7 +5,7 @@ import styles from './Stories.module.css';
 import { useSiteContent } from '../../hooks/useSiteContent';
 
 function getFakeViews(item) {
-    if (!item) return '1.850';
+    if (!item) return '35';
     if (item.views != null && item.views > 0) {
         return item.views.toLocaleString('vi-VN');
     }
@@ -14,7 +14,7 @@ function getFakeViews(item) {
     for (let i = 0; i < str.length; i++) {
         hash = (hash * 37 + str.charCodeAt(i)) % 10000;
     }
-    const views = 1420 + (Math.abs(hash) % 4200);
+    const views = 20 + (Math.abs(hash) % 31);
     return views.toLocaleString('vi-VN');
 }
 

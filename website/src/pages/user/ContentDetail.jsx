@@ -6,7 +6,7 @@ import { resolveMediaUrl } from '../../api/config';
 import styles from './ContentDetail.module.css';
 
 function getFakeViews(item) {
-  if (!item) return '2.450';
+  if (!item) return '42';
   if (item.views != null && item.views > 0) {
     return item.views.toLocaleString('vi-VN');
   }
@@ -15,7 +15,7 @@ function getFakeViews(item) {
   for (let i = 0; i < str.length; i++) {
     hash = (hash * 33 + str.charCodeAt(i)) % 10000;
   }
-  const views = 1580 + (Math.abs(hash) % 3800);
+  const views = 20 + (Math.abs(hash) % 31);
   return views.toLocaleString('vi-VN');
 }
 
