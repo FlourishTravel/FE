@@ -1,9 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, Calendar, Tag, BookOpen } from 'lucide-react';
+import { ArrowLeft, Calendar, Tag, BookOpen, Eye } from 'lucide-react';
 import { getSiteContentBySlug } from '../../api/content';
 import { resolveMediaUrl } from '../../api/config';
 import styles from './ContentDetail.module.css';
+
+function getFakeViews(item) {
+  if (!item) return '2.450';
+  if (item.views != null && item.views > 0) {
+    return item.views.toLocaleString('vi-VN');
+  }
+  const str = String(item.id || item.slug || item.title || '1');
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash * 33 + str.charCodeAt(i)) % 10000;
+  }
+  const views = 1580 + (Math.abs(hash) % 3800);
+  return views.toLocaleString('vi-VN');
+}
 
 const FALLBACK_IMAGE = null; // dùng gradient CSS thay vì ảnh fallback
 
@@ -156,6 +170,10 @@ const ContentDetail = () => {
                 {dateStr}
               </span>
             )}
+            <span className={styles.date} style={{ color: '#059669', fontWeight: 600 }}>
+              <Eye size={13} />
+              {getFakeViews(item)} lượt xem
+            </span>
           </div>
 
           <h1 className={styles.title}>{item.title}</h1>
@@ -207,6 +225,10 @@ const ContentDetail = () => {
                   <span>{dateStr}</span>
                 </div>
               )}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                <Eye size={14} color="#059669" />
+                <span style={{ color: '#059669', fontWeight: 600 }}>{getFakeViews(item)} lượt xem</span>
+              </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                 <BookOpen size={14} color="#9ca3af" />
                 <span>~{readingMins} phút đọc</span>

@@ -1,8 +1,22 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, ArrowRight } from 'lucide-react';
+import { MapPin, ArrowRight, Eye } from 'lucide-react';
 import styles from './Stories.module.css';
 import { useSiteContent } from '../../hooks/useSiteContent';
+
+function getFakeViews(item) {
+    if (!item) return '1.850';
+    if (item.views != null && item.views > 0) {
+        return item.views.toLocaleString('vi-VN');
+    }
+    const str = String(item.id || item.slug || item.title || '1');
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        hash = (hash * 37 + str.charCodeAt(i)) % 10000;
+    }
+    const views = 1420 + (Math.abs(hash) % 4200);
+    return views.toLocaleString('vi-VN');
+}
 
 const Stories = () => {
     const { items, loading } = useSiteContent('story');
@@ -26,12 +40,18 @@ const Stories = () => {
                             <Link to={item.slug ? `/content/${item.slug}` : '#'} className={styles.storyCardLink}>
                                 <img src={item.image} alt={item.title} className={styles.storyImage} />
                                 <div className={styles.storyContent}>
-                                    {item.category && (
-                                        <span className={styles.authorName} style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 6 }}>
-                                            <MapPin size={13} />
-                                            {item.category}
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: 6 }}>
+                                        {item.category ? (
+                                            <span className={styles.authorName} style={{ display: 'flex', alignItems: 'center', gap: 4, margin: 0 }}>
+                                                <MapPin size={13} />
+                                                {item.category}
+                                            </span>
+                                        ) : <span />}
+                                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#059669', fontWeight: 600 }}>
+                                            <Eye size={13} />
+                                            {getFakeViews(item)} lượt xem
                                         </span>
-                                    )}
+                                    </div>
                                     <h2 className={styles.quote} style={{ fontStyle: 'normal', fontWeight: 700, fontSize: 16, marginBottom: 8 }}>
                                         {item.title}
                                     </h2>
