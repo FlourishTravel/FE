@@ -68,6 +68,7 @@ export const FLORA_QUICK_ACTIONS = [
     { id: 'budget', label: 'Tính chi phí', prompt: 'Ước tính chi phí chuyến đi 5 ngày cho 2 người' },
     { id: 'guide', label: 'Chat với HDV', prompt: 'HDV có thể hỗ trợ gì cho chuyến đi của mình?' },
     { id: 'gift', label: 'Mua quà tại chỗ', prompt: 'Mình đang đứng tại siêu thị/mall, gợi ý mua quà cho người thân theo ngân sách baht. Nhắc giờ tập trung nếu có.' },
+    { id: 'facebook', label: 'Liên hệ Facebook', href: 'https://www.facebook.com/share/1cRzYFUex6/' },
     { id: 'track', label: 'Theo dõi chuyến đi', href: '/my-journey' },
 ];
 

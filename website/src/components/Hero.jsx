@@ -27,7 +27,7 @@ const Hero = () => {
                 <div className={styles.heroText}>
                     <h1 className={styles.title}>Flourish Tourism</h1>
                     <p className={styles.subtitle}>
-                        "Slogan"
+                        "Nếu nghĩ đến chất lượng, hãy nghĩ đến chúng tôi"
                     </p>
                 </div>
 
